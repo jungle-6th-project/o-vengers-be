@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class MemberController {
 
-    @GetMapping("/test")
+    @GetMapping("/")
     public String home() {
         return "success";
     }
@@ -21,10 +21,5 @@ public class MemberController {
     @GetMapping("/oauth/kakao")
     public void test(@RequestParam String code) {
         System.out.println("테스트 : " + code);
-    }
-
-    @GetMapping("/error")
-    public void test() {
-        log.error("에러 발생");
     }
 }
