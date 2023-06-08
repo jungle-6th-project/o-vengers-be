@@ -10,7 +10,7 @@ spring:
         host: ${{ secrets.EC2_PRIVATE_IP }}
         port: 22
         user: ec2-user
-        key-file: ${{ PEM_KEY_PATH }}
+        key-file: ${{ secrets.PEM_KEY_PATH }}
         local-port: 22
   jpa:
     hibernate:
