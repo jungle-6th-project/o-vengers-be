@@ -4,14 +4,6 @@ spring:
     url: jdbc:mysql://${{ secrets.RDS_ENDPOINT }}:3306/bbodok?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${{ secrets.RDS_USERNAME }}
     password: ${{ secrets.RDS_PASSWORD }}
-    ssh:
-      tunnel:
-        enabled: true
-        host: ${{ secrets.EC2_PRIVATE_IP }}
-        port: 22
-        user: ec2-user
-        key-file: ${{ secrets.PEM_KEY_PATH }}
-        local-port: 22
   jpa:
     hibernate:
       ddl-auto: update
