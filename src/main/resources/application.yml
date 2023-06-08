@@ -1,3 +1,6 @@
-logging:
-  file:
-    path: /var/log/application.log
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${{ secrets.RDS_ENDPOINT }}:3306/bbodok?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${{ secrets.RDS_USERNAME }}
+    password: ${{ secrets.RDS_PASSWORD }}
