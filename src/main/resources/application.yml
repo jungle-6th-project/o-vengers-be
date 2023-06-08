@@ -4,3 +4,15 @@ spring:
     url: jdbc:mysql://${{ secrets.RDS_ENDPOINT }}:3306/bbodok?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${{ secrets.RDS_USERNAME }}
     password: ${{ secrets.RDS_PASSWORD }}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        hbm2ddl:
+          jdbc_metadata_extraction_strategy: individually
+        format_sql: true
+        show_sql: false
+        order_inserts: true
+        order_updates: true
