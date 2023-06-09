@@ -18,6 +18,16 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
+
+    - name: Set yml file
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ${{ env.RESOURCE_PATH }}
+      env:
+        spring.datasource.url: ${{ secrets.RDS_ENDPOINT }}
+        spring.datasource.username: ${{ secrets.RDS_USERNAME }}
+        spring.datasource.password: ${{ secrets.RDS_PASSWORD }}
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
