@@ -24,7 +24,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final TokenGenerator tokenGenerator;
     private final String client_id = "0ec08fbf91f26056fcb7941c6f915a05";
-    private final String redirect_uri = "http://localhost:8080/kakao";
+    private final String redirect_uri = "http://localhost:8080/api/v1/members/kakao";
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
     public Token publishToken(String authCode) {
