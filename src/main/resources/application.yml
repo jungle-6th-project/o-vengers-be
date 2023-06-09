@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://o-vengers-rds.cjowoq3qlwt4.ap-northeast-2.rds.amazonaws.com:3306/bbodok?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ${ secrets.RDS_USERNAME }
-    password: ${ secrets.RDS_PASSWORD }
+    username: ${{ secrets.RDS_USERNAME }}
+    password: ${{ secrets.RDS_PASSWORD }}
   jpa:
     hibernate:
       ddl-auto: update
