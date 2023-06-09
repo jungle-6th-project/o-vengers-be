@@ -22,24 +22,15 @@ jobs:
         distribution: 'temurin'
 
     - name: Set yml file
-      uses: microsoft/variable-substitution@v1
-      with:
-        files: ${{ env.RESOURCE_PATH }}
-      env:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        spring.datasource.url: ${{ secrets.RDS_ENDPOINT }}
-        spring.datasource.username: ${{ secrets.RDS_USERNAME }}
-        spring.datasource.password: ${{ secrets.RDS_PASSWORD }}
+      run: |
+        mkdir -p src/main/resources
+        echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
+        find src
 
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
         arguments: build
-      env:
-        DRIVER_CLASS_NAME: ${{ env.driver-class-name }}
-        SPRING_DATASOURCE_URL: ${{ env.spring.datasource.url }}
-        SPRING_DATASOURCE_USERNAME: ${{ env.spring.datasource.username }}
-        SPRING_DATASOURCE_PASSWORD: ${{ env.spring.datasource.password }}
     - name: Make zip file
       run: zip -r ./$GITHUB_SHA.zip .
       shell: bash
