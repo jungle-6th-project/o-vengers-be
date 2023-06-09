@@ -3,6 +3,8 @@ name: Java CI with Gradle
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - '**/application*.yml'
   pull_request:
     branches: [ "main" ]
 
