@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+env:
+  RESOURCE_PATH: /Users/chaesang-yeob/Desktop/o-vengers/src/main/resources/application.yml
 jobs:
   build:
     runs-on: ubuntu-latest
