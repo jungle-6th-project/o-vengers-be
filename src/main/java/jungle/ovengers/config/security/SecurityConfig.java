@@ -25,7 +25,6 @@ public class SecurityConfig {
     private final DelegatedAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
-    @Profile(value = {"default", "local"})
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.formLogin().disable();
