@@ -19,6 +19,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Collections;
+
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
@@ -29,7 +31,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf();
+        http.csrf().disable();
         http.formLogin().disable();
         http.httpBasic().disable();
         http.cors();
@@ -63,7 +65,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*"); // 모든 도메인에 대해 접근을 허용합니다.
+        configuration.setAllowedOrigins(Collections.singletonList("*"));
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
 
