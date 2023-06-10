@@ -10,6 +10,7 @@ import jungle.ovengers.model.response.Token;
 import jungle.ovengers.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final TokenGenerator tokenGenerator;
     private final String client_id = "0ec08fbf91f26056fcb7941c6f915a05";
-    private final String redirect_uri = "http://localhost:8080/api/v1/members/kakao";
+    @Value("${kakao.redirect-uri}")
+    private String redirect_uri;
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
     public Token publishToken(String authCode) {
