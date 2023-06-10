@@ -1,5 +1,6 @@
 package jungle.ovengers.service;
 
+import jungle.ovengers.model.request.AuthRequest;
 import jungle.ovengers.support.TokenGenerator;
 import jungle.ovengers.support.converter.MemberConverter;
 import jungle.ovengers.dto.MemberDto;
@@ -29,8 +30,8 @@ public class MemberService {
     private String redirect_uri;
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
-    public Token publishToken(String authCode) {
-        KakaoTokenResponse kakaoTokenResponse = getKakaoTokenResponse(authCode);
+    public Token publishToken(AuthRequest authRequest) {
+        KakaoTokenResponse kakaoTokenResponse = getKakaoTokenResponse(authRequest.getAuthCode());
         KakaoUserInfoResponse kakaoUserInfoResponse = getKakaoUserInfoResponse(kakaoTokenResponse);
 
         MemberDto memberDto = new MemberDto(kakaoUserInfoResponse.getKakaoAccount()

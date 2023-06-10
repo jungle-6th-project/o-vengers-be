@@ -1,5 +1,7 @@
 package jungle.ovengers.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import jungle.ovengers.model.request.AuthRequest;
 import jungle.ovengers.model.response.Token;
 import jungle.ovengers.service.MemberService;
 import jungle.ovengers.support.ApiResponse;
@@ -17,14 +19,9 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/kakao")
-    public String kakaoCallback(@RequestParam String code) {
-        System.out.println(code);
-        return code;
-    }
 
     @PostMapping("/tokens")
-    public ApiResponse<ApiResponse.SuccessBody<Token>> publishToken(@RequestParam String authCode) {
-        return ApiResponseGenerator.success(memberService.publishToken(authCode), HttpStatus.OK);
+    public ApiResponse<ApiResponse.SuccessBody<Token>> publishToken(@RequestBody AuthRequest authRequest) {
+        return ApiResponseGenerator.success(memberService.publishToken(authRequest), HttpStatus.OK);
     }
 }
