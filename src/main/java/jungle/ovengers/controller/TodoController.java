@@ -37,7 +37,7 @@ public class TodoController {
         return ApiResponseGenerator.success(new TodoResponse(1L,2L,"group", "content"), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
     }
 
-    @ApiOperation(value = "그룹 Todo 수정")
+    @ApiOperation(value = "그룹 Todo 수정 (내용 수정 or 완료 체크)")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @PutMapping("/{groupId}/{todoId}")
     public ApiResponse<ApiResponse.SuccessBody<TodoResponse>> edit(@PathVariable Long groupId, @PathVariable Long todoId, @RequestBody TodoRequest request) {
