@@ -35,7 +35,14 @@ public class MemberService {
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
 
-    public MemberResponse getUserInfo(Long groupId) {
+    public MemberResponse getUserInfo() {
+        Long memberId = AuditorHolder.get();
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+                                                    .orElseThrow(NoSuchElementException::new);
+        MemberDto memberDto = MemberConverter.from(memberEntity);
+        return new MemberResponse(memberDto.getName(), memberDto.getProfile(), memberDto.getEmail(), null);
+    }
+    public MemberResponse getUserInfoByGroup(Long groupId) {
         Long memberId = AuditorHolder.get();
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(NoSuchElementException::new);

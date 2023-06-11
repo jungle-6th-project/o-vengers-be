@@ -42,8 +42,17 @@ public class MemberController {
             @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
     })
     @GetMapping("/{groupId}")
-        public ApiResponse<ApiResponse.SuccessBody<MemberResponse>> read(@PathVariable Long groupId) {
-        return ApiResponseGenerator.success(memberService.getUserInfo(groupId), HttpStatus.OK, MessageCode.SUCCESS);
+    public ApiResponse<ApiResponse.SuccessBody<MemberResponse>> read() {
+        return ApiResponseGenerator.success(memberService.getUserInfo(), HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
+    @ApiOperation(value = "사용자가 속해 있는 그룹에서의 정보 조회 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
+    })
+    @GetMapping("/{groupId}")
+    public ApiResponse<ApiResponse.SuccessBody<MemberResponse>> readInGroup(@PathVariable Long groupId) {
+        return ApiResponseGenerator.success(memberService.getUserInfoByGroup(groupId), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
     @ApiOperation(value = "학습 날짜, 시간 조회 - 마이페이지 잔디")
