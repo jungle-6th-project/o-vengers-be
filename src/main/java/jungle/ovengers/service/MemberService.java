@@ -1,9 +1,10 @@
 package jungle.ovengers.service;
 
+import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.model.request.AuthRequest;
 import jungle.ovengers.support.TokenGenerator;
 import jungle.ovengers.support.converter.MemberConverter;
-import jungle.ovengers.dto.MemberDto;
+import jungle.ovengers.model.response.MemberResponse;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.model.oauth.KakaoTokenResponse;
 import jungle.ovengers.model.oauth.KakaoUserInfoResponse;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.NoSuchElementException;
+
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
@@ -30,17 +33,25 @@ public class MemberService {
     private String redirect_uri;
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
+
+    public MemberResponse getUserInfo() {
+        Long memberId = AuditorHolder.get();
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+                                                    .orElseThrow(NoSuchElementException::new);
+        return MemberConverter.from(memberEntity);
+    }
+
     public Token publishToken(AuthRequest authRequest) {
         KakaoTokenResponse kakaoTokenResponse = getKakaoTokenResponse(authRequest.getAuthCode());
         KakaoUserInfoResponse kakaoUserInfoResponse = getKakaoUserInfoResponse(kakaoTokenResponse);
 
-        MemberDto memberDto = new MemberDto(kakaoUserInfoResponse.getKakaoAccount()
-                                                              .getProfile()
-                                                              .getNickname(),
-                                         kakaoUserInfoResponse.getKakaoAccount()
+        MemberResponse memberResponse = new MemberResponse(kakaoUserInfoResponse.getKakaoAccount()
+                                                                                .getProfile()
+                                                                                .getNickname(),
+                                                           kakaoUserInfoResponse.getKakaoAccount()
                                                         .getProfile()
                                                         .getProfileImageUrl(),
-                                         kakaoUserInfoResponse.getKakaoAccount()
+                                                           kakaoUserInfoResponse.getKakaoAccount()
                                                         .getEmail());
 
         MemberEntity existMemberEntity = memberRepository.findByEmail(kakaoUserInfoResponse.getKakaoAccount()
@@ -49,7 +60,7 @@ public class MemberService {
             return tokenGenerator.generateToken(existMemberEntity.getId());
         }
 
-        MemberEntity memberEntity = memberRepository.save(MemberConverter.to(memberDto));
+        MemberEntity memberEntity = memberRepository.save(MemberConverter.to(memberResponse));
         return tokenGenerator.generateToken(memberEntity.getId());
     }
 
