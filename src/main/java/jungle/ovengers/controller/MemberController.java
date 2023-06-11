@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.AuthRequest;
 import jungle.ovengers.model.request.StudyHistoryRequest;
+import jungle.ovengers.model.response.MemberResponse;
 import jungle.ovengers.model.response.StudyHistoryResponse;
 import jungle.ovengers.model.response.Token;
 import jungle.ovengers.service.MemberService;
@@ -33,6 +34,13 @@ public class MemberController {
     public ApiResponse<ApiResponse.SuccessBody<Token>> publishToken(@RequestBody AuthRequest request) {
         return ApiResponseGenerator.success(memberService.publishToken(request), HttpStatus.OK);
     }
+
+    @ApiOperation(value = "사용자 정보 조회 api")
+    @GetMapping
+    public ApiResponse<ApiResponse.SuccessBody<MemberResponse>> read() {
+        return ApiResponseGenerator.success(memberService.getUserInfo(), HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
     @ApiOperation(value = "학습 날짜, 시간 조회 - 마이페이지 잔디")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
