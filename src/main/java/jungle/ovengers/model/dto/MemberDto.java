@@ -1,18 +1,14 @@
-package jungle.ovengers.model.response;
+package jungle.ovengers.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.Duration;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class MemberResponse {
+@Builder
+public class MemberDto {
     private String name;
     private String profile;
     private String email;
-    private Duration duration;
 }

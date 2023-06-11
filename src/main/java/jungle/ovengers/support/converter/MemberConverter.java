@@ -1,25 +1,25 @@
 package jungle.ovengers.support.converter;
 
 
-import jungle.ovengers.model.response.MemberResponse;
+import jungle.ovengers.model.dto.MemberDto;
 import jungle.ovengers.entity.MemberEntity;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public final class MemberConverter {
-    public static MemberEntity to(MemberResponse memberResponse) {
+    public static MemberEntity to(MemberDto memberDto) {
         return MemberEntity.builder()
-                           .name(memberResponse.getName())
-                           .profile(memberResponse.getProfile())
-                           .email(memberResponse.getEmail())
+                           .name(memberDto.getName())
+                           .profile(memberDto.getProfile())
+                           .email(memberDto.getEmail())
                            .build();
     }
 
-    public static MemberResponse from(MemberEntity memberEntity) {
-        return MemberResponse.builder()
-                             .name(memberEntity.getName())
-                             .profile(memberEntity.getProfile())
-                             .email(memberEntity.getEmail())
-                             .build();
+    public static MemberDto from(MemberEntity memberEntity) {
+        return MemberDto.builder()
+                        .name(memberEntity.getName())
+                        .profile(memberEntity.getProfile())
+                        .email(memberEntity.getEmail())
+                        .build();
     }
 }

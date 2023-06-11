@@ -2,9 +2,10 @@ package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.model.request.AuthRequest;
+import jungle.ovengers.model.response.MemberResponse;
 import jungle.ovengers.support.TokenGenerator;
 import jungle.ovengers.support.converter.MemberConverter;
-import jungle.ovengers.model.response.MemberResponse;
+import jungle.ovengers.model.dto.MemberDto;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.model.oauth.KakaoTokenResponse;
 import jungle.ovengers.model.oauth.KakaoUserInfoResponse;
@@ -34,24 +35,28 @@ public class MemberService {
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
 
-    public MemberResponse getUserInfo() {
+    public MemberResponse getUserInfo(Long groupId) {
         Long memberId = AuditorHolder.get();
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(NoSuchElementException::new);
-        return MemberConverter.from(memberEntity);
+        MemberDto memberDto = MemberConverter.from(memberEntity);
+        /*
+            Todo : 어떤 그룹에서 몇 시간 누적 공부했는지 조회해서 내려주어야함.
+         */
+        return new MemberResponse(memberDto.getName(), memberDto.getProfile(), memberDto.getEmail(), null);
     }
 
     public Token publishToken(AuthRequest authRequest) {
         KakaoTokenResponse kakaoTokenResponse = getKakaoTokenResponse(authRequest.getAuthCode());
         KakaoUserInfoResponse kakaoUserInfoResponse = getKakaoUserInfoResponse(kakaoTokenResponse);
 
-        MemberResponse memberResponse = new MemberResponse(kakaoUserInfoResponse.getKakaoAccount()
-                                                                                .getProfile()
-                                                                                .getNickname(),
-                                                           kakaoUserInfoResponse.getKakaoAccount()
+        MemberDto memberDto = new MemberDto(kakaoUserInfoResponse.getKakaoAccount()
+                                                                 .getProfile()
+                                                                 .getNickname(),
+                                            kakaoUserInfoResponse.getKakaoAccount()
                                                         .getProfile()
                                                         .getProfileImageUrl(),
-                                                           kakaoUserInfoResponse.getKakaoAccount()
+                                            kakaoUserInfoResponse.getKakaoAccount()
                                                         .getEmail());
 
         MemberEntity existMemberEntity = memberRepository.findByEmail(kakaoUserInfoResponse.getKakaoAccount()
@@ -60,7 +65,7 @@ public class MemberService {
             return tokenGenerator.generateToken(existMemberEntity.getId());
         }
 
-        MemberEntity memberEntity = memberRepository.save(MemberConverter.to(memberResponse));
+        MemberEntity memberEntity = memberRepository.save(MemberConverter.to(memberDto));
         return tokenGenerator.generateToken(memberEntity.getId());
     }
 
