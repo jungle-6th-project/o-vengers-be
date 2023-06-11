@@ -36,6 +36,9 @@ public class MemberController {
     }
 
     @ApiOperation(value = "사용자 정보 조회 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
+    })
     @GetMapping
     public ApiResponse<ApiResponse.SuccessBody<MemberResponse>> read() {
         return ApiResponseGenerator.success(memberService.getUserInfo(), HttpStatus.OK, MessageCode.SUCCESS);
