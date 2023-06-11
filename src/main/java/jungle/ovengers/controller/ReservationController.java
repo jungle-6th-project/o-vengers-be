@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 public class ReservationController {
 
-    @ApiOperation(value = "방 예약 생성")
+    @ApiOperation(value = "방 예약 조회")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping
     public ApiResponse<ApiResponse.SuccessBody<List<ReservationResponse>>> browse() {
