@@ -18,7 +18,7 @@ public final class MemberConverter {
     public static MemberResponse from(MemberEntity memberEntity) {
         return MemberResponse.builder()
                              .name(memberEntity.getName())
-                             .profile(memberEntity.getEmail())
+                             .profile(memberEntity.getProfile())
                              .email(memberEntity.getEmail())
                              .build();
     }
