@@ -4,6 +4,8 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,4 +27,7 @@ public class MemberEntity {
 
     @Column
     private String email;
+
+    @OneToMany(mappedBy = "memberEntity", fetch = FetchType.LAZY)
+    private List<TodoEntity> todos = new ArrayList<>();
 }
