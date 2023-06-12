@@ -22,7 +22,9 @@ public class TokenResolver {
     @Value("${security.jwt.token.secretkey}")
     private String secretKey;
 
-    /** 토큰에서 memberId 조회 */
+    /**
+     * 토큰에서 memberId 조회
+     */
     public Optional<Long> resolveToken(String token) {
         try {
             return Optional.ofNullable(

@@ -1,16 +1,16 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
-import jungle.ovengers.model.request.AuthRequest;
-import jungle.ovengers.model.response.MemberResponse;
-import jungle.ovengers.support.TokenGenerator;
-import jungle.ovengers.support.converter.MemberConverter;
-import jungle.ovengers.model.dto.MemberDto;
 import jungle.ovengers.entity.MemberEntity;
+import jungle.ovengers.model.dto.MemberDto;
 import jungle.ovengers.model.oauth.KakaoTokenResponse;
 import jungle.ovengers.model.oauth.KakaoUserInfoResponse;
+import jungle.ovengers.model.request.AuthRequest;
+import jungle.ovengers.model.response.MemberResponse;
 import jungle.ovengers.model.response.Token;
 import jungle.ovengers.repository.MemberRepository;
+import jungle.ovengers.support.TokenGenerator;
+import jungle.ovengers.support.converter.MemberConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +30,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final TokenGenerator tokenGenerator;
     private final String client_id = "0ec08fbf91f26056fcb7941c6f915a05";
-    @Value("${kakao.redirect-uri}")
-    private String redirect_uri;
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
+    @Value("${kakao.redirect-uri}")
+    private String redirect_uri;
 
     public MemberResponse getUserInfo() {
         Long memberId = AuditorHolder.get();
@@ -42,6 +42,7 @@ public class MemberService {
         MemberDto memberDto = MemberConverter.from(memberEntity);
         return new MemberResponse(memberDto.getName(), memberDto.getProfile(), memberDto.getEmail(), null);
     }
+
     public MemberResponse getUserInfoByGroup(Long groupId) {
         Long memberId = AuditorHolder.get();
         MemberEntity memberEntity = memberRepository.findById(memberId)
@@ -61,13 +62,13 @@ public class MemberService {
                                                                  .getProfile()
                                                                  .getNickname(),
                                             kakaoUserInfoResponse.getKakaoAccount()
-                                                        .getProfile()
-                                                        .getProfileImageUrl(),
+                                                                 .getProfile()
+                                                                 .getProfileImageUrl(),
                                             kakaoUserInfoResponse.getKakaoAccount()
-                                                        .getEmail());
+                                                                 .getEmail());
 
         MemberEntity existMemberEntity = memberRepository.findByEmail(kakaoUserInfoResponse.getKakaoAccount()
-                                                          .getEmail());
+                                                                                           .getEmail());
         if (existMemberEntity != null) {
             return tokenGenerator.generateToken(existMemberEntity.getId());
         }
@@ -83,12 +84,12 @@ public class MemberService {
                              .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                              .build();
         KakaoUserInfoResponse kakaoUserInfoResponse = webClient.post()
-                                                    .uri(uriBuilder -> uriBuilder.path("/v2/user/me")
-                                                                                 .build())
-                                                    .header("Authorization", "Bearer " + kakaoTokenResponse.getAccessToken())
-                                                    .retrieve()
-                                                    .bodyToMono(KakaoUserInfoResponse.class)
-                                                    .block();
+                                                               .uri(uriBuilder -> uriBuilder.path("/v2/user/me")
+                                                                                            .build())
+                                                               .header("Authorization", "Bearer " + kakaoTokenResponse.getAccessToken())
+                                                               .retrieve()
+                                                               .bodyToMono(KakaoUserInfoResponse.class)
+                                                               .block();
         return kakaoUserInfoResponse;
     }
 
@@ -99,11 +100,11 @@ public class MemberService {
                                        .build();
         KakaoTokenResponse kakaoTokenResponse = webClient.post()
                                                          .uri(uriBuilder -> uriBuilder.path("/oauth/token")
-                                                                                  .queryParam("grant_type", "authorization_code")
-                                                                                  .queryParam("client_id", client_id)
-                                                                                  .queryParam("code", authCode)
-                                                                                  .queryParam("redirect_uri", redirect_uri)
-                                                                                  .build())
+                                                                                      .queryParam("grant_type", "authorization_code")
+                                                                                      .queryParam("client_id", client_id)
+                                                                                      .queryParam("code", authCode)
+                                                                                      .queryParam("redirect_uri", redirect_uri)
+                                                                                      .build())
                                                          .retrieve()
                                                          .bodyToMono(KakaoTokenResponse.class)
                                                          .block();

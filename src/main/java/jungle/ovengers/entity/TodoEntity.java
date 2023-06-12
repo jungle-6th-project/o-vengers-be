@@ -48,6 +48,7 @@ public class TodoEntity {
                              .remove(this);
         }
         this.memberEntity = memberEntity;
-        memberEntity.getTodos().add(this);
+        memberEntity.getTodos()
+                    .add(this);
     }
 }

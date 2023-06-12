@@ -36,7 +36,8 @@ public class AuthProvider implements AuthenticationProvider {
                                         new AccessTokenInvalidException(
                                                 "Invalid access token. accessToken: " + authentication.getPrincipal()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext()
+                             .setAuthentication(authentication);
 
         if (authentication instanceof PreAuthenticatedAuthenticationToken) {
             return new PreAuthenticatedAuthenticationToken(

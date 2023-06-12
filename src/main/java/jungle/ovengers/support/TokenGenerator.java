@@ -16,16 +16,13 @@ import java.util.Date;
 @Component
 public class TokenGenerator {
 
+    private static final String MEMBER_ID_CLAIM_KEY = "memberId";
     @Value("${security.jwt.token.secretkey}")
     private String secretKey;
-
     @Value("${security.jwt.token.validtime.access}")
     private Long accessTokenValidTime;
-
     @Value("${security.jwt.token.validtime.refresh}")
     private Long refreshTokenValidTime;
-
-    private static final String MEMBER_ID_CLAIM_KEY = "memberId";
 
     String generateAccessToken(Long memberId) {
         Date now = new Date();

@@ -1,8 +1,8 @@
 package jungle.ovengers.support.converter;
 
 
-import jungle.ovengers.model.dto.MemberDto;
 import jungle.ovengers.entity.MemberEntity;
+import jungle.ovengers.model.dto.MemberDto;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
