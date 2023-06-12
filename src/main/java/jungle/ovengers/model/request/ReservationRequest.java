@@ -14,4 +14,5 @@ import java.time.LocalDateTime;
 public class ReservationRequest {
     private LocalDateTime from;
     private LocalDateTime to;
+    private Long groupId;
 }
