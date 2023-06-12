@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.AuthRequest;
 import jungle.ovengers.model.request.StudyHistoryRequest;
+import jungle.ovengers.model.response.MemberResponse;
+import jungle.ovengers.model.response.StudyGroupDurationResponse;
 import jungle.ovengers.model.response.StudyHistoryResponse;
 import jungle.ovengers.model.response.Token;
 import jungle.ovengers.service.MemberService;
@@ -33,6 +35,25 @@ public class MemberController {
     public ApiResponse<ApiResponse.SuccessBody<Token>> publishToken(@RequestBody AuthRequest request) {
         return ApiResponseGenerator.success(memberService.publishToken(request), HttpStatus.OK);
     }
+
+    @ApiOperation(value = "사용자 정보 조회 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
+    })
+    @GetMapping
+    public ApiResponse<ApiResponse.SuccessBody<MemberResponse>> read() {
+        return ApiResponseGenerator.success(memberService.getUserInfo(), HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
+    @ApiOperation(value = "사용자가 속해 있는 그룹에서의 정보 조회 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
+    })
+    @GetMapping("/{groupId}")
+    public ApiResponse<ApiResponse.SuccessBody<MemberResponse>> readInGroup(@PathVariable Long groupId) {
+        return ApiResponseGenerator.success(memberService.getUserInfoByGroup(groupId), HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
     @ApiOperation(value = "학습 날짜, 시간 조회 - 마이페이지 잔디")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
@@ -43,24 +64,26 @@ public class MemberController {
         List<StudyHistoryResponse> responses = new ArrayList<>();
         return ApiResponseGenerator.success(responses, HttpStatus.OK, MessageCode.SUCCESS);
     }
+
     @ApiOperation(value = "당일 누적 학습 시간 조회 - 마이페이지 Daily 차트")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
             @ApiImplicitParam(name = "request", value = "조회 하려는 기간 from, to (daily는 from == to)")
     })
     @GetMapping("/daily")
-    public ApiResponse<ApiResponse.SuccessBody<List<StudyHistoryResponse>>> browseDaily(@RequestBody StudyHistoryRequest request) {
-        List<StudyHistoryResponse> responses = new ArrayList<>();
+    public ApiResponse<ApiResponse.SuccessBody<List<StudyGroupDurationResponse>>> browseDaily(@RequestBody StudyHistoryRequest request) {
+        List<StudyGroupDurationResponse> responses = new ArrayList<>();
         return ApiResponseGenerator.success(responses, HttpStatus.OK, MessageCode.SUCCESS);
     }
+
     @ApiOperation(value = "주간 누적 학습 시간 조회 - 마이페이지 Weekly 차트")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
             @ApiImplicitParam(name = "request", value = "조회 하려는 기간 from, to")
     })
     @GetMapping("/weekly")
-    public ApiResponse<ApiResponse.SuccessBody<List<StudyHistoryResponse>>> browseWeekly(@RequestBody StudyHistoryRequest request) {
-        List<StudyHistoryResponse> responses = new ArrayList<>();
+    public ApiResponse<ApiResponse.SuccessBody<List<StudyGroupDurationResponse>>> browseWeekly(@RequestBody StudyHistoryRequest request) {
+        List<StudyGroupDurationResponse> responses = new ArrayList<>();
         return ApiResponseGenerator.success(responses, HttpStatus.OK, MessageCode.SUCCESS);
     }
 

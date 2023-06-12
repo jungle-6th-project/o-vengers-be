@@ -1,4 +1,4 @@
-package jungle.ovengers.dto;
+package jungle.ovengers.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

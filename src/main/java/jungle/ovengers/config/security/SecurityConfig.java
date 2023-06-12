@@ -4,10 +4,8 @@ import jungle.ovengers.config.security.filter.DelegatedAccessDeniedHandler;
 import jungle.ovengers.config.security.filter.DelegatedAuthenticationEntryPoint;
 import jungle.ovengers.config.security.filter.token.AuthProvider;
 import jungle.ovengers.config.security.filter.token.AuthenticationFilter;
-import jungle.ovengers.config.security.filter.token.TokenResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,19 +29,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http.formLogin().disable();
-        http.httpBasic().disable();
+        http.csrf()
+            .disable();
+        http.formLogin()
+            .disable();
+        http.httpBasic()
+            .disable();
         http.cors();
         http.authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/error", "/api/v1/members/kakao", "/swagger-resources/**", "/swagger-ui/*", "/v2/api-docs", "/bbodok-websocket", "/bbodok-websocket/**")
-                .permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/members/**")
-                .permitAll()
-                .antMatchers("/api/v1/**")
-                .authenticated()
-                .anyRequest()
-                .denyAll();
+            .antMatchers(HttpMethod.GET, "/error", "/api/v1/members/kakao", "/swagger-resources/**", "/swagger-ui/*", "/v2/api-docs")
+            .permitAll()
+            .antMatchers(HttpMethod.POST, "/api/v1/members/**")
+            .permitAll()
+            .antMatchers("/api/v1/**")
+            .authenticated()
+            .anyRequest()
+            .denyAll();
 
         http.addFilterAt(generateAuthenticationFilter(), AbstractPreAuthenticatedProcessingFilter.class);
 

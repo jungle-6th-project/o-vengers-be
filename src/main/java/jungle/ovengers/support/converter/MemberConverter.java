@@ -1,8 +1,8 @@
 package jungle.ovengers.support.converter;
 
 
-import jungle.ovengers.dto.MemberDto;
 import jungle.ovengers.entity.MemberEntity;
+import jungle.ovengers.model.dto.MemberDto;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -18,7 +18,7 @@ public final class MemberConverter {
     public static MemberDto from(MemberEntity memberEntity) {
         return MemberDto.builder()
                         .name(memberEntity.getName())
-                        .profile(memberEntity.getEmail())
+                        .profile(memberEntity.getProfile())
                         .email(memberEntity.getEmail())
                         .build();
     }
