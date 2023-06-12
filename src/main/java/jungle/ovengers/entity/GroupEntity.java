@@ -4,6 +4,8 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,10 +19,6 @@ public class GroupEntity {
     @Column(name = "group_id")
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private MemberEntity ownerMember;
-
     @Column(nullable = false)
     private String name;
 
@@ -32,4 +30,11 @@ public class GroupEntity {
 
     @Column(nullable = false)
     private String path;
+
+    @OneToOne
+    @JoinColumn(name = "owner_member_id", nullable = false)
+    private MemberEntity ownerMember;
+
+    @OneToMany(mappedBy = "groupEntity", fetch = FetchType.LAZY)
+    private List<MemberGroupEntity> memberGroups = new ArrayList<>();
 }
