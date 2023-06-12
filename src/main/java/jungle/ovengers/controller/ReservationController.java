@@ -6,7 +6,6 @@ import jungle.ovengers.model.response.ReservationResponse;
 import jungle.ovengers.support.ApiResponse;
 import jungle.ovengers.support.ApiResponseGenerator;
 import jungle.ovengers.support.MessageCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

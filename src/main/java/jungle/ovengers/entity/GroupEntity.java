@@ -13,24 +13,28 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
-public class MemberEntity {
+public class GroupEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
+    @Column(name = "group_id")
     private Long id;
 
     @Column(nullable = false)
     private String name;
 
-    @Column
-    private String profile;
+    @Column(nullable = false)
+    private boolean is_secret;
 
-    @Column
-    private String email;
+    @Column(nullable = false)
+    private String password;
 
-    @OneToMany(mappedBy = "memberEntity", fetch = FetchType.LAZY)
-    private List<TodoEntity> todos = new ArrayList<>();
+    @Column(nullable = false)
+    private String path;
 
-    @OneToMany(mappedBy = "memberEntity", fetch = FetchType.LAZY)
+    @OneToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private MemberEntity ownerMember;
+
+    @OneToMany(mappedBy = "groupEntity", fetch = FetchType.LAZY)
     private List<MemberGroupEntity> memberGroups = new ArrayList<>();
 }
