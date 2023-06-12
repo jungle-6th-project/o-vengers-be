@@ -22,8 +22,8 @@ public class ReservationEntity {
     private LocalDateTime reservedTime;
 
     @OneToOne
-    @JoinColumn(name = "owner_member_id", nullable = false)
-    private MemberEntity memberEntity;
+    @JoinColumn(name = "member_id", nullable = false)
+    private MemberEntity ownerMember;
 
     @ManyToOne
     @JoinColumn(name = "member_group_id")

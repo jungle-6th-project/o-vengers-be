@@ -32,7 +32,7 @@ public class GroupEntity {
     private String path;
 
     @OneToOne
-    @JoinColumn(name = "owner_member_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private MemberEntity ownerMember;
 
     @OneToMany(mappedBy = "groupEntity", fetch = FetchType.LAZY)
