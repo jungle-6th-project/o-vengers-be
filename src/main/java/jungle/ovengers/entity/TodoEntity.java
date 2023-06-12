@@ -20,14 +20,6 @@ public class TodoEntity {
     @Column(name = "todo_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "team_id")
-    private MemberEntity memberEntity;
-
-    @ManyToOne
-    @JoinColumn(name = "group_id")
-    private GroupEntity groupEntity;
-
     @Column(nullable = false)
     private String content;
 
@@ -41,6 +33,14 @@ public class TodoEntity {
     @Column(nullable = false)
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private MemberEntity memberEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private GroupEntity groupEntity;
 
     public void setMemberEntity(MemberEntity memberEntity) {
         if (this.memberEntity != null) {
