@@ -30,4 +30,7 @@ public class MemberEntity {
 
     @OneToMany(mappedBy = "memberEntity", fetch = FetchType.LAZY)
     private List<TodoEntity> todos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "memberEntity", fetch = FetchType.LAZY)
+    private List<MemberGroupEntity> memberGroups = new ArrayList<>();
 }
