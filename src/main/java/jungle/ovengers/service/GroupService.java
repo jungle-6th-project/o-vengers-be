@@ -75,11 +75,12 @@ public class GroupService {
         GroupEntity groupEntity = groupRepository.findById(groupId)
                                                  .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        if (!memberGroupRepository.findByGroupId(groupId)
+        if (memberGroupRepository.findByGroupId(groupId)
                                  .stream()
                                  .anyMatch(memberGroupEntity -> memberGroupEntity.isEqualMemberId(memberId))) {
-            memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
+            return null;
         }
+        memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
         return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret());
     }
 }

@@ -135,13 +135,47 @@ class GroupServiceTest {
                           .isSecret()).isEqualTo(groupEntity.isSecret());
     }
 
-    @DisplayName("사용자가 어떤 그룹에 가입되어 있지 않을 때, 잘 가입 되는지 테스트")
+    @DisplayName("사용자가 이미 가입되어 있는 그룹에 참가 요청 보냈을 때, 그룹 가입 정보를 생성하는지 테스트")
     @Test
-    public void testJoinGroup() {
+    public void testJoinGroupWhenAlreadyJoined() {
         //given
         Long groupId = 1L;
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
+        when(memberGroupRepository.findByGroupId(groupId)).thenReturn(Collections.singletonList(memberGroupEntity));
+
+        //when
+        GroupResponse result = groupService.joinGroup(groupId);
+
+        //then
+        assertThat(result).isEqualTo(null);
+    }
+
+    @DisplayName("사용자가 가입되어 있지 않은 그룹에 참가 요청을 보냈을 때, 그룹 가입 정보를 새롭게 생성하지 않는지 테스트")
+    @Test
+    public void testJoinGroup() {
+        //given
+        Long groupId = 1L;
+        Long otherMemberId = 2L;
+        Long memberGroupId = 1L;
+
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+
+        GroupEntity groupEntity = GroupEntity.builder()
+                                 .id(groupId)
+                                 .ownerId(otherMemberId)
+                                 .path("path")
+                                 .groupName("groupName")
+                                 .isSecret(false)
+                                 .createdAt(String.valueOf(LocalDateTime.now()))
+                                 .build();
+        MemberGroupEntity memberGroupEntity = MemberGroupEntity.builder()
+                                                               .memberId(otherMemberId)
+                                                               .groupId(groupEntity.getId())
+                                                               .id(memberGroupId)
+                                                               .build();
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
         when(memberGroupRepository.findByGroupId(groupId)).thenReturn(Collections.singletonList(memberGroupEntity));
 
