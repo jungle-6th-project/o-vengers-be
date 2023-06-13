@@ -29,6 +29,8 @@ import java.util.NoSuchElementException;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final TokenGenerator tokenGenerator;
+    private final AuditorHolder auditorHolder;
+
     private final String client_id = "0ec08fbf91f26056fcb7941c6f915a05";
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
@@ -36,7 +38,7 @@ public class MemberService {
     private String redirect_uri;
 
     public MemberResponse getUserInfo() {
-        Long memberId = AuditorHolder.get();
+        Long memberId = auditorHolder.get();
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(NoSuchElementException::new);
         MemberDto memberDto = MemberConverter.from(memberEntity);
@@ -44,7 +46,7 @@ public class MemberService {
     }
 
     public MemberResponse getUserInfoByGroup(Long groupId) {
-        Long memberId = AuditorHolder.get();
+        Long memberId = auditorHolder.get();
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(NoSuchElementException::new);
         MemberDto memberDto = MemberConverter.from(memberEntity);
