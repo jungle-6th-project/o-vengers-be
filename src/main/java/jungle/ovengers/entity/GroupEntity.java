@@ -34,7 +34,7 @@ public class GroupEntity {
     @Column(nullable = false)
     private String path;
 
-    @Column(nullable = false)
+    @Column(updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 }
