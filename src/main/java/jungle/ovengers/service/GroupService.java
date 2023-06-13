@@ -15,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
@@ -33,5 +36,14 @@ public class GroupService {
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupEntity));
 
         return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret());
+    }
+
+    public List<GroupResponse> getAllGroups() {
+        return groupRepository.findAll()
+                              .stream()
+                              .map(groupEntity -> new GroupResponse(groupEntity.getId(),
+                                                                    groupEntity.getGroupName(),
+                                                                    groupEntity.isSecret()))
+                              .collect(Collectors.toList());
     }
 }

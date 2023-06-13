@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +48,6 @@ class GroupServiceTest {
                                                   .ownerId(memberId)
                                                   .path(request.getPath())
                                                   .groupName(request.getGroupName())
-                                                  .isSecret(request.isSecret())
                                                   .createdAt(String.valueOf(LocalDateTime.now()))
                                                   .build();
 
@@ -71,5 +72,34 @@ class GroupServiceTest {
                 .isEqualTo(savedGroupEntity.getGroupName());
         assertThat(result.isSecret())
                 .isEqualTo(savedGroupEntity.isSecret());
+    }
+
+    @DisplayName("전체 그룹 목록이 잘 불러와지는지 테스트")
+    @Test
+    public void testGetAllGroups() {
+        //given
+        Long memberId = 1L;
+        GroupEntity groupEntity = GroupEntity.builder()
+                                                  .id(1L)
+                                                  .ownerId(memberId)
+                                                  .path("path")
+                                                  .groupName("groupName")
+                                                  .isSecret(false)
+                                                  .createdAt(String.valueOf(LocalDateTime.now()))
+                                                  .build();
+        List<GroupEntity> mockGroupEntities = Arrays.asList(groupEntity);
+
+        when(groupRepository.findAll()).thenReturn(mockGroupEntities);
+
+        //when
+        List<GroupResponse> result = groupService.getAllGroups();
+
+        //then
+        assertThat(result.get(0)
+                         .getGroupId()).isEqualTo(groupEntity.getId());
+        assertThat(result.get(0)
+                         .getGroupName()).isEqualTo(groupEntity.getGroupName());
+        assertThat(result.get(0)
+                         .isSecret()).isEqualTo(groupEntity.isSecret());
     }
 }

@@ -26,7 +26,18 @@ public class GroupController {
 
     private final GroupService groupService;
 
-    @ApiOperation(value = "그룹 전체 조회")
+    /*
+        Todo : 추후에 검색하도록 바뀌어야함
+     */
+    @ApiOperation(value = "전체 그룹 조회")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @GetMapping("/all")
+    public ApiResponse<ApiResponse.SuccessBody<List<GroupResponse>>> browseAll() {
+        List<GroupResponse> responses = new ArrayList<>();
+        return ApiResponseGenerator.success(responses, HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
+    @ApiOperation(value = "사용자 그룹 조회")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping
     public ApiResponse<ApiResponse.SuccessBody<List<GroupResponse>>> browse() {
