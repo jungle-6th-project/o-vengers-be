@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TodoRequest {
-    private String content;
+public class TodoReadRequest {
+    private Long groupId;
 }
