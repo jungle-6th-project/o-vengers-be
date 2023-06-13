@@ -6,6 +6,7 @@ import jungle.ovengers.model.request.GroupAddRequest;
 import jungle.ovengers.model.request.GroupDeleteRequest;
 import jungle.ovengers.model.request.GroupEditRequest;
 import jungle.ovengers.model.response.GroupResponse;
+import jungle.ovengers.service.GroupService;
 import jungle.ovengers.support.ApiResponse;
 import jungle.ovengers.support.ApiResponseGenerator;
 import jungle.ovengers.support.MessageCode;
@@ -23,6 +24,8 @@ import java.util.List;
 @Slf4j
 public class GroupController {
 
+    private final GroupService groupService;
+
     @ApiOperation(value = "그룹 전체 조회")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping
@@ -35,20 +38,20 @@ public class GroupController {
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @PostMapping
     public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> add(@RequestBody GroupAddRequest request) {
-        return ApiResponseGenerator.success(new GroupResponse(1L, "groupName", false), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+        return ApiResponseGenerator.success(groupService.generateGroup(request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
     }
 
     @ApiOperation(value = "그룹 수정")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @PutMapping("/{groupId}")
-    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> edit(@RequestBody GroupEditRequest request) {
+    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> edit(@PathVariable Long groupId, @RequestBody GroupEditRequest request) {
         return ApiResponseGenerator.success(new GroupResponse(1L, "groupName", false), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
     }
 
     @ApiOperation(value = "그룹 삭제")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @DeleteMapping("/{groupId}")
-    public ApiResponse<ApiResponse.SuccessBody<Void>> delete(@RequestBody GroupDeleteRequest request) {
+    public ApiResponse<ApiResponse.SuccessBody<Void>> delete(@PathVariable Long groupId, @RequestBody GroupDeleteRequest request) {
         return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.RESOURCE_DELETED);
     }
 }
