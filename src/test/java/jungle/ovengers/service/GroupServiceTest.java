@@ -9,6 +9,7 @@ import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberGroupRepository;
 import jungle.ovengers.repository.MemberRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,12 +37,39 @@ class GroupServiceTest {
     @InjectMocks
     private GroupService groupService;
 
+    private Long memberId;
+    private GroupEntity groupEntity;
+    private MemberEntity memberEntity;
+    private MemberGroupEntity memberGroupEntity;
+    @BeforeEach
+    public void setup() {
+        memberId = 1L;
+        groupEntity = GroupEntity.builder()
+                                 .id(1L)
+                                 .ownerId(memberId)
+                                 .path("path")
+                                 .groupName("groupName")
+                                 .isSecret(false)
+                                 .createdAt(LocalDateTime.now())
+                                 .build();
+        memberEntity = MemberEntity.builder()
+                                   .id(memberId)
+                                   .email("email")
+                                   .profile("profile")
+                                   .name("name")
+                                   .build();
+        memberGroupEntity = MemberGroupEntity.builder()
+                                             .memberId(memberId)
+                                             .groupId(groupEntity.getId())
+                                             .id(memberId + 1)
+                                             .build();
+    }
+
     @DisplayName("사용자가 그룹 생성 요청을 했을 경우, 그룹이 잘 생성되는지 테스트")
     @Test
     public void testGenerateGroup() {
         //given
         GroupAddRequest request = new GroupAddRequest("groupName", false, "123", "path");
-        Long memberId = 1L;
         GroupEntity savedGroupEntity = GroupEntity.builder()
                                                   .id(1L)
                                                   .ownerId(memberId)
@@ -50,14 +78,7 @@ class GroupServiceTest {
                                                   .createdAt(LocalDateTime.now())
                                                   .build();
 
-//        verify(auditorHolder).get();
         when(auditorHolder.get()).thenReturn(memberId);
-        MemberEntity memberEntity = MemberEntity.builder()
-                                                .id(memberId)
-                                                .email("email")
-                                                .profile("profile")
-                                                .name("name")
-                                                .build();
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.save(any(GroupEntity.class))).thenReturn(savedGroupEntity);
 
@@ -77,15 +98,6 @@ class GroupServiceTest {
     @Test
     public void testGetAllGroups() {
         //given
-        Long memberId = 1L;
-        GroupEntity groupEntity = GroupEntity.builder()
-                                             .id(1L)
-                                             .ownerId(memberId)
-                                             .path("path")
-                                             .groupName("groupName")
-                                             .isSecret(false)
-                                             .createdAt(LocalDateTime.now())
-                                             .build();
         List<GroupEntity> mockGroupEntities = Arrays.asList(groupEntity);
 
         when(groupRepository.findAll()).thenReturn(mockGroupEntities);
@@ -106,26 +118,6 @@ class GroupServiceTest {
     @Test
     public void testGetMemberGroups() {
         //given
-        Long memberId = 1L;
-        GroupEntity groupEntity = GroupEntity.builder()
-                                             .id(1L)
-                                             .ownerId(memberId)
-                                             .path("path")
-                                             .groupName("groupName")
-                                             .isSecret(false)
-                                             .createdAt(LocalDateTime.now())
-                                             .build();
-        MemberEntity memberEntity = MemberEntity.builder()
-                                                .id(memberId)
-                                                .email("email")
-                                                .profile("profile")
-                                                .name("name")
-                                                .build();
-        MemberGroupEntity memberGroupEntity = MemberGroupEntity.builder()
-                                                               .memberId(memberId)
-                                                               .groupId(groupEntity.getId())
-                                                               .id(memberId + 1)
-                                                               .build();
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(memberGroupRepository.findByMemberId(memberId)).thenReturn(Collections.singletonList(memberGroupEntity));
@@ -141,5 +133,58 @@ class GroupServiceTest {
                           .getGroupId()).isEqualTo(groupEntity.getId());
         assertThat(results.get(0)
                           .isSecret()).isEqualTo(groupEntity.isSecret());
+    }
+
+    @DisplayName("사용자가 이미 가입되어 있는 그룹에 참가 요청 보냈을 때, 그룹 가입 정보를 생성하는지 테스트")
+    @Test
+    public void testJoinGroupWhenAlreadyJoined() {
+        //given
+        Long groupId = 1L;
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
+        when(memberGroupRepository.findByGroupId(groupId)).thenReturn(Collections.singletonList(memberGroupEntity));
+
+        //when
+        GroupResponse result = groupService.joinGroup(groupId);
+
+        //then
+        assertThat(result).isEqualTo(null);
+    }
+
+    @DisplayName("사용자가 가입되어 있지 않은 그룹에 참가 요청을 보냈을 때, 그룹 가입 정보를 새롭게 생성하지 않는지 테스트")
+    @Test
+    public void testJoinGroup() {
+        //given
+        Long groupId = 1L;
+        Long otherMemberId = 2L;
+        Long memberGroupId = 1L;
+
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+
+        GroupEntity groupEntity = GroupEntity.builder()
+                                 .id(groupId)
+                                 .ownerId(otherMemberId)
+                                 .path("path")
+                                 .groupName("groupName")
+                                 .isSecret(false)
+                                 .createdAt(LocalDateTime.now())
+                                 .build();
+        MemberGroupEntity memberGroupEntity = MemberGroupEntity.builder()
+                                                               .memberId(otherMemberId)
+                                                               .groupId(groupEntity.getId())
+                                                               .id(memberGroupId)
+                                                               .build();
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
+        when(memberGroupRepository.findByGroupId(groupId)).thenReturn(Collections.singletonList(memberGroupEntity));
+
+        //when
+        GroupResponse result = groupService.joinGroup(groupId);
+
+        //then
+        assertThat(result.getGroupId()).isEqualTo(groupEntity.getId());
+        assertThat(result.getGroupName()).isEqualTo(groupEntity.getGroupName());
+        assertThat(result.isSecret()).isEqualTo(groupEntity.isSecret());
     }
 }

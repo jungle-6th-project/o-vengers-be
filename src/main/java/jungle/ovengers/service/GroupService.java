@@ -3,6 +3,7 @@ package jungle.ovengers.service;
 import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberGroupEntity;
+import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.model.request.GroupAddRequest;
 import jungle.ovengers.model.response.GroupResponse;
@@ -35,7 +36,7 @@ public class GroupService {
         memberRepository.findById(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
         GroupEntity groupEntity = groupRepository.save(GroupConverter.to(request, memberId));
-        memberGroupRepository.save(MemberGroupConverter.to(memberId, groupEntity));
+        memberGroupRepository.save(MemberGroupConverter.to(memberId, groupEntity.getId()));
 
         return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret());
     }
@@ -63,5 +64,23 @@ public class GroupService {
                                                                  groupEntity.getGroupName(),
                                                                  groupEntity.isSecret()))
                            .collect(Collectors.toList());
+    }
+
+    public GroupResponse joinGroup(Long groupId) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        GroupEntity groupEntity = groupRepository.findById(groupId)
+                                                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        if (memberGroupRepository.findByGroupId(groupId)
+                                 .stream()
+                                 .anyMatch(memberGroupEntity -> memberGroupEntity.isEqualMemberId(memberId))) {
+            return null;
+        }
+        memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
+        return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret());
     }
 }
