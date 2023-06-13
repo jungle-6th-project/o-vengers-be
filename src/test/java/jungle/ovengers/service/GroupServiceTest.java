@@ -113,7 +113,7 @@ class GroupServiceTest {
                                              .path("path")
                                              .groupName("groupName")
                                              .isSecret(false)
-                                             .createdAt(String.valueOf(LocalDateTime.now()))
+                                             .createdAt(LocalDateTime.now())
                                              .build();
         MemberEntity memberEntity = MemberEntity.builder()
                                                 .id(memberId)
