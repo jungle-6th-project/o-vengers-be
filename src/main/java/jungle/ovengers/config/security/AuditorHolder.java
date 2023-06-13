@@ -1,13 +1,13 @@
 package jungle.ovengers.config.security;
 
-import lombok.experimental.UtilityClass;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
-@UtilityClass
+@Component
 public class AuditorHolder {
 
-    public static Long get() {
+    public Long get() {
         Authentication authentication = SecurityContextHolder.getContext()
                                                              .getAuthentication();
         if (authentication == null
