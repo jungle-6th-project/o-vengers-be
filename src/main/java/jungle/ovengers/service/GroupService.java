@@ -44,6 +44,7 @@ public class GroupService {
     public List<GroupResponse> getAllGroups() {
         return groupRepository.findAll()
                               .stream()
+                              .filter(groupEntity -> !groupEntity.isDeleted())
                               .map(groupEntity -> new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret()))
                               .collect(Collectors.toList());
     }
@@ -73,6 +74,7 @@ public class GroupService {
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         GroupEntity groupEntity = groupRepository.findById(groupId)
+                                                 .filter(group -> !group.isDeleted())
                                                  .orElseThrow(() -> new GroupNotFoundException(groupId));
 
         if (memberGroupRepository.findByGroupId(groupId)
@@ -82,5 +84,22 @@ public class GroupService {
         }
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
         return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret());
+    }
+
+    public void deleteGroup(Long groupId) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        GroupEntity groupEntity = groupRepository.findById(groupId)
+                                                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        if (!groupEntity.isOwner(memberId)) {
+            throw new IllegalArgumentException("그룹장만 그룹을 삭제할 수 있습니다.");
+        }
+        groupEntity.delete();
+        memberGroupRepository.findByGroupId(groupId)
+                             .forEach(MemberGroupEntity::delete);
     }
 }

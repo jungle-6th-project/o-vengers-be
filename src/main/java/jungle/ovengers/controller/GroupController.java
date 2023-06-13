@@ -59,7 +59,8 @@ public class GroupController {
     @ApiOperation(value = "그룹 삭제")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @DeleteMapping("/{groupId}")
-    public ApiResponse<ApiResponse.SuccessBody<Void>> delete(@PathVariable Long groupId, @RequestBody GroupDeleteRequest request) {
+    public ApiResponse<ApiResponse.SuccessBody<Void>> delete(@PathVariable Long groupId) {
+        groupService.deleteGroup(groupId);
         return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.RESOURCE_DELETED);
     }
 
