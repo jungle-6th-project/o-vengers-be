@@ -63,4 +63,12 @@ public class GroupController {
     public ApiResponse<ApiResponse.SuccessBody<Void>> delete(@PathVariable Long groupId, @RequestBody GroupDeleteRequest request) {
         return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.RESOURCE_DELETED);
     }
+
+    @ApiOperation(value = "그룹 참가")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @PostMapping("/{groupId}")
+    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> join(@PathVariable Long groupId) {
+        return ApiResponseGenerator.success(groupService.joinGroup(groupId), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+    }
+
 }
