@@ -4,7 +4,7 @@ import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.TodoEntity;
-import jungle.ovengers.model.request.TodoRequest;
+import jungle.ovengers.model.request.TodoAddRequest;
 import jungle.ovengers.model.response.TodoResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberRepository;
@@ -83,7 +83,7 @@ class TodoServiceTest {
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
         when(todoRepository.save(any(TodoEntity.class))).thenReturn(todoEntity);
         //when
-        TodoResponse result = todoService.generateTodo(groupId, new TodoRequest("content"));
+        TodoResponse result = todoService.generateTodo(new TodoAddRequest("content", groupId));
         //then
         assertThat(result.getTodoId()).isEqualTo(todoEntity.getId());
         assertThat(result.getContent()).isEqualTo(todoEntity.getContent());
