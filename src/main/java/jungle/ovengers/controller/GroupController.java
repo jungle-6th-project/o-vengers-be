@@ -3,8 +3,8 @@ package jungle.ovengers.controller;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.GroupAddRequest;
-import jungle.ovengers.model.request.GroupDeleteRequest;
 import jungle.ovengers.model.request.GroupEditRequest;
+import jungle.ovengers.model.request.GroupJoinRequest;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.service.GroupService;
 import jungle.ovengers.support.ApiResponse;
@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import reactor.util.annotation.Nullable;
 
 import java.util.List;
 
@@ -67,8 +68,7 @@ public class GroupController {
     @ApiOperation(value = "그룹 참가")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @PostMapping("/{groupId}")
-    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> join(@PathVariable Long groupId) {
-        return ApiResponseGenerator.success(groupService.joinGroup(groupId), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> join(@PathVariable Long groupId, @Nullable @RequestBody GroupJoinRequest request) {
+        return ApiResponseGenerator.success(groupService.joinGroup(groupId, request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
     }
-
 }

@@ -46,6 +46,10 @@ public class GroupEntity {
         return Objects.equals(this.ownerId, memberId);
     }
 
+    public boolean isEqualPassword(String password) {
+        return this.password.equals(password);
+    }
+
     public void delete() {
         this.deleted = true;
     }

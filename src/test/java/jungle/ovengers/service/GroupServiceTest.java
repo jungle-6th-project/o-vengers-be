@@ -5,6 +5,7 @@ import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.model.request.GroupAddRequest;
+import jungle.ovengers.model.request.GroupJoinRequest;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberGroupRepository;
@@ -18,7 +19,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -143,30 +147,27 @@ class GroupServiceTest {
                           .isSecret()).isEqualTo(groupEntity.isSecret());
     }
 
-    @DisplayName("사용자가 이미 가입되어 있는 그룹에 참가 요청 보냈을 때, 그룹 가입 정보를 생성하는지 테스트")
+    @DisplayName("사용자가 비밀번호가 없고, 이미 가입되어 있는 그룹에 참가 요청 보냈을 때, 그룹 가입 정보를 생성하지 않는지 테스트")
     @Test
     public void testJoinGroupWhenAlreadyJoined() {
         //given
         Long groupId = 1L;
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
-        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
-        when(memberGroupRepository.findByGroupId(groupId)).thenReturn(Collections.singletonList(memberGroupEntity));
-
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        when(memberGroupRepository.existsByGroupIdAndMemberId(groupId, memberId)).thenReturn(true);
         //when
-        GroupResponse result = groupService.joinGroup(groupId);
-
+        GroupResponse result = groupService.joinGroup(groupId, null);
         //then
         assertThat(result).isEqualTo(null);
     }
 
-    @DisplayName("사용자가 가입되어 있지 않은 그룹에 참가 요청을 보냈을 때, 그룹 가입 정보를 새롭게 생성하지 않는지 테스트")
+    @DisplayName("사용자가 비밀번호가 없고, 가입되어 있지 않은 그룹에 참가 요청을 보냈을 때, 그룹 가입 정보를 새롭게 생성하는지 테스트")
     @Test
     public void testJoinGroup() {
         //given
         Long groupId = 1L;
         Long otherMemberId = 2L;
-        Long memberGroupId = 1L;
 
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
@@ -180,17 +181,12 @@ class GroupServiceTest {
                                              .createdAt(LocalDateTime.now())
                                              .deleted(false)
                                              .build();
-        MemberGroupEntity memberGroupEntity = MemberGroupEntity.builder()
-                                                               .memberId(otherMemberId)
-                                                               .groupId(groupEntity.getId())
-                                                               .id(memberGroupId)
-                                                               .deleted(false)
-                                                               .build();
-        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
-        when(memberGroupRepository.findByGroupId(groupId)).thenReturn(Collections.singletonList(memberGroupEntity));
+
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        when(memberGroupRepository.existsByGroupIdAndMemberId(groupId, memberId)).thenReturn(false);
 
         //when
-        GroupResponse result = groupService.joinGroup(groupId);
+        GroupResponse result = groupService.joinGroup(groupId, null);
 
         //then
         assertThat(result.getGroupId()).isEqualTo(groupEntity.getId());
@@ -198,9 +194,40 @@ class GroupServiceTest {
         assertThat(result.isSecret()).isEqualTo(groupEntity.isSecret());
     }
 
+    @DisplayName("사용자가 비공개 그룹에 일치하는 비밀번호와 함께 참가 요청할 경우, 잘 참가 되는지 테스트")
+    @Test
+    public void testJoinGroupWhenKnownPassword() {
+        //given
+        Long groupId = 1L;
+        Long otherMemberId = 2L;
+
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+
+        GroupEntity groupEntity = GroupEntity.builder()
+                                             .id(groupId)
+                                             .ownerId(otherMemberId)
+                                             .path("path")
+                                             .groupName("groupName")
+                                             .isSecret(true)
+                                             .password("password")
+                                             .createdAt(LocalDateTime.now())
+                                             .deleted(false)
+                                             .build();
+
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+
+        //when, then
+        assertThatThrownBy(() -> groupService.joinGroup(groupId, new GroupJoinRequest("wrong password")))
+                .isInstanceOf(IllegalArgumentException.class);
+        verify(memberGroupRepository, never()).existsByGroupIdAndMemberId(groupId, memberId);
+        verify(memberGroupRepository, never()).save(memberGroupEntity);
+    }
+
     @DisplayName("그룹장이 삭제를 요청할 경우 그룹이 잘 삭제 되는지 테스트")
     @Test
     public void deleteGroup() {
+
         //given
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
