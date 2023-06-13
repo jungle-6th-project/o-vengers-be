@@ -6,6 +6,7 @@ import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.model.request.GroupAddRequest;
+import jungle.ovengers.model.request.GroupJoinRequest;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberGroupRepository;
@@ -68,19 +69,20 @@ public class GroupService {
                            .collect(Collectors.toList());
     }
 
-    public GroupResponse joinGroup(Long groupId) {
+    public GroupResponse joinGroup(Long groupId, GroupJoinRequest request) {
         Long memberId = auditorHolder.get();
 
         memberRepository.findById(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
-        GroupEntity groupEntity = groupRepository.findById(groupId)
-                                                 .filter(group -> !group.isDeleted())
+        GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(groupId)
                                                  .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        if (memberGroupRepository.findByGroupId(groupId)
-                                 .stream()
-                                 .anyMatch(memberGroupEntity -> memberGroupEntity.isEqualMemberId(memberId))) {
+        if (groupEntity.isSecret() && !groupEntity.isEqualPassword(request.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        if (memberGroupRepository.existsByGroupIdAndMemberId(groupId, memberId)) {
             return null;
         }
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));

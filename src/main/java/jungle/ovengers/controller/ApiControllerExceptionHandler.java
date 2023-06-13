@@ -40,4 +40,9 @@ public class ApiControllerExceptionHandler {
     public ApiResponse<ApiResponse.FailureBody> handleInvalidToken(AccessTokenInvalidException ex, HttpServletRequest request) {
         return ApiResponseGenerator.fail(FAIL_CODE, BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ApiResponse<ApiResponse.FailureBody> handleException(Exception ex, HttpServletRequest request) {
+        return ApiResponseGenerator.fail(FAIL_CODE, ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
