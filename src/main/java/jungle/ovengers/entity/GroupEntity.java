@@ -5,6 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -33,7 +34,7 @@ public class GroupEntity {
     @Column(nullable = false)
     private String path;
 
-    @Column(nullable = false)
+    @Column(updatable = false)
     @CreatedDate
-    private String createdAt;
+    private LocalDateTime createdAt;
 }
