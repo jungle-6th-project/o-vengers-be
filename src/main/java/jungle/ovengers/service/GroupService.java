@@ -61,6 +61,7 @@ public class GroupService {
                            .map(MemberGroupEntity::getGroupId)
                            .map(groupRepository::findById)
                            .flatMap(Optional::stream)
+                           .filter(groupEntity -> !groupEntity.isDeleted())
                            .map(groupEntity -> new GroupResponse(groupEntity.getId(),
                                                                  groupEntity.getGroupName(),
                                                                  groupEntity.isSecret()))
