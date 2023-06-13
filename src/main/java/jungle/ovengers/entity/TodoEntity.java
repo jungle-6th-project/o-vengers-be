@@ -24,7 +24,7 @@ public class TodoEntity {
     private Long memberId;
 
     @Column(nullable = false)
-    private Long group_id;
+    private Long groupId;
 
     @Column
     private String content;
