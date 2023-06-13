@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupDeleteRequest {
-    private Long memberId;
+public class GroupWithdrawRequest {
+    private Long groupId;
 }

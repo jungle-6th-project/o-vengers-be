@@ -6,6 +6,7 @@ import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.model.request.GroupAddRequest;
 import jungle.ovengers.model.request.GroupJoinRequest;
+import jungle.ovengers.model.request.GroupWithdrawRequest;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberGroupRepository;
@@ -226,7 +227,7 @@ class GroupServiceTest {
 
     @DisplayName("그룹장이 삭제를 요청할 경우 그룹이 잘 삭제 되는지 테스트")
     @Test
-    public void deleteGroup() {
+    public void testDeleteGroup() {
 
         //given
         when(auditorHolder.get()).thenReturn(memberId);
@@ -244,7 +245,7 @@ class GroupServiceTest {
 
     @DisplayName("그룹장이 아닌 사용자가 그룹 삭제 요청을 할 경우, 에외가 발생되는지 테스트")
     @Test
-    public void deleteGroupWhenNotGroupOwner() {
+    public void testDeleteGroupWhenNotGroupOwner() {
         //given
         Long otherMember = 2L;
         when(auditorHolder.get()).thenReturn(memberId);
@@ -264,5 +265,20 @@ class GroupServiceTest {
                 .isInstanceOf(IllegalArgumentException.class);
 
         verify(memberGroupRepository, never()).findByGroupId(groupId);
+    }
+
+    @DisplayName("그룹에서 사용자가 잘 탈퇴되는지 테스트")
+    @Test
+    public void testWithdrawGroup() {
+        //given
+        GroupWithdrawRequest request = new GroupWithdrawRequest(groupId);
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
+        when(memberGroupRepository.findByGroupIdAndMemberId(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
+        //when
+        groupService.withdrawGroup(request);
+        //then
+        verify(memberGroupRepository, times(1)).findByGroupIdAndMemberId(groupId, memberId);
     }
 }
