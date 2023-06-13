@@ -13,4 +13,5 @@ public class GroupAddRequest {
     private String groupName;
     private boolean isSecret;
     private String password;
+    private String path;
 }
