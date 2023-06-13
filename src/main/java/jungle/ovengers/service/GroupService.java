@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,9 +44,14 @@ public class GroupService {
     }
 
     public List<GroupResponse> getAllGroups() {
+        Long memberId = auditorHolder.get();
+        Set<Long> excludedGroupIds = memberGroupRepository.findByMemberId(memberId)
+                                                          .stream().map(MemberGroupEntity::getGroupId)
+                                                          .collect(Collectors.toSet());
+
         return groupRepository.findAll()
                               .stream()
-                              .filter(groupEntity -> !groupEntity.isDeleted())
+                              .filter(groupEntity -> !groupEntity.isDeleted() && !excludedGroupIds.contains(groupEntity.getId()))
                               .map(groupEntity -> new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret()))
                               .collect(Collectors.toList());
     }
