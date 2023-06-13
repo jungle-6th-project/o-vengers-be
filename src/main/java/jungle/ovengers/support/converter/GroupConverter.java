@@ -16,6 +16,7 @@ public final class GroupConverter {
                           .password(request.getPassword())
                           .path(request.getPath())
                           .createdAt(LocalDateTime.now())
+                          .deleted(false)
                           .build();
     }
 }

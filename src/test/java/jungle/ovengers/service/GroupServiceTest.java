@@ -51,17 +51,20 @@ class GroupServiceTest {
                                  .groupName("groupName")
                                  .isSecret(false)
                                  .createdAt(LocalDateTime.now())
+                                 .deleted(false)
                                  .build();
         memberEntity = MemberEntity.builder()
                                    .id(memberId)
                                    .email("email")
                                    .profile("profile")
                                    .name("name")
+                                   .deleted(false)
                                    .build();
         memberGroupEntity = MemberGroupEntity.builder()
                                              .memberId(memberId)
                                              .groupId(groupEntity.getId())
                                              .id(memberId + 1)
+                                             .deleted(false)
                                              .build();
     }
 
@@ -76,6 +79,7 @@ class GroupServiceTest {
                                                   .path(request.getPath())
                                                   .groupName(request.getGroupName())
                                                   .createdAt(LocalDateTime.now())
+                                                  .deleted(false)
                                                   .build();
 
         when(auditorHolder.get()).thenReturn(memberId);
@@ -164,17 +168,19 @@ class GroupServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
 
         GroupEntity groupEntity = GroupEntity.builder()
-                                 .id(groupId)
-                                 .ownerId(otherMemberId)
-                                 .path("path")
-                                 .groupName("groupName")
-                                 .isSecret(false)
-                                 .createdAt(LocalDateTime.now())
-                                 .build();
+                                             .id(groupId)
+                                             .ownerId(otherMemberId)
+                                             .path("path")
+                                             .groupName("groupName")
+                                             .isSecret(false)
+                                             .createdAt(LocalDateTime.now())
+                                             .deleted(false)
+                                             .build();
         MemberGroupEntity memberGroupEntity = MemberGroupEntity.builder()
                                                                .memberId(otherMemberId)
                                                                .groupId(groupEntity.getId())
                                                                .id(memberGroupId)
+                                                               .deleted(false)
                                                                .build();
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
         when(memberGroupRepository.findByGroupId(groupId)).thenReturn(Collections.singletonList(memberGroupEntity));

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -37,4 +38,15 @@ public class GroupEntity {
     @Column(updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private boolean deleted;
+
+    public boolean isOwner(Long memberId) {
+        return Objects.equals(this.ownerId, memberId);
+    }
+
+    public void delete() {
+        this.deleted = true;
+    }
 }

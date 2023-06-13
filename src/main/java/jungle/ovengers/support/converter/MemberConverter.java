@@ -12,6 +12,7 @@ public final class MemberConverter {
                            .name(memberDto.getName())
                            .profile(memberDto.getProfile())
                            .email(memberDto.getEmail())
+                           .deleted(false)
                            .build();
     }
 

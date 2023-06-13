@@ -30,7 +30,14 @@ public class MemberGroupEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private boolean deleted;
+
     public boolean isEqualMemberId(Long memberId) {
         return Objects.equals(this.memberId, memberId);
+    }
+
+    public void delete() {
+        this.deleted = true;
     }
 }
