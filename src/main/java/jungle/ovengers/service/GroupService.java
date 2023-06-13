@@ -7,6 +7,7 @@ import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.model.request.GroupAddRequest;
 import jungle.ovengers.model.request.GroupJoinRequest;
+import jungle.ovengers.model.request.GroupWithdrawRequest;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberGroupRepository;
@@ -110,5 +111,18 @@ public class GroupService {
         groupEntity.delete();
         memberGroupRepository.findByGroupId(groupId)
                              .forEach(MemberGroupEntity::delete);
+    }
+
+    public void withdrawGroup(GroupWithdrawRequest request) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        groupRepository.findById(request.getGroupId())
+                       .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
+
+        memberGroupRepository.findByGroupIdAndMemberId(request.getGroupId(), memberId)
+                             .ifPresent(MemberGroupEntity::delete);
     }
 }

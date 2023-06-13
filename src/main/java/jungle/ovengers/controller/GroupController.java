@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.GroupAddRequest;
 import jungle.ovengers.model.request.GroupEditRequest;
 import jungle.ovengers.model.request.GroupJoinRequest;
+import jungle.ovengers.model.request.GroupWithdrawRequest;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.service.GroupService;
 import jungle.ovengers.support.ApiResponse;
@@ -70,5 +71,13 @@ public class GroupController {
     @PostMapping("/{groupId}")
     public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> join(@PathVariable Long groupId, @Nullable @RequestBody GroupJoinRequest request) {
         return ApiResponseGenerator.success(groupService.joinGroup(groupId, request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+    }
+
+    @ApiOperation(value = "그룹 탈퇴")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @DeleteMapping
+    public ApiResponse<ApiResponse.SuccessBody<Void>> withdraw(@RequestBody GroupWithdrawRequest request) {
+        groupService.withdrawGroup(request);
+        return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.RESOURCE_DELETED);
     }
 }
