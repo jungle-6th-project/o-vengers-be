@@ -12,6 +12,7 @@ public final class MemberGroupConverter {
                                 .groupId(groupId)
                                 .memberId(memberId)
                                 .createdAt(LocalDateTime.now())
+                                .deleted(false)
                                 .build();
     }
 }

@@ -21,8 +21,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GroupServiceTest {
@@ -38,30 +39,36 @@ class GroupServiceTest {
     private GroupService groupService;
 
     private Long memberId;
+    private Long groupId;
     private GroupEntity groupEntity;
     private MemberEntity memberEntity;
     private MemberGroupEntity memberGroupEntity;
+
     @BeforeEach
     public void setup() {
         memberId = 1L;
+        groupId = 1L;
         groupEntity = GroupEntity.builder()
-                                 .id(1L)
+                                 .id(groupId)
                                  .ownerId(memberId)
                                  .path("path")
                                  .groupName("groupName")
                                  .isSecret(false)
                                  .createdAt(LocalDateTime.now())
+                                 .deleted(false)
                                  .build();
         memberEntity = MemberEntity.builder()
                                    .id(memberId)
                                    .email("email")
                                    .profile("profile")
                                    .name("name")
+                                   .deleted(false)
                                    .build();
         memberGroupEntity = MemberGroupEntity.builder()
                                              .memberId(memberId)
                                              .groupId(groupEntity.getId())
                                              .id(memberId + 1)
+                                             .deleted(false)
                                              .build();
     }
 
@@ -76,6 +83,7 @@ class GroupServiceTest {
                                                   .path(request.getPath())
                                                   .groupName(request.getGroupName())
                                                   .createdAt(LocalDateTime.now())
+                                                  .deleted(false)
                                                   .build();
 
         when(auditorHolder.get()).thenReturn(memberId);
@@ -164,17 +172,19 @@ class GroupServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
 
         GroupEntity groupEntity = GroupEntity.builder()
-                                 .id(groupId)
-                                 .ownerId(otherMemberId)
-                                 .path("path")
-                                 .groupName("groupName")
-                                 .isSecret(false)
-                                 .createdAt(LocalDateTime.now())
-                                 .build();
+                                             .id(groupId)
+                                             .ownerId(otherMemberId)
+                                             .path("path")
+                                             .groupName("groupName")
+                                             .isSecret(false)
+                                             .createdAt(LocalDateTime.now())
+                                             .deleted(false)
+                                             .build();
         MemberGroupEntity memberGroupEntity = MemberGroupEntity.builder()
                                                                .memberId(otherMemberId)
                                                                .groupId(groupEntity.getId())
                                                                .id(memberGroupId)
+                                                               .deleted(false)
                                                                .build();
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
         when(memberGroupRepository.findByGroupId(groupId)).thenReturn(Collections.singletonList(memberGroupEntity));
@@ -186,5 +196,46 @@ class GroupServiceTest {
         assertThat(result.getGroupId()).isEqualTo(groupEntity.getId());
         assertThat(result.getGroupName()).isEqualTo(groupEntity.getGroupName());
         assertThat(result.isSecret()).isEqualTo(groupEntity.isSecret());
+    }
+
+    @DisplayName("그룹장이 삭제를 요청할 경우 그룹이 잘 삭제 되는지 테스트")
+    @Test
+    public void deleteGroup() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findById(groupEntity.getId())).thenReturn(Optional.of(groupEntity));
+
+        //when
+        groupService.deleteGroup(groupId);
+
+        //then
+        verify(memberGroupRepository).findByGroupId(groupId);
+        verify(groupRepository).findById(groupId);
+        verify(memberGroupRepository).findByGroupId(groupId);
+    }
+
+    @DisplayName("그룹장이 아닌 사용자가 그룹 삭제 요청을 할 경우, 에외가 발생되는지 테스트")
+    @Test
+    public void deleteGroupWhenNotGroupOwner() {
+        //given
+        Long otherMember = 2L;
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        GroupEntity groupEntity = GroupEntity.builder()
+                                 .id(groupId)
+                                 .ownerId(otherMember)
+                                 .path("path")
+                                 .groupName("groupName")
+                                 .isSecret(false)
+                                 .createdAt(LocalDateTime.now())
+                                 .deleted(false)
+                                 .build();
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
+        //when, then
+        assertThatThrownBy(() -> groupService.deleteGroup(groupId))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verify(memberGroupRepository, never()).findByGroupId(groupId);
     }
 }

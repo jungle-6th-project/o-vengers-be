@@ -25,4 +25,7 @@ public class MemberEntity {
 
     @Column
     private String email;
+
+    @Column(nullable = false)
+    private boolean deleted;
 }
