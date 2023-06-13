@@ -40,8 +40,7 @@ public class GroupController {
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping
     public ApiResponse<ApiResponse.SuccessBody<List<GroupResponse>>> browse() {
-        List<GroupResponse> responses = new ArrayList<>();
-        return ApiResponseGenerator.success(responses, HttpStatus.OK, MessageCode.SUCCESS);
+        return ApiResponseGenerator.success(groupService.getMemberGroups(), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
     @ApiOperation(value = "그룹 생성")
