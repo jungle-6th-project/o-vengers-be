@@ -2,6 +2,7 @@ package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.GroupEntity;
+import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.model.request.GroupAddRequest;
 import jungle.ovengers.model.response.GroupResponse;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,9 +43,25 @@ public class GroupService {
     public List<GroupResponse> getAllGroups() {
         return groupRepository.findAll()
                               .stream()
-                              .map(groupEntity -> new GroupResponse(groupEntity.getId(),
-                                                                    groupEntity.getGroupName(),
-                                                                    groupEntity.isSecret()))
+                              .map(groupEntity -> new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret()))
                               .collect(Collectors.toList());
+    }
+
+    public List<GroupResponse> getMemberGroups() {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        List<MemberGroupEntity> memberGroups = memberGroupRepository.findByMemberId(memberId);
+
+        return memberGroups.stream()
+                           .map(MemberGroupEntity::getGroupId)
+                           .map(groupRepository::findById)
+                           .flatMap(Optional::stream)
+                           .map(groupEntity -> new GroupResponse(groupEntity.getId(),
+                                                                 groupEntity.getGroupName(),
+                                                                 groupEntity.isSecret()))
+                           .collect(Collectors.toList());
     }
 }
