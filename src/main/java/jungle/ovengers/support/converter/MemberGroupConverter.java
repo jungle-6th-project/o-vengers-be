@@ -4,12 +4,15 @@ import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberGroupEntity;
 import lombok.experimental.UtilityClass;
 
+import java.time.LocalDateTime;
+
 @UtilityClass
 public final class MemberGroupConverter {
     public MemberGroupEntity to(Long memberId, GroupEntity groupEntity) {
         return MemberGroupEntity.builder()
                                 .groupId(groupEntity.getId())
                                 .memberId(memberId)
+                                .createdAt(LocalDateTime.now())
                                 .build();
     }
 }

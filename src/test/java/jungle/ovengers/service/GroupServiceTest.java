@@ -47,7 +47,7 @@ class GroupServiceTest {
                                                   .ownerId(memberId)
                                                   .path(request.getPath())
                                                   .groupName(request.getGroupName())
-                                                  .createdAt(String.valueOf(LocalDateTime.now()))
+                                                  .createdAt(LocalDateTime.now())
                                                   .build();
 
 //        verify(auditorHolder).get();
@@ -84,7 +84,7 @@ class GroupServiceTest {
                                              .path("path")
                                              .groupName("groupName")
                                              .isSecret(false)
-                                             .createdAt(String.valueOf(LocalDateTime.now()))
+                                             .createdAt(LocalDateTime.now())
                                              .build();
         List<GroupEntity> mockGroupEntities = Arrays.asList(groupEntity);
 
@@ -113,7 +113,7 @@ class GroupServiceTest {
                                              .path("path")
                                              .groupName("groupName")
                                              .isSecret(false)
-                                             .createdAt(String.valueOf(LocalDateTime.now()))
+                                             .createdAt(LocalDateTime.now())
                                              .build();
         MemberEntity memberEntity = MemberEntity.builder()
                                                 .id(memberId)
