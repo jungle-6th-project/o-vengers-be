@@ -1,7 +1,7 @@
 package jungle.ovengers.support.converter;
 
 import jungle.ovengers.entity.TodoEntity;
-import jungle.ovengers.model.request.TodoRequest;
+import jungle.ovengers.model.request.TodoAddRequest;
 import jungle.ovengers.model.response.TodoResponse;
 import lombok.experimental.UtilityClass;
 
@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 @UtilityClass
 public final class TodoConverter {
 
-    public TodoEntity to(Long memberId, Long groupId, TodoRequest request) {
+    public TodoEntity to(Long memberId, TodoAddRequest request) {
         return TodoEntity.builder()
                          .memberId(memberId)
-                         .groupId(groupId)
+                         .groupId(request.getGroupId())
                          .content(request.getContent())
                          .done(false)
                          .createdTime(LocalDateTime.now())
