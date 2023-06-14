@@ -121,8 +121,6 @@ class TodoServiceTest {
     @Test
     public void testEditTodoContent() {
         //given
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
         //when
         TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, "changedContent", todoEntity.isDone()));
@@ -135,8 +133,6 @@ class TodoServiceTest {
     @Test
     public void testEditTodoDoneFalseToTrue() {
         //given
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
         //when
         TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, todoEntity.getContent(), true));
@@ -148,9 +144,6 @@ class TodoServiceTest {
     @Test
     public void testEditTodoDoneTrueToFalse() {
         //given
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
-
         TodoEntity todoEntity = TodoEntity.builder()
                                           .id(todoId)
                                           .memberId(memberId)
