@@ -1,5 +1,6 @@
 package jungle.ovengers.entity;
 
+import jungle.ovengers.model.request.TodoEditRequest;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -42,4 +43,12 @@ public class TodoEntity {
 
     @Column(nullable = false)
     private boolean deleted;
+
+    public void changeTodoInfo(TodoEditRequest request) {
+        this.content = request.getContent();
+        this.done = request.isDone();
+        if (done) {
+            this.doneAt = LocalDateTime.now();
+        }
+    }
 }

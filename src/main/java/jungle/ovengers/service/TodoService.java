@@ -1,9 +1,12 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
+import jungle.ovengers.entity.TodoEntity;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
+import jungle.ovengers.exception.TodoNotFoundException;
 import jungle.ovengers.model.request.TodoAddRequest;
+import jungle.ovengers.model.request.TodoEditRequest;
 import jungle.ovengers.model.request.TodoReadRequest;
 import jungle.ovengers.model.response.TodoResponse;
 import jungle.ovengers.repository.GroupRepository;
@@ -49,5 +52,17 @@ public class TodoService {
                              .stream()
                              .map(TodoConverter::from)
                              .collect(Collectors.toList());
+    }
+
+    public TodoResponse changeTodoInfo(TodoEditRequest request) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        TodoEntity todoEntity = todoRepository.findById(request.getTodoId())
+                                              .orElseThrow(() -> new TodoNotFoundException(request.getTodoId()));
+        todoEntity.changeTodoInfo(request);
+        return TodoConverter.from(todoEntity);
     }
 }

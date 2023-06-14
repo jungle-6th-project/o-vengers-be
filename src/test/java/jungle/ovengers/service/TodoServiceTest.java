@@ -5,6 +5,7 @@ import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.TodoEntity;
 import jungle.ovengers.model.request.TodoAddRequest;
+import jungle.ovengers.model.request.TodoEditRequest;
 import jungle.ovengers.model.request.TodoReadRequest;
 import jungle.ovengers.model.response.TodoResponse;
 import jungle.ovengers.repository.GroupRepository;
@@ -42,6 +43,7 @@ class TodoServiceTest {
 
     private Long memberId;
     private Long groupId;
+    private Long todoId;
     private GroupEntity groupEntity;
     private MemberEntity memberEntity;
     private TodoEntity todoEntity;
@@ -50,6 +52,7 @@ class TodoServiceTest {
     public void setup() {
         memberId = 1L;
         groupId = 1L;
+        todoId = 1L;
         groupEntity = GroupEntity.builder()
                                  .id(groupId)
                                  .ownerId(memberId)
@@ -67,7 +70,7 @@ class TodoServiceTest {
                                    .deleted(false)
                                    .build();
         todoEntity = TodoEntity.builder()
-                               .id(1L)
+                               .id(todoId)
                                .memberId(memberId)
                                .groupId(groupId)
                                .content("content")
@@ -111,5 +114,56 @@ class TodoServiceTest {
                          .getTodoId()).isEqualTo(todoEntity.getId());
         assertThat(result.get(0)
                          .getContent()).isEqualTo(todoEntity.getContent());
+    }
+
+    @DisplayName("Todo 내용 수정이 잘 되는지 테스트")
+    @Test
+    public void testEditTodoContent() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
+        //when
+        TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, "changedContent", todoEntity.isDone()));
+        //then
+        assertThat(result.isDone()).isEqualTo(todoEntity.isDone());
+        assertThat(result.getContent()).isEqualTo("changedContent");
+    }
+
+    @DisplayName("Todo 완료 여부가 false에서 true로 잘 변경 되는지 테스트")
+    @Test
+    public void testEditTodoDoneFalseToTrue() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
+        //when
+        TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, todoEntity.getContent(), true));
+        //then
+        assertThat(result.isDone()).isTrue();
+    }
+
+    @DisplayName("Todo 완료 여부가 true에서 false로 잘 변경 되는지 테스트")
+    @Test
+    public void testEditTodoDoneTrueToFalse() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+
+        TodoEntity todoEntity = TodoEntity.builder()
+                                          .id(todoId)
+                                          .memberId(memberId)
+                                          .groupId(groupId)
+                                          .content("content")
+                                          .done(true)
+                                          .createdTime(LocalDateTime.now())
+                                          .doneAt(LocalDateTime.now())
+                                          .deleted(false)
+                                          .build();
+        when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
+        //when
+        TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, todoEntity.getContent(), false));
+        //then
+        assertThat(result.isDone()).isFalse();
     }
 }
