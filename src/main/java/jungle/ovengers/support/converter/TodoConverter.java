@@ -17,7 +17,8 @@ public final class TodoConverter {
                          .content(request.getContent())
                          .done(false)
                          .createdTime(LocalDateTime.now())
-                         .updatedTime(LocalDateTime.now())
+                         .doneAt(LocalDateTime.now())
+                         .deleted(false)
                          .build();
     }
 
@@ -26,6 +27,7 @@ public final class TodoConverter {
                            .todoId(todoEntity.getId())
                            .groupId(todoEntity.getGroupId())
                            .content(todoEntity.getContent())
+                           .done(todoEntity.isDone())
                            .build();
     }
 }
