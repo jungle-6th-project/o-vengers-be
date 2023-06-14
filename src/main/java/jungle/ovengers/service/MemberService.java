@@ -31,7 +31,7 @@ public class MemberService {
     private final TokenGenerator tokenGenerator;
     private final AuditorHolder auditorHolder;
 
-    private final String client_id = "0ec08fbf91f26056fcb7941c6f915a05";
+    private final String client_id = "997f10e0eac4d170ed7b30fa0c28d314";
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
     @Value("${kakao.redirect-uri}")
