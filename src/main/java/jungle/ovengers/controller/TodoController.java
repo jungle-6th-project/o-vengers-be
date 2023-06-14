@@ -31,9 +31,8 @@ public class TodoController {
     @ApiOperation(value = "그룹 Todo 조회")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping
-    public ApiResponse<ApiResponse.SuccessBody<List<TodoResponse>>> browse(@RequestBody TodoReadRequest request) {
-        List<TodoResponse> responses = new ArrayList<>();
-        return ApiResponseGenerator.success(responses, HttpStatus.OK, MessageCode.SUCCESS);
+    public ApiResponse<ApiResponse.SuccessBody<List<TodoResponse>>> browse(TodoReadRequest request) {
+        return ApiResponseGenerator.success(todoService.getGroupTodos(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
     @ApiOperation(value = "그룹 Todo 생성")
@@ -47,7 +46,7 @@ public class TodoController {
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @PutMapping
     public ApiResponse<ApiResponse.SuccessBody<TodoResponse>> edit(@RequestBody TodoEditRequest request) {
-        return ApiResponseGenerator.success(new TodoResponse(1L, 2L, "content"), HttpStatus.OK, MessageCode.SUCCESS);
+        return ApiResponseGenerator.success(new TodoResponse(1L, 2L, "content", false), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
     @ApiOperation(value = "그룹 Todo 삭제")

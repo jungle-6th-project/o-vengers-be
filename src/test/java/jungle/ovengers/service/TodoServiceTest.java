@@ -5,6 +5,7 @@ import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.TodoEntity;
 import jungle.ovengers.model.request.TodoAddRequest;
+import jungle.ovengers.model.request.TodoReadRequest;
 import jungle.ovengers.model.response.TodoResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberRepository;
@@ -18,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +73,8 @@ class TodoServiceTest {
                                .content("content")
                                .done(false)
                                .createdTime(LocalDateTime.now())
-                               .updatedTime(LocalDateTime.now())
+                               .doneAt(LocalDateTime.now())
+                               .deleted(false)
                                .build();
     }
 
@@ -88,5 +92,24 @@ class TodoServiceTest {
         assertThat(result.getTodoId()).isEqualTo(todoEntity.getId());
         assertThat(result.getContent()).isEqualTo(todoEntity.getContent());
         assertThat(result.getGroupId()).isEqualTo(todoEntity.getGroupId());
+        assertThat(result.isDone()).isFalse();
+    }
+
+    @DisplayName("사용자가 속해있는 그룹의 todo를 조회하는 요청이 왔을때, 잘 조회되는지 테스트")
+    @Test
+    public void testGetGroupTodos() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Collections.singletonList(todoEntity));
+        //when
+        List<TodoResponse> result = todoService.getGroupTodos(new TodoReadRequest(groupId));
+        //then
+        assertThat(result.get(0)
+                         .getGroupId()).isEqualTo(todoEntity.getGroupId());
+        assertThat(result.get(0)
+                         .getTodoId()).isEqualTo(todoEntity.getId());
+        assertThat(result.get(0)
+                         .getContent()).isEqualTo(todoEntity.getContent());
     }
 }

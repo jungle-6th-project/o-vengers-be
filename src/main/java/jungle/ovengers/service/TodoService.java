@@ -4,6 +4,7 @@ import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.model.request.TodoAddRequest;
+import jungle.ovengers.model.request.TodoReadRequest;
 import jungle.ovengers.model.response.TodoResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberRepository;
@@ -13,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,5 +37,17 @@ public class TodoService {
         groupRepository.findById(request.getGroupId())
                        .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
         return TodoConverter.from(todoRepository.save(TodoConverter.to(memberId, request)));
+    }
+
+    public List<TodoResponse> getGroupTodos(TodoReadRequest request) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        return todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(request.getGroupId(), memberId)
+                             .stream()
+                             .map(TodoConverter::from)
+                             .collect(Collectors.toList());
     }
 }
