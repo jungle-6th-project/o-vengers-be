@@ -13,4 +13,5 @@ public class TodoResponse {
     private Long todoId;
     private Long groupId;
     private String content;
+    private boolean done;
 }

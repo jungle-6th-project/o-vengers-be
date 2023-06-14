@@ -38,5 +38,8 @@ public class TodoEntity {
 
     @Column(nullable = false)
     @LastModifiedDate
-    private LocalDateTime updatedTime;
+    private LocalDateTime doneAt;
+
+    @Column(nullable = false)
+    private boolean deleted;
 }
