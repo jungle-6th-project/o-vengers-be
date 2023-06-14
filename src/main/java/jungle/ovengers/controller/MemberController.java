@@ -33,6 +33,7 @@ public class MemberController {
     @ApiImplicitParam(name = "request", value = "카카오 인증 서버로부터 발급된 인가 코드")
     @PostMapping("/tokens")
     public ApiResponse<ApiResponse.SuccessBody<Token>> publishToken(@RequestBody AuthRequest request) {
+        log.debug("요청 들어옴 : {}", request.getAuthCode());
         return ApiResponseGenerator.success(memberService.publishToken(request), HttpStatus.OK);
     }
 
