@@ -50,9 +50,9 @@ public class GroupController {
 
     @ApiOperation(value = "그룹 수정")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
-    @PatchMapping("/{groupId}")
-    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> edit(@PathVariable Long groupId, @RequestBody GroupEditRequest request) {
-        return ApiResponseGenerator.success(new GroupResponse(1L, "groupName", false, "color"), HttpStatus.OK, MessageCode.SUCCESS);
+    @PatchMapping
+    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> edit( @RequestBody GroupEditRequest request) {
+        return ApiResponseGenerator.success(groupService.changeGroupInfo(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
     @ApiOperation(value = "사용자 그룹 컬러 변경")

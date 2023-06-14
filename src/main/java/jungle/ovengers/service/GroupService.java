@@ -6,10 +6,7 @@ import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberGroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
-import jungle.ovengers.model.request.GroupAddRequest;
-import jungle.ovengers.model.request.GroupColorEditRequest;
-import jungle.ovengers.model.request.GroupJoinRequest;
-import jungle.ovengers.model.request.GroupWithdrawRequest;
+import jungle.ovengers.model.request.*;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberGroupRepository;
@@ -126,6 +123,20 @@ public class GroupService {
 
         memberGroupRepository.findByGroupIdAndMemberId(request.getGroupId(), memberId)
                              .ifPresent(MemberGroupEntity::delete);
+    }
+
+    public GroupResponse changeGroupInfo(GroupEditRequest request) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+        GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(request.getGroupId())
+                                                 .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
+        if (groupEntity.isOwner(memberId)) {
+            groupEntity.changeGroupInfo(request);
+            return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), null);
+        }
+        throw new IllegalArgumentException("그룹장만 그룹 정보를 변경할 수 있습니다.");
     }
 
     public GroupResponse changeGroupColor(GroupColorEditRequest request) {

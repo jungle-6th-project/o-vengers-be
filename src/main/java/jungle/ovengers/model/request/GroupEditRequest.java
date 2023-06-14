@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GroupEditRequest {
+    private Long groupId;
     private String groupName;
     private boolean isSecret;
     private String password;

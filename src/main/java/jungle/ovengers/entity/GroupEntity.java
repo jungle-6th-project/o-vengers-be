@@ -1,5 +1,6 @@
 package jungle.ovengers.entity;
 
+import jungle.ovengers.model.request.GroupEditRequest;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -52,5 +53,11 @@ public class GroupEntity {
 
     public void delete() {
         this.deleted = true;
+    }
+
+    public void changeGroupInfo(GroupEditRequest request) {
+        this.groupName = request.getGroupName();
+        this.isSecret = request.isSecret();
+        this.password = request.getPassword();
     }
 }

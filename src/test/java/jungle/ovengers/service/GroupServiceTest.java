@@ -4,10 +4,7 @@ import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberGroupEntity;
-import jungle.ovengers.model.request.GroupAddRequest;
-import jungle.ovengers.model.request.GroupColorEditRequest;
-import jungle.ovengers.model.request.GroupJoinRequest;
-import jungle.ovengers.model.request.GroupWithdrawRequest;
+import jungle.ovengers.model.request.*;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberGroupRepository;
@@ -296,5 +293,44 @@ class GroupServiceTest {
         GroupResponse result = groupService.changeGroupColor(new GroupColorEditRequest(groupId, "changedColor"));
         //then
         assertThat(result.getColor()).isEqualTo("changedColor");
+    }
+
+    @DisplayName("그룹장이 그룹 색상을 변경했을때 잘 변경되는지 테스트")
+    @Test
+    public void testChangeGroupInfoByGroupOwner() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        //when
+        GroupResponse result = groupService.changeGroupInfo(new GroupEditRequest(groupId, "changedGroupName", true, "changedPassword"));
+        //then
+        assertThat(result.getColor()).isEqualTo(null);
+        assertThat(result.getGroupName()).isEqualTo("changedGroupName");
+        assertThat(result.isSecret()).isTrue();
+    }
+
+    @DisplayName("그룹장이 아닌 사용자가 그룹 색상을 변경하려 할 때, 예외가 발생되는지 테스트")
+    @Test
+    public void testRejectChangeGroupByNotGroupOwner() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+
+        Long otherMemberId = 2L;
+        GroupEntity groupEntity = GroupEntity.builder()
+                                             .id(groupId)
+                                             .groupName("groupName")
+                                             .isSecret(false)
+                                             .ownerId(otherMemberId)
+                                             .deleted(false)
+                                             .path("path")
+                                             .createdAt(LocalDateTime.now())
+                                             .build();
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        //when
+        assertThatThrownBy(() -> groupService.changeGroupInfo(new GroupEditRequest(groupId, "changedGroupName", true, "changedPassword")))
+                .isInstanceOf(IllegalArgumentException.class);
+
     }
 }
