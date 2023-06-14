@@ -2,10 +2,7 @@ package jungle.ovengers.controller;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import jungle.ovengers.model.request.GroupAddRequest;
-import jungle.ovengers.model.request.GroupEditRequest;
-import jungle.ovengers.model.request.GroupJoinRequest;
-import jungle.ovengers.model.request.GroupWithdrawRequest;
+import jungle.ovengers.model.request.*;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.service.GroupService;
 import jungle.ovengers.support.ApiResponse;
@@ -53,9 +50,16 @@ public class GroupController {
 
     @ApiOperation(value = "그룹 수정")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
-    @PutMapping("/{groupId}")
+    @PatchMapping("/{groupId}")
     public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> edit(@PathVariable Long groupId, @RequestBody GroupEditRequest request) {
-        return ApiResponseGenerator.success(new GroupResponse(1L, "groupName", false), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+        return ApiResponseGenerator.success(new GroupResponse(1L, "groupName", false, "color"), HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
+    @ApiOperation(value = "사용자 그룹 컬러 변경")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @PatchMapping("/color")
+    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> editColor(@RequestBody GroupColorEditRequest request) {
+        return ApiResponseGenerator.success(groupService.changeGroupColor(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
     @ApiOperation(value = "그룹 삭제")

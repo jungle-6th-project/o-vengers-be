@@ -4,8 +4,10 @@ import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.exception.GroupNotFoundException;
+import jungle.ovengers.exception.MemberGroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.model.request.GroupAddRequest;
+import jungle.ovengers.model.request.GroupColorEditRequest;
 import jungle.ovengers.model.request.GroupJoinRequest;
 import jungle.ovengers.model.request.GroupWithdrawRequest;
 import jungle.ovengers.model.response.GroupResponse;
@@ -20,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class GroupService {
         GroupEntity groupEntity = groupRepository.save(GroupConverter.to(request, memberId));
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupEntity.getId()));
 
-        return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret());
+        return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), null);
     }
 
     public List<GroupResponse> getAllGroups() {
@@ -53,7 +54,7 @@ public class GroupService {
         return groupRepository.findAll()
                               .stream()
                               .filter(groupEntity -> !groupEntity.isDeleted() && !excludedGroupIds.contains(groupEntity.getId()))
-                              .map(groupEntity -> new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret()))
+                              .map(groupEntity -> new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), null))
                               .collect(Collectors.toList());
     }
 
@@ -63,16 +64,17 @@ public class GroupService {
         memberRepository.findById(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
-        List<MemberGroupEntity> memberGroups = memberGroupRepository.findByMemberId(memberId);
+        List<MemberGroupEntity> memberGroups = memberGroupRepository.findByMemberIdAndDeletedFalse(memberId);
 
         return memberGroups.stream()
-                           .map(MemberGroupEntity::getGroupId)
-                           .map(groupRepository::findById)
-                           .flatMap(Optional::stream)
-                           .filter(groupEntity -> !groupEntity.isDeleted())
-                           .map(groupEntity -> new GroupResponse(groupEntity.getId(),
-                                                                 groupEntity.getGroupName(),
-                                                                 groupEntity.isSecret()))
+                           .map(memberGroupEntity -> {
+                               GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(memberGroupEntity.getGroupId())
+                                                                        .orElseThrow(() -> new GroupNotFoundException(memberGroupEntity.getGroupId()));
+                               return new GroupResponse(groupEntity.getId(),
+                                                        groupEntity.getGroupName(),
+                                                        groupEntity.isSecret(),
+                                                        memberGroupEntity.getColor());
+                           })
                            .collect(Collectors.toList());
     }
 
@@ -93,7 +95,7 @@ public class GroupService {
             return null;
         }
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
-        return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret());
+        return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), "color");
     }
 
     public void deleteGroup(Long groupId) {
@@ -124,5 +126,19 @@ public class GroupService {
 
         memberGroupRepository.findByGroupIdAndMemberId(request.getGroupId(), memberId)
                              .ifPresent(MemberGroupEntity::delete);
+    }
+
+    public GroupResponse changeGroupColor(GroupColorEditRequest request) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+        GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(request.getGroupId())
+                                                 .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
+        MemberGroupEntity memberGroupEntity = memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(request.getGroupId(), memberId)
+                                                                   .orElseThrow(() -> new MemberGroupNotFoundException(memberId, request.getGroupId()));
+        memberGroupEntity.changeColor(request.getColor());
+
+        return new GroupResponse(memberGroupEntity.getGroupId(), groupEntity.getGroupName(), groupEntity.isSecret(), memberGroupEntity.getColor());
     }
 }
