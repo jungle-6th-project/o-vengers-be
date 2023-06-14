@@ -51,4 +51,8 @@ public class TodoEntity {
             this.doneAt = LocalDateTime.now();
         }
     }
+
+    public void delete() {
+        this.deleted = true;
+    }
 }
