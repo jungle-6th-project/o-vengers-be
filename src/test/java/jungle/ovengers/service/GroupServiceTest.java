@@ -155,7 +155,7 @@ class GroupServiceTest {
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
-        when(memberGroupRepository.existsByGroupIdAndMemberId(groupId, memberId)).thenReturn(true);
+        when(memberGroupRepository.existsByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(true);
         //when
         GroupResponse result = groupService.joinGroup(groupId, null);
         //then
@@ -183,7 +183,7 @@ class GroupServiceTest {
                                              .build();
 
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
-        when(memberGroupRepository.existsByGroupIdAndMemberId(groupId, memberId)).thenReturn(false);
+        when(memberGroupRepository.existsByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(false);
 
         //when
         GroupResponse result = groupService.joinGroup(groupId, null);
@@ -220,7 +220,7 @@ class GroupServiceTest {
         //when, then
         assertThatThrownBy(() -> groupService.joinGroup(groupId, new GroupJoinRequest("wrong password")))
                 .isInstanceOf(IllegalArgumentException.class);
-        verify(memberGroupRepository, never()).existsByGroupIdAndMemberId(groupId, memberId);
+        verify(memberGroupRepository, never()).existsByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
         verify(memberGroupRepository, never()).save(memberGroupEntity);
     }
 
@@ -274,11 +274,11 @@ class GroupServiceTest {
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
-        when(memberGroupRepository.findByGroupIdAndMemberId(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
+        when(memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
         //when
         groupService.withdrawGroup(request);
         //then
-        verify(memberGroupRepository, times(1)).findByGroupIdAndMemberId(groupId, memberId);
+        verify(memberGroupRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
     }
 
     @DisplayName("사용자가 속한 그룹의 색깔을 변경했을때, 잘 변경 되는지 테스트")

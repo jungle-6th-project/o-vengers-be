@@ -88,7 +88,7 @@ public class GroupService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        if (memberGroupRepository.existsByGroupIdAndMemberId(groupId, memberId)) {
+        if (memberGroupRepository.existsByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)) {
             return null;
         }
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
@@ -121,7 +121,7 @@ public class GroupService {
         groupRepository.findById(request.getGroupId())
                        .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
 
-        memberGroupRepository.findByGroupIdAndMemberId(request.getGroupId(), memberId)
+        memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(request.getGroupId(), memberId)
                              .ifPresent(MemberGroupEntity::delete);
     }
 
