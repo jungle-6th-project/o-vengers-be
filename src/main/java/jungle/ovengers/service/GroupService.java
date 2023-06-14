@@ -44,7 +44,7 @@ public class GroupService {
 
     public List<GroupResponse> getAllGroups() {
         Long memberId = auditorHolder.get();
-        Set<Long> excludedGroupIds = memberGroupRepository.findByMemberId(memberId)
+        Set<Long> excludedGroupIds = memberGroupRepository.findByMemberIdAndDeletedFalse(memberId)
                                                           .stream().map(MemberGroupEntity::getGroupId)
                                                           .collect(Collectors.toSet());
 
