@@ -33,11 +33,18 @@ public class MemberGroupEntity {
     @Column(nullable = false)
     private boolean deleted;
 
+    @Column
+    private String color;
+
     public boolean isEqualMemberId(Long memberId) {
         return Objects.equals(this.memberId, memberId);
     }
 
     public void delete() {
         this.deleted = true;
+    }
+
+    public void changeColor(String color) {
+        this.color = color;
     }
 }

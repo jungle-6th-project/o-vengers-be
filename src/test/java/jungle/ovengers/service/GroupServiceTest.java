@@ -5,6 +5,7 @@ import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.model.request.GroupAddRequest;
+import jungle.ovengers.model.request.GroupColorEditRequest;
 import jungle.ovengers.model.request.GroupJoinRequest;
 import jungle.ovengers.model.request.GroupWithdrawRequest;
 import jungle.ovengers.model.response.GroupResponse;
@@ -74,6 +75,7 @@ class GroupServiceTest {
                                              .groupId(groupEntity.getId())
                                              .id(memberId + 1)
                                              .deleted(false)
+                                             .color("color")
                                              .build();
     }
 
@@ -133,8 +135,8 @@ class GroupServiceTest {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
-        when(memberGroupRepository.findByMemberId(memberId)).thenReturn(Collections.singletonList(memberGroupEntity));
-        when(groupRepository.findById(groupEntity.getId())).thenReturn(Optional.of(groupEntity));
+        when(memberGroupRepository.findByMemberIdAndDeletedFalse(memberId)).thenReturn(Collections.singletonList(memberGroupEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupEntity.getId())).thenReturn(Optional.of(groupEntity));
 
         //when
         List<GroupResponse> results = groupService.getMemberGroups();
@@ -251,14 +253,14 @@ class GroupServiceTest {
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         GroupEntity groupEntity = GroupEntity.builder()
-                                 .id(groupId)
-                                 .ownerId(otherMember)
-                                 .path("path")
-                                 .groupName("groupName")
-                                 .isSecret(false)
-                                 .createdAt(LocalDateTime.now())
-                                 .deleted(false)
-                                 .build();
+                                             .id(groupId)
+                                             .ownerId(otherMember)
+                                             .path("path")
+                                             .groupName("groupName")
+                                             .isSecret(false)
+                                             .createdAt(LocalDateTime.now())
+                                             .deleted(false)
+                                             .build();
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
         //when, then
         assertThatThrownBy(() -> groupService.deleteGroup(groupId))
@@ -280,5 +282,19 @@ class GroupServiceTest {
         groupService.withdrawGroup(request);
         //then
         verify(memberGroupRepository, times(1)).findByGroupIdAndMemberId(groupId, memberId);
+    }
+
+    @DisplayName("사용자가 속한 그룹의 색깔을 변경했을때, 잘 변경 되는지 테스트")
+    @Test
+    public void testChangeMemberGroupColor() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        when(memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
+        //when
+        GroupResponse result = groupService.changeGroupColor(new GroupColorEditRequest(groupId, "changedColor"));
+        //then
+        assertThat(result.getColor()).isEqualTo("changedColor");
     }
 }
