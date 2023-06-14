@@ -5,8 +5,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -28,4 +26,7 @@ public class MemberRoomEntity {
 
     @Column
     private Duration durationTime;
+
+    @Column(nullable = false)
+    private boolean deleted;
 }

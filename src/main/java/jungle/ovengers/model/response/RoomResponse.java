@@ -1,18 +1,21 @@
-package jungle.ovengers.model.request;
+package jungle.ovengers.model.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
-@Setter
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class RoomAddRequest {
-    private String accessToken;
-    private Long groupId;
+public class RoomResponse {
+    private Long memberRoomId;
+    private Long roomId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private List<String> profiles;
 }

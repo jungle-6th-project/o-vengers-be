@@ -19,8 +19,16 @@ public class RoomEntity {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime reservedTime;
+    private Long groupId;
 
     @Column(nullable = false)
+    private LocalDateTime startTime;
+
+    @Column(nullable = false)
+    private LocalDateTime endTime;
+    @Column(nullable = false)
     private Long ownerId;
+
+    @Column(nullable = false)
+    private boolean deleted;
 }
