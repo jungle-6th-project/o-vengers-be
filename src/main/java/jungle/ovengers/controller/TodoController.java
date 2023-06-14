@@ -53,6 +53,7 @@ public class TodoController {
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @DeleteMapping
     public ApiResponse<ApiResponse.SuccessBody<Void>> delete(@RequestBody TodoDeleteRequest request) {
+        todoService.deleteTodo(request);
         return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.RESOURCE_DELETED);
     }
 }

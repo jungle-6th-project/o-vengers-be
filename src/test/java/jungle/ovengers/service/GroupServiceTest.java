@@ -331,6 +331,5 @@ class GroupServiceTest {
         //when
         assertThatThrownBy(() -> groupService.changeGroupInfo(new GroupEditRequest(groupId, "changedGroupName", true, "changedPassword")))
                 .isInstanceOf(IllegalArgumentException.class);
-
     }
 }

@@ -5,6 +5,7 @@ import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.TodoEntity;
 import jungle.ovengers.model.request.TodoAddRequest;
+import jungle.ovengers.model.request.TodoDeleteRequest;
 import jungle.ovengers.model.request.TodoEditRequest;
 import jungle.ovengers.model.request.TodoReadRequest;
 import jungle.ovengers.model.response.TodoResponse;
@@ -26,7 +27,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TodoServiceTest {
@@ -120,8 +121,6 @@ class TodoServiceTest {
     @Test
     public void testEditTodoContent() {
         //given
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
         //when
         TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, "changedContent", todoEntity.isDone()));
@@ -134,8 +133,6 @@ class TodoServiceTest {
     @Test
     public void testEditTodoDoneFalseToTrue() {
         //given
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
         //when
         TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, todoEntity.getContent(), true));
@@ -147,9 +144,6 @@ class TodoServiceTest {
     @Test
     public void testEditTodoDoneTrueToFalse() {
         //given
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
-
         TodoEntity todoEntity = TodoEntity.builder()
                                           .id(todoId)
                                           .memberId(memberId)
@@ -165,5 +159,15 @@ class TodoServiceTest {
         TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, todoEntity.getContent(), false));
         //then
         assertThat(result.isDone()).isFalse();
+    }
+
+    @DisplayName("Todo 삭제 요청시 삭제가 잘 되는지 테스트")
+    @Test
+    public void testDeleteTodo() {
+        //given
+        //when
+        todoService.deleteTodo(new TodoDeleteRequest(todoId));
+        //then
+        verify(todoRepository, times(1)).findById(todoId);
     }
 }
