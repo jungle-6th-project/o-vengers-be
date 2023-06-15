@@ -13,7 +13,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 public class RoomResponse {
-    private Long memberRoomId;
     private Long roomId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
