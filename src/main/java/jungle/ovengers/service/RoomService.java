@@ -68,6 +68,9 @@ public class RoomService {
         }
 
         memberRoomRepository.delete(memberRoomEntity);
+        if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(request.getRoomId())) {
+            roomEntity.delete();
+        }
 
         return getRoomResponse(request, roomEntity, memberRoomEntity);
     }
