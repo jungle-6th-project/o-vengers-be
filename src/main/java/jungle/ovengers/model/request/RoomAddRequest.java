@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoomAddRequest {
-    private String accessToken;
     private Long groupId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
