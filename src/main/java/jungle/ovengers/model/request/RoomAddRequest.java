@@ -14,4 +14,13 @@ public class RoomAddRequest {
     private Long groupId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    @Override
+    public String toString() {
+        return "RoomAddRequest{" +
+                "groupId=" + groupId +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                '}';
+    }
 }
