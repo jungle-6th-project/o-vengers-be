@@ -171,4 +171,20 @@ class RoomServiceTest {
         assertThat(result.getMemberRoomId()).isEqualTo(memberRoomEntity.getId());
     }
 
+    @DisplayName("예약한 방에 예약자가 한명도 없으면, 해당 방이 잘 삭제 되는지 테스트")
+    @Test
+    public void testDeleteRoomWhenNobodyInRoom() {
+        //given
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
+        when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
+        when(memberRoomRepository.existsByRoomIdAndDeletedFalse(roomId)).thenReturn(false);
+        when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomId)).thenReturn(Collections.singletonList(memberRoomEntity));
+        when(memberRepository.findAllById(Collections.singletonList(memberId))).thenReturn(Collections.singletonList(memberEntity));
+        //when
+        RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
+        //then
+        assertThat(roomEntity.isDeleted()).isTrue();
+    }
 }

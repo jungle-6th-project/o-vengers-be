@@ -10,4 +10,5 @@ public interface MemberRoomRepository extends JpaRepository<MemberRoomEntity, Lo
     Optional<MemberRoomEntity> findByMemberIdAndRoomIdAndDeletedFalse(Long memberId, Long roomId);
 
     List<MemberRoomEntity> findByRoomIdAndDeletedFalse(Long roomId);
+    boolean existsByRoomIdAndDeletedFalse(Long roomId);
 }
