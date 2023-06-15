@@ -1,28 +1,31 @@
 package jungle.ovengers.support.converter;
 
-import jungle.ovengers.entity.MemberRoomEntity;
+import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.model.request.RoomAddRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 public final class RoomConverter {
-    public static RoomEntity to(RoomAddRequest request, Long memberId) {
+    public static RoomEntity to(RoomAddRequest request, MemberEntity memberEntity) {
+        List<String> profiles = new ArrayList<>();
+        profiles.add(memberEntity.getProfile());
         return RoomEntity.builder()
                          .groupId(request.getGroupId())
-                         .ownerId(memberId)
+                         .ownerId(memberEntity.getId())
+                         .profiles(profiles)
                          .startTime(request.getStartTime())
                          .endTime(request.getEndTime())
                          .deleted(false)
                          .build();
     }
 
-    public static RoomResponse from(RoomEntity roomEntity, MemberRoomEntity memberRoomEntity, List<String> profiles) {
+    public static RoomResponse from(RoomEntity roomEntity, List<String> profiles) {
         return RoomResponse.builder()
-                           .memberRoomId(memberRoomEntity.getId())
                            .roomId(roomEntity.getId())
                            .startTime(roomEntity.getStartTime())
                            .endTime(roomEntity.getEndTime())

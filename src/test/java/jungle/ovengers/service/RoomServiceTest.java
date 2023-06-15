@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -48,7 +49,7 @@ class RoomServiceTest {
     private TokenResolver tokenResolver;
 
     @InjectMocks
-    private RoomService roomService;
+    private RoomStompService roomService;
 
     private Long memberId;
     private Long groupId;
@@ -88,6 +89,7 @@ class RoomServiceTest {
                                                      .plusHours(1))
                                .ownerId(memberId)
                                .groupId(groupId)
+                               .profiles(new ArrayList<>())
                                .deleted(false)
                                .build();
         memberRoomEntity = MemberRoomEntity.builder()
@@ -120,7 +122,6 @@ class RoomServiceTest {
 
         //then
         assertNotNull(result);
-        assertThat(result.getMemberRoomId()).isEqualTo(memberRoomEntity.getId());
         assertThat(result.getStartTime()
                          .getHour()).isEqualTo(request.getStartTime()
                                                       .getHour());
@@ -130,7 +131,7 @@ class RoomServiceTest {
         assertThat(result.getRoomId()).isEqualTo(roomEntity.getId());
     }
 
-    @DisplayName("예약 방에 사용자가 참가할 경우, 사용자 예약 정보가 잘 저장되는지 테스트")
+    @DisplayName("예약 방에 사용자가 이미 예약되어 있을 경우, 사용자 예약 정보가 잘 삭제 되는지 테스트")
     @Test
     public void testJoinRoom() {
         //given
@@ -138,8 +139,6 @@ class RoomServiceTest {
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
-        when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomId)).thenReturn(Collections.singletonList(memberRoomEntity));
-        when(memberRepository.findAllById(Collections.singletonList(memberId))).thenReturn(Collections.singletonList(memberEntity));
         when(memberRoomRepository.existsByRoomIdAndDeletedFalse(roomId)).thenReturn(true);
         //when
         RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
@@ -148,10 +147,10 @@ class RoomServiceTest {
         assertThat(result.getRoomId()).isEqualTo(roomId);
         assertThat(result.getEndTime()).isEqualTo(roomEntity.getEndTime());
         assertThat(result.getStartTime()).isEqualTo(roomEntity.getStartTime());
-        assertThat(result.getMemberRoomId()).isEqualTo(memberRoomEntity.getId());
+        assertThat(result.getProfiles().size()).isEqualTo(0);
     }
 
-    @DisplayName("예약 방에 사용자가 이미 예약되어 있을 경우, 사용자 예약 정보가 잘 삭제 되는지 테스트")
+    @DisplayName("예약 방에 사용자가 참가할 경우, 사용자 예약 정보가 잘 저장되는지 테스트")
     @Test
     public void testJoinRoomWhenAlreadyJoined() {
         //given
@@ -160,16 +159,14 @@ class RoomServiceTest {
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.empty());
         when(memberRoomRepository.save(any(MemberRoomEntity.class))).thenReturn(memberRoomEntity);
-        when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomId)).thenReturn(Collections.singletonList(memberRoomEntity));
-        when(memberRepository.findAllById(Collections.singletonList(memberId))).thenReturn(Collections.singletonList(memberEntity));
         //when
         RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
         //then
         verify(memberRoomRepository, never()).delete(any(MemberRoomEntity.class));
+        assertThat(result.getProfiles().size()).isEqualTo(1);
         assertThat(result.getRoomId()).isEqualTo(roomId);
         assertThat(result.getEndTime()).isEqualTo(roomEntity.getEndTime());
         assertThat(result.getStartTime()).isEqualTo(roomEntity.getStartTime());
-        assertThat(result.getMemberRoomId()).isEqualTo(memberRoomEntity.getId());
     }
 
     @DisplayName("예약한 방에 예약자가 한명도 없으면, 해당 방이 잘 삭제 되는지 테스트")
@@ -182,7 +179,7 @@ class RoomServiceTest {
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
         when(memberRoomRepository.existsByRoomIdAndDeletedFalse(roomId)).thenReturn(false);
         //when
-        roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
+        RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
         //then
         assertThat(roomEntity.isDeleted()).isTrue();
         verify(memberRoomRepository, never()).findByRoomIdAndDeletedFalse(roomId);
