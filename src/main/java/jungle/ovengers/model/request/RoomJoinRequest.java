@@ -12,7 +12,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoomJoinRequest {
+    private Long roomId;
     private Long groupId;
-    private LocalDateTime from;
-    private LocalDateTime to;
+
+    @Override
+    public String toString() {
+        return "RoomJoinRequest{" +
+                "roomId=" + roomId +
+                '}';
+    }
 }

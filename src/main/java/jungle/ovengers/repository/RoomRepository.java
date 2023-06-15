@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface RoomRepository extends JpaRepository<RoomEntity, Long> {
     Optional<RoomEntity> findByGroupIdAndStartTimeAndDeletedFalse(Long groupId, LocalDateTime startTime);
+
+    Optional<RoomEntity> findByIdAndDeletedFalse(Long roomId);
 }
