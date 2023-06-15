@@ -100,12 +100,9 @@ class RoomServiceTest {
     @Test
     public void testGenerateRoom() {
         //given
-        String accessToken = "dummy_access_token";
         Long memberId = 1L;
-        RoomAddRequest request = new RoomAddRequest(accessToken, groupId, LocalDateTime.now(), LocalDateTime.now()
-                                                                                                            .plusHours(1));
-        when(tokenResolver.resolveToken(accessToken)).thenReturn(Optional.of(memberId));
-
+        RoomAddRequest request = new RoomAddRequest(groupId, LocalDateTime.now(), LocalDateTime.now()
+                                                                                               .plusHours(1));
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
 
         when(groupRepository.findById(request.getGroupId())).thenReturn(Optional.of(groupEntity));
@@ -117,7 +114,7 @@ class RoomServiceTest {
         when(memberRoomRepository.save(any(MemberRoomEntity.class))).thenReturn(memberRoomEntity);
 
         //when
-        RoomResponse result = roomService.generateRoom(request);
+        RoomResponse result = roomService.generateRoom(memberId, request);
 
         //then
         assertNotNull(result);
