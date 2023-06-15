@@ -140,6 +140,7 @@ class RoomServiceTest {
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
         when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomId)).thenReturn(Collections.singletonList(memberRoomEntity));
         when(memberRepository.findAllById(Collections.singletonList(memberId))).thenReturn(Collections.singletonList(memberEntity));
+        when(memberRoomRepository.existsByRoomIdAndDeletedFalse(roomId)).thenReturn(true);
         //when
         RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
         //then
@@ -180,11 +181,11 @@ class RoomServiceTest {
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
         when(memberRoomRepository.existsByRoomIdAndDeletedFalse(roomId)).thenReturn(false);
-        when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomId)).thenReturn(Collections.singletonList(memberRoomEntity));
-        when(memberRepository.findAllById(Collections.singletonList(memberId))).thenReturn(Collections.singletonList(memberEntity));
         //when
-        RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
+        roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
         //then
         assertThat(roomEntity.isDeleted()).isTrue();
+        verify(memberRoomRepository, never()).findByRoomIdAndDeletedFalse(roomId);
+        verify(memberRepository, never()).findAllById(Collections.singletonList(memberId));
     }
 }
