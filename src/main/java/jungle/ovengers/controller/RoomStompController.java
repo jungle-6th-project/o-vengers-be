@@ -17,7 +17,7 @@ public class RoomStompController {
     private final RoomService roomService;
 
     @MessageMapping("/room")
-    public void test(SimpMessageHeaderAccessor sha, RoomAddRequest request) {
+    public void add(SimpMessageHeaderAccessor sha, RoomAddRequest request) {
         template.convertAndSend("/topic/" + request.getGroupId(), roomService.generateRoom(Long.valueOf(Objects.requireNonNull(sha.getUser())
                                                                                                                .getName()), request));
     }
