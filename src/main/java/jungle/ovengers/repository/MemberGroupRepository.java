@@ -13,6 +13,8 @@ public interface MemberGroupRepository extends JpaRepository<MemberGroupEntity, 
 
     List<MemberGroupEntity> findByGroupId(Long groupId);
 
+    List<MemberGroupEntity> findByGroupIdAndDeletedFalse(Long groupId);
+
     boolean existsByGroupIdAndMemberIdAndDeletedFalse(Long groupId, Long memberId);
 
     Optional<MemberGroupEntity> findByGroupIdAndMemberId(Long groupId, Long memberId);
