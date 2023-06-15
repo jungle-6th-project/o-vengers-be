@@ -107,7 +107,7 @@ class RoomServiceTest {
 
         when(groupRepository.findById(request.getGroupId())).thenReturn(Optional.of(groupEntity));
 
-        when(roomRepository.findByStartTimeAndDeletedFalse(request.getStartTime())).thenReturn(Optional.empty());
+        when(roomRepository.findByGroupIdAndStartTimeAndDeletedFalse(groupId, request.getStartTime())).thenReturn(Optional.empty());
         when(roomRepository.save(any(RoomEntity.class))).thenReturn(roomEntity);
 
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomEntity.getId())).thenReturn(Optional.empty());

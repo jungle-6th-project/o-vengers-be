@@ -7,5 +7,5 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface RoomRepository extends JpaRepository<RoomEntity, Long> {
-    Optional<RoomEntity> findByStartTimeAndDeletedFalse(LocalDateTime startTime);
+    Optional<RoomEntity> findByGroupIdAndStartTimeAndDeletedFalse(Long groupId, LocalDateTime startTime);
 }
