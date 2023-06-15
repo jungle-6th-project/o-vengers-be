@@ -24,12 +24,12 @@ public final class RoomConverter {
                          .build();
     }
 
-    public static RoomResponse from(RoomEntity roomEntity, List<String> profiles) {
+    public static RoomResponse from(RoomEntity roomEntity) {
         return RoomResponse.builder()
                            .roomId(roomEntity.getId())
                            .startTime(roomEntity.getStartTime())
                            .endTime(roomEntity.getEndTime())
-                           .profiles(profiles)
+                           .profiles(roomEntity.getProfiles())
                            .build();
     }
 }
