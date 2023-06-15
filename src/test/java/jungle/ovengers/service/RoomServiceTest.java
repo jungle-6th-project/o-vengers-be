@@ -6,6 +6,7 @@ import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.model.request.RoomAddRequest;
+import jungle.ovengers.model.request.RoomJoinRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberRepository;
@@ -21,12 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
@@ -105,7 +107,7 @@ class RoomServiceTest {
                                                                                                .plusHours(1));
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
 
-        when(groupRepository.findById(request.getGroupId())).thenReturn(Optional.of(groupEntity));
+        when(groupRepository.findByIdAndDeletedFalse(request.getGroupId())).thenReturn(Optional.of(groupEntity));
 
         when(roomRepository.findByGroupIdAndStartTimeAndDeletedFalse(groupId, request.getStartTime())).thenReturn(Optional.empty());
         when(roomRepository.save(any(RoomEntity.class))).thenReturn(roomEntity);
@@ -127,4 +129,46 @@ class RoomServiceTest {
                                                         .getMinute());
         assertThat(result.getRoomId()).isEqualTo(roomEntity.getId());
     }
+
+    @DisplayName("예약 방에 사용자가 참가할 경우, 사용자 예약 정보가 잘 저장되는지 테스트")
+    @Test
+    public void testJoinRoom() {
+        //given
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
+        when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
+        when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomId)).thenReturn(Collections.singletonList(memberRoomEntity));
+        when(memberRepository.findAllById(Collections.singletonList(memberId))).thenReturn(Collections.singletonList(memberEntity));
+        //when
+        RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
+        //then
+        verify(memberRoomRepository, never()).save(any(MemberRoomEntity.class));
+        assertThat(result.getRoomId()).isEqualTo(roomId);
+        assertThat(result.getEndTime()).isEqualTo(roomEntity.getEndTime());
+        assertThat(result.getStartTime()).isEqualTo(roomEntity.getStartTime());
+        assertThat(result.getMemberRoomId()).isEqualTo(memberRoomEntity.getId());
+    }
+
+    @DisplayName("예약 방에 사용자가 이미 예약되어 있을 경우, 사용자 예약 정보가 잘 삭제 되는지 테스트")
+    @Test
+    public void testJoinRoomWhenAlreadyJoined() {
+        //given
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
+        when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.empty());
+        when(memberRoomRepository.save(any(MemberRoomEntity.class))).thenReturn(memberRoomEntity);
+        when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomId)).thenReturn(Collections.singletonList(memberRoomEntity));
+        when(memberRepository.findAllById(Collections.singletonList(memberId))).thenReturn(Collections.singletonList(memberEntity));
+        //when
+        RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
+        //then
+        verify(memberRoomRepository, never()).delete(any(MemberRoomEntity.class));
+        assertThat(result.getRoomId()).isEqualTo(roomId);
+        assertThat(result.getEndTime()).isEqualTo(roomEntity.getEndTime());
+        assertThat(result.getStartTime()).isEqualTo(roomEntity.getStartTime());
+        assertThat(result.getMemberRoomId()).isEqualTo(memberRoomEntity.getId());
+    }
+
 }
