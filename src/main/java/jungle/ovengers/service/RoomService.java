@@ -38,7 +38,7 @@ public class RoomService {
         groupRepository.findById(request.getGroupId())
                        .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
 
-        RoomEntity roomEntity = roomRepository.findByStartTimeAndDeletedFalse(request.getStartTime())
+        RoomEntity roomEntity = roomRepository.findByGroupIdAndStartTimeAndDeletedFalse(request.getGroupId(), request.getStartTime())
                                               .orElseGet(() -> roomRepository.save(RoomConverter.to(request, memberId)));
 
         MemberRoomEntity memberRoomEntity = memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomEntity.getId())
