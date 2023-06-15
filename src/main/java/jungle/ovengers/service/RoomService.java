@@ -1,12 +1,10 @@
 package jungle.ovengers.service;
 
-import jungle.ovengers.config.security.filter.token.TokenResolver;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
-import jungle.ovengers.exception.TokenInvalidException;
 import jungle.ovengers.model.request.RoomAddRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.repository.GroupRepository;
@@ -32,12 +30,8 @@ public class RoomService {
     private final GroupRepository groupRepository;
     private final RoomRepository roomRepository;
     private final MemberRoomRepository memberRoomRepository;
-    private final TokenResolver tokenResolver;
 
-    public RoomResponse generateRoom(RoomAddRequest request) {
-        Long memberId = tokenResolver.resolveToken(request.getAccessToken())
-                                     .orElseThrow(() -> new TokenInvalidException("Invalid access token"));
-
+    public RoomResponse generateRoom(Long memberId, RoomAddRequest request) {
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
 

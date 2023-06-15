@@ -17,10 +17,10 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final TokenAuthenticationInterceptor tokenAuthenticationInterceptor;
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/bbodok-websocket")
+                .addInterceptors()
                 .setAllowedOrigins("*");
     }
 
@@ -30,8 +30,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker("/queue", "/topic");
     }
 
-//    @Override
-//    public void configureClientInboundChannel(ChannelRegistration registration) {
-//        registration.interceptors(tokenAuthenticationInterceptor);
-//    }
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(tokenAuthenticationInterceptor);
+    }
 }
