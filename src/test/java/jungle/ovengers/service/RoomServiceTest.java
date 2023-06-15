@@ -183,7 +183,7 @@ class RoomServiceTest {
         when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomId)).thenReturn(Collections.singletonList(memberRoomEntity));
         when(memberRepository.findAllById(Collections.singletonList(memberId))).thenReturn(Collections.singletonList(memberEntity));
         //when
-        RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
+        roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
         //then
         assertThat(roomEntity.isDeleted()).isTrue();
     }
