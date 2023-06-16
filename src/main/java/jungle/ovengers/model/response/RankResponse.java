@@ -13,5 +13,5 @@ public class RankResponse {
     private Long memberId;
     private String profile;
     private String nickname;
-    private Duration totalDuration;
+    private Duration duration;
 }
