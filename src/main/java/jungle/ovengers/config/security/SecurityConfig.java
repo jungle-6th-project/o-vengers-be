@@ -37,7 +37,7 @@ public class SecurityConfig {
             .disable();
         http.cors();
         http.authorizeRequests()
-            .antMatchers(HttpMethod.GET, "/error", "/api/v1/members/kakao", "/swagger-resources/**", "/swagger-ui/*", "/v2/api-docs", "/bbodok-websocket")
+            .antMatchers(HttpMethod.GET, "/health", "/error", "/api/v1/members/kakao", "/swagger-resources/**", "/swagger-ui/*", "/v2/api-docs", "/bbodok-websocket")
             .permitAll()
             .antMatchers(HttpMethod.POST, "/api/v1/members/**")
             .permitAll()
