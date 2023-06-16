@@ -33,4 +33,8 @@ public class RankEntity {
     public void addDuration(Duration duration) {
         this.duration = this.duration.plus(duration);
     }
+
+    public void delete() {
+        this.deleted = true;
+    }
 }

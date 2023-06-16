@@ -9,6 +9,7 @@ import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.GroupRepository;
 import jungle.ovengers.repository.MemberGroupRepository;
 import jungle.ovengers.repository.MemberRepository;
+import jungle.ovengers.repository.RankRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,8 @@ class GroupServiceTest {
     private MemberGroupRepository memberGroupRepository;
     @Mock
     private MemberRepository memberRepository;
+    @Mock
+    private RankRepository rankRepository;
     @Mock
     private AuditorHolder auditorHolder;
     @InjectMocks

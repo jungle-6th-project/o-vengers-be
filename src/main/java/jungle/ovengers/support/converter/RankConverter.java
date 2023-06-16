@@ -1,9 +1,12 @@
 package jungle.ovengers.support.converter;
 
+import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.RankEntity;
 import jungle.ovengers.model.response.RankResponse;
 import lombok.experimental.UtilityClass;
+
+import java.time.Duration;
 
 @UtilityClass
 public final class RankConverter {
@@ -14,5 +17,14 @@ public final class RankConverter {
                            .nickname(memberEntity.getName())
                            .profile(memberEntity.getProfile())
                            .build();
+    }
+
+    public static RankEntity to(MemberEntity memberEntity, GroupEntity groupEntity) {
+        return RankEntity.builder()
+                         .deleted(false)
+                         .memberId(memberEntity.getId())
+                         .groupId(groupEntity.getId())
+                         .duration(Duration.ZERO)
+                         .build();
     }
 }
