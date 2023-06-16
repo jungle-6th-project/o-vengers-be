@@ -1,8 +1,10 @@
 package jungle.ovengers.service;
 
+import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.model.request.RoomBrowseRequest;
 import jungle.ovengers.model.response.RoomResponse;
+import jungle.ovengers.repository.MemberRoomRepository;
 import jungle.ovengers.repository.RoomRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +25,12 @@ import static org.mockito.Mockito.when;
 public class RoomServiceTest {
     @Mock
     private RoomRepository roomRepository;
+
+    @Mock
+    private MemberRoomRepository memberRoomRepository;
+
+    @Mock
+    private AuditorHolder auditorHolder;
 
     @InjectMocks
     private RoomService roomService;
@@ -62,5 +70,38 @@ public class RoomServiceTest {
         assertThat(results.size()).isEqualTo(1);
         assertThat(results.get(0)
                           .getRoomId()).isEqualTo(roomEntity.getId());
+    }
+
+    @DisplayName("속해있는 그룹내에서 사용자가 예약한 방만 조회가 잘 되는지 테스트")
+    @Test
+    public void testBrowseGroupRoomsWhichMemberMadeReservation() {
+        //given
+        Long otherRoomId = 2L;
+        Long otherMember = 2L;
+        RoomEntity otherRoomEntity = RoomEntity.builder()
+                                               .id(otherRoomId)
+                                               .startTime(LocalDateTime.now()
+                                                                       .plusHours(2))
+                                               .endTime(LocalDateTime.now()
+                                                                     .plusHours(3))
+                                               .profiles(List.of("profile3", "profile4"))
+                                               .ownerId(otherMember)
+                                               .deleted(false)
+                                               .groupId(groupId)
+                                               .build();
+
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(roomRepository.findByGroupIdAndDeletedFalse(groupId)).thenReturn(List.of(roomEntity, otherRoomEntity));
+        when(memberRoomRepository.existsByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(true);
+        when(memberRoomRepository.existsByMemberIdAndRoomIdAndDeletedFalse(memberId, otherRoomId)).thenReturn(false);
+        when(roomRepository.findAllByIdAndDeletedFalse(List.of(roomId))).thenReturn(List.of(roomEntity));
+        //when
+        List<RoomResponse> results = roomService.getJoinedRooms(new RoomBrowseRequest(groupId, LocalDateTime.now()
+                                                                                                            .minusHours(5), LocalDateTime.now()
+                                                                                                                                         .plusHours(5)));
+        //then
+        assertThat(results.size()).isEqualTo(1);
+        assertThat(results.get(0)
+                          .getRoomId()).isEqualTo(roomId);
     }
 }
