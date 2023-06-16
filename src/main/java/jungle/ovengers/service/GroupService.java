@@ -4,6 +4,7 @@ import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberGroupEntity;
+import jungle.ovengers.entity.RankEntity;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberGroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
@@ -83,8 +84,8 @@ public class GroupService {
     public GroupResponse joinGroup(Long groupId, GroupJoinRequest request) {
         Long memberId = auditorHolder.get();
 
-        memberRepository.findById(memberId)
-                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+                                                    .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(groupId)
                                                  .orElseThrow(() -> new GroupNotFoundException(groupId));
@@ -97,6 +98,7 @@ public class GroupService {
             return null;
         }
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
+        rankRepository.save(RankConverter.to(memberEntity, groupEntity));
         return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), "color");
     }
 
@@ -112,6 +114,10 @@ public class GroupService {
         if (!groupEntity.isOwner(memberId)) {
             throw new IllegalArgumentException("그룹장만 그룹을 삭제할 수 있습니다.");
         }
+
+        rankRepository.findByGroupIdAndDeletedFalse(groupId)
+                      .forEach(RankEntity::delete);
+
         groupEntity.delete();
         memberGroupRepository.findByGroupId(groupId)
                              .forEach(MemberGroupEntity::delete);
@@ -125,6 +131,9 @@ public class GroupService {
 
         groupRepository.findById(request.getGroupId())
                        .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
+
+        rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(request.getGroupId(), memberId)
+                      .ifPresent(RankEntity::delete);
 
         memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(request.getGroupId(), memberId)
                              .ifPresent(MemberGroupEntity::delete);
