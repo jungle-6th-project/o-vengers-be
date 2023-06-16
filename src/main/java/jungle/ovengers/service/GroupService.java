@@ -45,7 +45,7 @@ public class GroupService {
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupEntity.getId()));
         rankRepository.save(RankConverter.to(memberEntity, groupEntity));
 
-        return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), null);
+        return GroupConverter.from(groupEntity);
     }
 
     public List<GroupResponse> getAllGroups() {
@@ -99,9 +99,21 @@ public class GroupService {
         }
         memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
         rankRepository.save(RankConverter.to(memberEntity, groupEntity));
-        return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), "color");
+        return GroupConverter.from(groupEntity);
     }
 
+    public GroupResponse joinGroupWithPath(GroupPathJoinRequest request) {
+        Long memberId = auditorHolder.get();
+
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+                                                    .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        GroupEntity groupEntity = groupRepository.findByPathAndDeletedFalse(request.getPath())
+                                                 .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 초대 코드입니다."));
+
+        memberGroupRepository.save(MemberGroupConverter.to(memberEntity.getId(), groupEntity.getId()));
+        return GroupConverter.from(groupEntity);
+    }
     public void deleteGroup(Long groupId) {
         Long memberId = auditorHolder.get();
 

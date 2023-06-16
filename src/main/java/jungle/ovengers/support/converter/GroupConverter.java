@@ -2,6 +2,7 @@ package jungle.ovengers.support.converter;
 
 import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.model.request.GroupAddRequest;
+import jungle.ovengers.model.response.GroupResponse;
 import lombok.experimental.UtilityClass;
 
 import java.time.LocalDateTime;
@@ -18,5 +19,13 @@ public final class GroupConverter {
                           .createdAt(LocalDateTime.now())
                           .deleted(false)
                           .build();
+    }
+
+    public GroupResponse from(GroupEntity groupEntity) {
+        return GroupResponse.builder()
+                            .groupId(groupEntity.getId())
+                            .groupName(groupEntity.getGroupName())
+                            .isSecret(groupEntity.isSecret())
+                            .build();
     }
 }

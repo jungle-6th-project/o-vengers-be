@@ -227,6 +227,32 @@ class GroupServiceTest {
         verify(memberGroupRepository, never()).save(memberGroupEntity);
     }
 
+    @DisplayName("그룹의 path와 일치하는 path로 참가 요청할 경우, 참가 정보가 잘 저장 되는지 테스트")
+    @Test
+    public void testJoinGroupWithValidPath() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findByPathAndDeletedFalse(groupEntity.getPath())).thenReturn(Optional.of(groupEntity));
+        //when
+        GroupResponse result = groupService.joinGroupWithPath(new GroupPathJoinRequest(groupEntity.getPath()));
+        //then
+        assertThat(result.getGroupName()).isEqualTo(groupEntity.getGroupName());
+        assertThat(result.getGroupId()).isEqualTo(groupEntity.getId());
+    }
+
+    @DisplayName("그룹의 path와 일치하지 않는 path로 참가 요청할 경우, 예외가 발생하는지 테스트")
+    @Test
+    public void testJoinGroupWithInvalidPath() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findByPathAndDeletedFalse("invalidPath")).thenReturn(Optional.empty());
+
+        //when, then
+        assertThatThrownBy(() -> groupService.joinGroupWithPath(new GroupPathJoinRequest("invalidPath"))).isInstanceOf(IllegalArgumentException.class);
+    }
+
     @DisplayName("그룹장이 삭제를 요청할 경우 그룹이 잘 삭제 되는지 테스트")
     @Test
     public void testDeleteGroup() {

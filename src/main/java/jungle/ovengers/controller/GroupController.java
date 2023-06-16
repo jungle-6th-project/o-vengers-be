@@ -77,6 +77,13 @@ public class GroupController {
         return ApiResponseGenerator.success(groupService.joinGroup(groupId, request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
     }
 
+    @ApiOperation(value = "그룹 참가 with path")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @PostMapping("/path")
+    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> joinWithPath(@RequestBody GroupPathJoinRequest request) {
+        return ApiResponseGenerator.success(groupService.joinGroupWithPath(request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+    }
+
     @ApiOperation(value = "그룹 탈퇴")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @DeleteMapping
