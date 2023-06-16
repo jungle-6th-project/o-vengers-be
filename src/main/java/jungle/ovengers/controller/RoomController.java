@@ -10,11 +10,11 @@ import jungle.ovengers.support.ApiResponseGenerator;
 import jungle.ovengers.support.MessageCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -25,10 +25,17 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    @ApiOperation(value = "방 예약 조회")
+    @ApiOperation(value = "그룹 내 전체 방 예약 조회")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping
     public ApiResponse<ApiResponse.SuccessBody<List<RoomResponse>>> browse(RoomBrowseRequest request) {
         return ApiResponseGenerator.success(roomService.getRooms(request), HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
+    @ApiOperation(value = "그룹 내 사용자가 예약해 놓은 방 예약 조회")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @GetMapping("/reservation")
+    public ApiResponse<ApiResponse.SuccessBody<List<RoomResponse>>> browseWhichReserved(RoomBrowseRequest request) {
+        return ApiResponseGenerator.success(roomService.getJoinedRooms(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 }
