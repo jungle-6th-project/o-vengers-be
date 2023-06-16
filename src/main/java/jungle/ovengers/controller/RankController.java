@@ -30,7 +30,6 @@ public class RankController {
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping
     public ApiResponse<ApiResponse.SuccessBody<List<RankResponse>>> browse(RankBrowseRequest request) {
-        List<RankResponse> responses = new ArrayList<>();
-        return ApiResponseGenerator.success(responses, HttpStatus.OK, MessageCode.SUCCESS);
+        return ApiResponseGenerator.success(rankService.getRanksInGroup(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 }

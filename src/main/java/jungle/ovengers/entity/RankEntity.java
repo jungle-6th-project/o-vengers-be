@@ -27,6 +27,9 @@ public class RankEntity {
     @Column
     private Duration duration;
 
+    @Column(nullable = false)
+    private boolean deleted;
+
     public void addDuration(Duration duration) {
         this.duration = this.duration.plus(duration);
     }
