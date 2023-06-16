@@ -55,7 +55,9 @@ public class RoomServiceTest {
         //given
         when(roomRepository.findByGroupIdAndDeletedFalse(groupId)).thenReturn(Collections.singletonList(roomEntity));
         //when
-        List<RoomResponse> results = roomService.getRooms(new RoomBrowseRequest(groupId));
+        List<RoomResponse> results = roomService.getRooms(new RoomBrowseRequest(groupId, LocalDateTime.now()
+                                                                                                      .minusHours(3), LocalDateTime.now()
+                                                                                                                                   .plusHours(3)));
         //then
         assertThat(results.size()).isEqualTo(1);
         assertThat(results.get(0)

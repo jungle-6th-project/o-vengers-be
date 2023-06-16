@@ -50,4 +50,12 @@ public class RoomEntity {
     public void removeProfile(String profile) {
         this.profiles.remove(profile);
     }
+
+    public boolean isAfter(LocalDateTime from) {
+        return this.startTime.isAfter(from) || this.startTime.isEqual(from);
+    }
+
+    public boolean isBefore(LocalDateTime to) {
+        return this.endTime.isBefore(to) || this.endTime.isEqual(to);
+    }
 }
