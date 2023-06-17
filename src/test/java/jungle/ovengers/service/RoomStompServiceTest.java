@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -55,6 +56,7 @@ class RoomStompServiceTest {
     private Long groupId;
     private Long roomId;
     private Long memberRoomId;
+    private LocalDateTime now;
     private MemberEntity memberEntity;
     private GroupEntity groupEntity;
     private RoomEntity roomEntity;
@@ -82,16 +84,17 @@ class RoomStompServiceTest {
                                  .createdAt(LocalDateTime.now())
                                  .deleted(false)
                                  .build();
+        now = LocalDateTime.now();
         roomEntity = RoomEntity.builder()
                                .id(roomId)
-                               .startTime(LocalDateTime.now())
-                               .endTime(LocalDateTime.now()
-                                                     .plusHours(1))
+                               .startTime(now)
+                               .endTime(now.plusMinutes(25))
                                .ownerId(memberId)
                                .groupId(groupId)
                                .profiles(new ArrayList<>())
                                .deleted(false)
                                .build();
+
         memberRoomEntity = MemberRoomEntity.builder()
                                            .id(memberRoomId)
                                            .durationTime(Duration.ZERO)
@@ -105,8 +108,7 @@ class RoomStompServiceTest {
     public void testGenerateRoom() {
         //given
         Long memberId = 1L;
-        RoomAddRequest request = new RoomAddRequest(groupId, LocalDateTime.now(), LocalDateTime.now()
-                                                                                               .plusHours(1));
+        RoomAddRequest request = new RoomAddRequest(groupId, now, now.plusMinutes(25));
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
 
         when(groupRepository.findByIdAndDeletedFalse(request.getGroupId())).thenReturn(Optional.of(groupEntity));
@@ -129,6 +131,16 @@ class RoomStompServiceTest {
                          .getMinute()).isEqualTo(request.getStartTime()
                                                         .getMinute());
         assertThat(result.getRoomId()).isEqualTo(roomEntity.getId());
+    }
+
+    @DisplayName("예약 방 생성 요청이 들어왔을때 예약시간이 현재 시간보다 이전일 경우 예외가 발생 되는지 테스트")
+    @Test
+    public void testGenerateRoomWithInvalidRequestTime() {
+        //given
+        Long memberId = 1L;
+        RoomAddRequest request = new RoomAddRequest(groupId, now, now.plusMinutes(30));
+        //when, then
+        assertThatThrownBy(() -> roomService.generateRoom(memberId, request)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @DisplayName("예약 방에 사용자가 이미 예약되어 있을 경우, 사용자 예약 정보가 잘 삭제 되는지 테스트")

@@ -15,13 +15,11 @@ import jungle.ovengers.repository.MemberRoomRepository;
 import jungle.ovengers.repository.RoomRepository;
 import jungle.ovengers.support.converter.MemberRoomConverter;
 import jungle.ovengers.support.converter.RoomConverter;
+import jungle.ovengers.support.validator.RoomValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -35,6 +33,8 @@ public class RoomStompService {
     private final MemberRoomRepository memberRoomRepository;
 
     public RoomResponse generateRoom(Long memberId, RoomAddRequest request) {
+        RoomValidator.validateIfRoomTimeAfterNow(request);
+
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
 
@@ -51,8 +51,6 @@ public class RoomStompService {
     }
 
     public RoomResponse joinRoom(Long memberId, RoomJoinRequest request) {
-
-
         MemberEntity memberEntity = memberRepository.findById(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
@@ -73,9 +71,8 @@ public class RoomStompService {
         roomEntity.removeProfile(memberEntity.getProfile());
         if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(request.getRoomId())) {
             roomEntity.delete();
-            return new RoomResponse();
+            return new RoomResponse(roomEntity.getId(), null, null, null);
         }
-
         return RoomConverter.from(roomEntity);
     }
 }
