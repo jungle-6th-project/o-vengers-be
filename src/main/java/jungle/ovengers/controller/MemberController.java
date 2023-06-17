@@ -53,15 +53,4 @@ public class MemberController {
     public ApiResponse<ApiResponse.SuccessBody<MemberResponse>> readInGroup(@PathVariable Long groupId) {
         return ApiResponseGenerator.success(memberService.getUserInfoByGroup(groupId), HttpStatus.OK, MessageCode.SUCCESS);
     }
-
-    @ApiOperation(value = "학습 날짜, 시간 조회 - 마이페이지 잔디")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
-            @ApiImplicitParam(name = "request", value = "조회 하려는 기간 from, to")
-    })
-    @GetMapping("/history")
-    public ApiResponse<ApiResponse.SuccessBody<List<StudyHistoryResponse>>> browseHistory(@RequestBody StudyHistoryRequest request) {
-        List<StudyHistoryResponse> responses = new ArrayList<>();
-        return ApiResponseGenerator.success(responses, HttpStatus.OK, MessageCode.SUCCESS);
-    }
 }

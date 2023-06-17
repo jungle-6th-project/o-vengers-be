@@ -27,10 +27,7 @@ public class StudyHistoryController {
     private final StudyHistoryService studyHistoryService;
 
     @ApiOperation(value = "당일 누적 학습 시간 조회 - 마이페이지 Daily 차트")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
-            @ApiImplicitParam(name = "request", value = "조회 하려는 기간 from, to (daily는 from == to)")
-    })
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping("/daily")
     public ApiResponse<ApiResponse.SuccessBody<StudyHistoryResponse>> readDaily(StudyHistoryRequest request) {
         return ApiResponseGenerator.success(studyHistoryService.getDailyDuration(request), HttpStatus.OK, MessageCode.SUCCESS);
@@ -38,10 +35,7 @@ public class StudyHistoryController {
 
 
     @ApiOperation(value = "주간 누적 학습 시간 조회 - 마이페이지 Weekly 차트")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
-            @ApiImplicitParam(name = "request", value = "조회 하려는 기간 from, to")
-    })
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping("/weekly")
     public ApiResponse<ApiResponse.SuccessBody<List<StudyHistoryResponse>>> browseWeekly(StudyHistoryRequest request) {
         return ApiResponseGenerator.success(null, HttpStatus.OK, MessageCode.SUCCESS);
