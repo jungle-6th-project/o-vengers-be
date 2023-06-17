@@ -178,4 +178,10 @@ public class GroupService {
 
         return new GroupResponse(memberGroupEntity.getGroupId(), groupEntity.getGroupName(), groupEntity.isSecret(), memberGroupEntity.getColor());
     }
+
+    public GroupResponse getGroupByPath(GroupPathJoinRequest request) {
+        return groupRepository.findByPathAndDeletedFalse(request.getPath())
+                       .map(GroupConverter::from)
+                       .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 그룹 초대 주소입니다."));
+    }
 }
