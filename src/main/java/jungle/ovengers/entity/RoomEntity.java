@@ -45,6 +45,7 @@ public class RoomEntity {
 
     public void addProfile(String profile) {
         this.profiles.add(profile);
+        this.profiles = new ArrayList<>(this.profiles);
     }
 
     public void removeProfile(String profile) {
