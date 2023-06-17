@@ -94,11 +94,14 @@ public class GroupService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        if (memberGroupRepository.existsByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)) {
-            return null;
+        MemberGroupEntity memberGroupEntity = memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberId)
+                                                                   .orElse(null);
+
+        if (memberGroupEntity == null) {
+            memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
+            rankRepository.save(RankConverter.to(memberEntity, groupEntity));
         }
-        memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
-        rankRepository.save(RankConverter.to(memberEntity, groupEntity));
+
         return GroupConverter.from(groupEntity);
     }
 
@@ -110,9 +113,13 @@ public class GroupService {
 
         GroupEntity groupEntity = groupRepository.findByPathAndDeletedFalse(request.getPath())
                                                  .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 초대 코드입니다."));
-
-        memberGroupRepository.save(MemberGroupConverter.to(memberEntity.getId(), groupEntity.getId()));
-        return GroupConverter.from(groupEntity);
+        MemberGroupEntity memberGroupEntity = memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberId)
+                                                                   .orElse(null);
+        if (memberGroupEntity == null) {
+            memberGroupRepository.save(MemberGroupConverter.to(memberEntity.getId(), groupEntity.getId()));
+            return GroupConverter.from(groupEntity);
+        }
+        throw new IllegalArgumentException("이미 가입되어 있는 그룹입니다.");
     }
     public void deleteGroup(Long groupId) {
         Long memberId = auditorHolder.get();

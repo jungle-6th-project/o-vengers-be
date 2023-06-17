@@ -1,8 +1,10 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
+import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.model.request.RoomBrowseRequest;
+import jungle.ovengers.model.request.WholeRoomBrowseRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.repository.MemberRoomRepository;
 import jungle.ovengers.repository.RoomRepository;
@@ -60,5 +62,22 @@ public class RoomService {
 
     private List<RoomEntity> getNonDeletedRoomsByIds(List<Long> roomIds) {
         return roomRepository.findAllByIdAndDeletedFalse(roomIds);
+    }
+
+    public List<RoomResponse> getRoomsByAllGroups(WholeRoomBrowseRequest request) {
+        Long memberId = auditorHolder.get();
+        List<Long> joinedRoomIds = memberRoomRepository.findByMemberIdAndDeletedFalse(memberId)
+                                                       .stream()
+                                                       .map(MemberRoomEntity::getRoomId)
+                                                       .collect(Collectors.toList());
+
+        List<RoomEntity> joinedRoomEntities = roomRepository.findAllByIdAndDeletedFalse(joinedRoomIds)
+                                                            .stream()
+                                                            .filter(roomEntity -> roomEntity.isAfter(request.getFrom()) && roomEntity.isBefore(request.getTo()))
+                                                            .collect(Collectors.toList());
+
+        return joinedRoomEntities.stream()
+                                 .map(RoomConverter::from)
+                                 .collect(Collectors.toList());
     }
 }

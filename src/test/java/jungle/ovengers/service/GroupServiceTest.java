@@ -158,11 +158,11 @@ class GroupServiceTest {
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
-        when(memberGroupRepository.existsByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(true);
+        when(memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
         //when
-        GroupResponse result = groupService.joinGroup(groupId, null);
+        GroupResponse result = groupService.joinGroup(groupId, new GroupJoinRequest(null));
         //then
-        assertThat(result).isEqualTo(null);
+        verify(memberGroupRepository, never()).save(any(MemberGroupEntity.class));
     }
 
     @DisplayName("사용자가 비밀번호가 없고, 가입되어 있지 않은 그룹에 참가 요청을 보냈을 때, 그룹 가입 정보를 새롭게 생성하는지 테스트")
@@ -186,7 +186,6 @@ class GroupServiceTest {
                                              .build();
 
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
-        when(memberGroupRepository.existsByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(false);
 
         //when
         GroupResponse result = groupService.joinGroup(groupId, null);

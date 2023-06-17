@@ -3,6 +3,7 @@ package jungle.ovengers.controller;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.RoomBrowseRequest;
+import jungle.ovengers.model.request.WholeRoomBrowseRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.service.RoomService;
 import jungle.ovengers.support.ApiResponse;
@@ -37,5 +38,12 @@ public class RoomController {
     @GetMapping("/reservation")
     public ApiResponse<ApiResponse.SuccessBody<List<RoomResponse>>> browseWhichReserved(RoomBrowseRequest request) {
         return ApiResponseGenerator.success(roomService.getJoinedRooms(request), HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
+    @ApiOperation(value = "전체 그룹 중 내 전체 방 예약 조회")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @GetMapping("/all")
+    public ApiResponse<ApiResponse.SuccessBody<List<RoomResponse>>> browseByAllGroups(WholeRoomBrowseRequest request) {
+        return ApiResponseGenerator.success(roomService.getRoomsByAllGroups(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 }

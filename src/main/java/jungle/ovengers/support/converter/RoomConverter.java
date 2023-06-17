@@ -6,8 +6,10 @@ import jungle.ovengers.model.request.RoomAddRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import lombok.experimental.UtilityClass;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @UtilityClass
 public final class RoomConverter {
@@ -30,6 +32,12 @@ public final class RoomConverter {
                            .startTime(roomEntity.getStartTime())
                            .endTime(roomEntity.getEndTime())
                            .profiles(roomEntity.getProfiles())
+                           .build();
+    }
+
+    public static RoomResponse from(LocalDateTime startTime) {
+        return RoomResponse.builder()
+                           .startTime(startTime)
                            .build();
     }
 }
