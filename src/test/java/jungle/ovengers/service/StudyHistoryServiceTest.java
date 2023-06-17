@@ -35,14 +35,17 @@ class StudyHistoryServiceTest {
 
     private Long memberId;
     private Long roomId;
+    private Long otherRoomId;
     private LocalDateTime now;
 
     private MemberRoomEntity memberRoomEntity;
+    private MemberRoomEntity memberRoomEntity2;
 
     @BeforeEach
     public void setup() {
         memberId = 1L;
         roomId = 1L;
+        otherRoomId = 2L;
         now = LocalDateTime.now();
         memberRoomEntity = MemberRoomEntity.builder()
                                            .roomId(roomId)
@@ -51,6 +54,13 @@ class StudyHistoryServiceTest {
                                            .time(now)
                                            .durationTime(Duration.ofHours(3))
                                            .build();
+        memberRoomEntity2 = MemberRoomEntity.builder()
+                                            .roomId(otherRoomId)
+                                            .memberId(memberId)
+                                            .deleted(false)
+                                            .time(now.plusDays(1))
+                                            .durationTime(Duration.ofHours(1))
+                                            .build();
     }
 
     @DisplayName("사용자가 당일 참여 했던 방에서의 누적 학습 시간이 잘 조회되는지 테스트")
@@ -61,9 +71,23 @@ class StudyHistoryServiceTest {
         when(memberRoomRepository.findByMemberId(memberId)).thenReturn(List.of(memberRoomEntity));
 
         //when
-        StudyHistoryResponse result = studyHistoryService.getDailyDuration(new StudyHistoryRequest(now.minusHours(1), now.plusHours(1)));
+        List<StudyHistoryResponse> result = studyHistoryService.getDailyDuration(new StudyHistoryRequest(now.minusHours(1), now.plusHours(1)));
 
         //then
-        assertThat(result.getDuration()).isEqualTo(Duration.ofHours(3));
+        assertThat(result.get(0).getDuration()).isEqualTo(Duration.ofHours(3));
+    }
+
+    @DisplayName("사용자가 여러 기간 동안 참여 했던 방에서의 누적 학습 시간이 잘 조회 되는지 테스트")
+    @Test
+    public void testGetWeeklyDuration() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRoomRepository.findByMemberId(memberId)).thenReturn(List.of(memberRoomEntity, memberRoomEntity2));
+
+        //when
+        List<StudyHistoryResponse> result = studyHistoryService.getDailyDuration(new StudyHistoryRequest(now.minusHours(1), now.plusDays(2)));
+
+        //then
+        assertThat(result.size()).isEqualTo(2);
     }
 }
