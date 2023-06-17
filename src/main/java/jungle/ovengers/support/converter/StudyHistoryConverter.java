@@ -4,14 +4,14 @@ import jungle.ovengers.model.response.StudyHistoryResponse;
 import lombok.experimental.UtilityClass;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @UtilityClass
 public final class StudyHistoryConverter {
 
-    public static StudyHistoryResponse from(LocalDateTime createdAt, Duration duration) {
+    public static StudyHistoryResponse from(LocalDate calculatedAt, Duration duration) {
         return StudyHistoryResponse.builder()
-                                   .createdAt(createdAt)
+                                   .calculatedAt(calculatedAt)
                                    .duration(duration)
                                    .build();
     }
