@@ -40,6 +40,12 @@ public class GroupController {
     public ApiResponse<ApiResponse.SuccessBody<List<GroupResponse>>> browse() {
         return ApiResponseGenerator.success(groupService.getMemberGroups(), HttpStatus.OK, MessageCode.SUCCESS);
     }
+    @ApiOperation(value = "초대 주소에 해당하는 그룹 정보 조회")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @GetMapping("/path")
+    public ApiResponse<ApiResponse.SuccessBody<GroupResponse>> readByPath(GroupPathJoinRequest request) {
+        return ApiResponseGenerator.success(groupService.getGroupByPath(request), HttpStatus.OK, MessageCode.SUCCESS);
+    }
 
     @ApiOperation(value = "그룹 생성")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
