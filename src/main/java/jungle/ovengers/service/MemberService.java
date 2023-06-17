@@ -9,6 +9,7 @@ import jungle.ovengers.model.request.AuthRequest;
 import jungle.ovengers.model.response.MemberResponse;
 import jungle.ovengers.model.response.Token;
 import jungle.ovengers.repository.MemberRepository;
+import jungle.ovengers.repository.MemberRoomRepository;
 import jungle.ovengers.support.TokenGenerator;
 import jungle.ovengers.support.converter.MemberConverter;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import java.util.NoSuchElementException;
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final MemberRoomRepository memberRoomRepository;
     private final TokenGenerator tokenGenerator;
     private final AuditorHolder auditorHolder;
 
@@ -100,17 +102,15 @@ public class MemberService {
                                        .baseUrl(kakaoUri)
                                        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                                        .build();
-        KakaoTokenResponse kakaoTokenResponse = webClient.post()
-                                                         .uri(uriBuilder -> uriBuilder.path("/oauth/token")
-                                                                                      .queryParam("grant_type", "authorization_code")
-                                                                                      .queryParam("client_id", client_id)
-                                                                                      .queryParam("code", authCode)
-                                                                                      .queryParam("redirect_uri", redirect_uri)
-                                                                                      .build())
-                                                         .retrieve()
-                                                         .bodyToMono(KakaoTokenResponse.class)
-                                                         .block();
-        return kakaoTokenResponse;
+        return webClient.post()
+                        .uri(uriBuilder -> uriBuilder.path("/oauth/token")
+                                                     .queryParam("grant_type", "authorization_code")
+                                                     .queryParam("client_id", client_id)
+                                                     .queryParam("code", authCode)
+                                                     .queryParam("redirect_uri", redirect_uri)
+                                                     .build())
+                        .retrieve()
+                        .bodyToMono(KakaoTokenResponse.class)
+                        .block();
     }
-
 }
