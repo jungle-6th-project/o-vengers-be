@@ -51,8 +51,6 @@ public class RoomStompService {
     }
 
     public RoomResponse joinRoom(Long memberId, RoomJoinRequest request) {
-
-
         MemberEntity memberEntity = memberRepository.findById(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
