@@ -4,12 +4,12 @@ import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.model.request.RoomAddRequest;
 import jungle.ovengers.model.response.RoomResponse;
-import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
+@UtilityClass
 public final class RoomConverter {
     public static RoomEntity to(RoomAddRequest request, MemberEntity memberEntity) {
         List<String> profiles = new ArrayList<>();

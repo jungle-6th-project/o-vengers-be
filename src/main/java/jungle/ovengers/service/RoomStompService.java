@@ -45,7 +45,7 @@ public class RoomStompService {
                                               .orElseGet(() -> roomRepository.save(RoomConverter.to(request, memberEntity)));
 
        memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomEntity.getId())
-                                                                .orElseGet(() -> memberRoomRepository.save(MemberRoomConverter.to(memberId, roomEntity.getId())));
+                                                                .orElseGet(() -> memberRoomRepository.save(MemberRoomConverter.to(memberId, roomEntity)));
 
         return RoomConverter.from(roomEntity);
     }
@@ -64,7 +64,7 @@ public class RoomStompService {
                                                                  .orElse(null);
 
         if (memberRoomEntity == null) {
-            memberRoomRepository.save(MemberRoomConverter.to(memberId, request.getRoomId()));
+            memberRoomRepository.save(MemberRoomConverter.to(memberId, roomEntity));
             roomEntity.addProfile(memberEntity.getProfile());
             return RoomConverter.from(roomEntity);
         }
