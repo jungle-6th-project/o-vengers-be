@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,19 +25,24 @@ public class StudyHistoryService {
     private final MemberRoomRepository memberRoomRepository;
     private final AuditorHolder auditorHolder;
 
-    public StudyHistoryResponse getDailyDuration(StudyHistoryRequest request) {
-        return StudyHistoryConverter.from(request.getFrom(), calculateDailyDuration(request));
+    public List<StudyHistoryResponse> getDailyDuration(StudyHistoryRequest request) {
+        Map<LocalDate, Duration> localDateDurationMap = calculateDailyDuration(request);
+        return localDateDurationMap.keySet()
+                                   .stream()
+                                   .map(localDate -> StudyHistoryConverter.from(localDate, localDateDurationMap.get(localDate)))
+                                   .collect(Collectors.toList());
     }
 
-    private Duration calculateDailyDuration(StudyHistoryRequest request) {
+    private Map<LocalDate, Duration> calculateDailyDuration(StudyHistoryRequest request) {
         Long memberId = auditorHolder.get();
         List<MemberRoomEntity> memberRoomEntities = memberRoomRepository.findByMemberId(memberId)
-                                                             .stream()
-                                                             .filter(memberRoomEntity -> memberRoomEntity.isAfter(request.getFrom()) && memberRoomEntity.isBefore(request.getTo()))
-                                                             .collect(Collectors.toList());
+                                                                        .stream()
+                                                                        .filter(memberRoomEntity -> memberRoomEntity.isAfter(request.getFrom()) && memberRoomEntity.isBefore(request.getTo()))
+                                                                        .collect(Collectors.toList());
 
         return memberRoomEntities.stream()
-                                 .map(MemberRoomEntity::getDurationTime)
-                                 .reduce(Duration.ZERO, Duration::plus);
+                                 .collect(Collectors.groupingBy(memberRoomEntity -> memberRoomEntity.getTime()
+                                                                                                    .toLocalDate(),
+                                                                Collectors.mapping(MemberRoomEntity::getDurationTime, Collectors.reducing(Duration.ZERO, Duration::plus))));
     }
 }
