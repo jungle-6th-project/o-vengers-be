@@ -90,6 +90,12 @@ public class ApiControllerExceptionHandler {
         return ApiResponseGenerator.fail("INVALID TOKEN", TOKEN_INVALID_MESSAGE, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ApiResponse<ApiResponse.FailureBody> handleIllegal(IllegalArgumentException ex, HttpServletRequest request) {
+        loggingHandler.writeLog(ex, request);
+        return ApiResponseGenerator.fail(FAIL_CODE, ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ApiResponse<ApiResponse.FailureBody> handleException(Exception ex, HttpServletRequest request) {
         loggingHandler.writeLog(ex, request);
