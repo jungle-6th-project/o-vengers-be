@@ -37,7 +37,6 @@
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="INFO_LOG"/>
         <appender-ref ref="aws_cloud_watch_log"/>
     </root>
 </configuration>
