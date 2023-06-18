@@ -17,7 +17,6 @@ public final class TodoConverter {
                          .content(request.getContent())
                          .done(false)
                          .createdTime(LocalDateTime.now())
-                         .doneAt(LocalDateTime.now())
                          .deleted(false)
                          .build();
     }

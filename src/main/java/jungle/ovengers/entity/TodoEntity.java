@@ -37,7 +37,7 @@ public class TodoEntity {
     @CreatedDate
     private LocalDateTime createdTime;
 
-    @Column(nullable = false)
+    @Column
     @LastModifiedDate
     private LocalDateTime doneAt;
 
