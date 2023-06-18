@@ -43,4 +43,8 @@ public class MemberRoomEntity {
     public boolean isBefore(LocalDateTime to) {
         return this.time.isBefore(to);
     }
+
+    public void delete() {
+        this.deleted = true;
+    }
 }

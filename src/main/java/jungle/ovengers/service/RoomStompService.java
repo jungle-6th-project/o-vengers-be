@@ -67,7 +67,7 @@ public class RoomStompService {
             return RoomConverter.from(roomEntity);
         }
 
-        memberRoomRepository.delete(memberRoomEntity);
+        memberRoomEntity.delete();
         roomEntity.removeProfile(memberEntity.getProfile());
         if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(request.getRoomId())) {
             roomEntity.delete();
