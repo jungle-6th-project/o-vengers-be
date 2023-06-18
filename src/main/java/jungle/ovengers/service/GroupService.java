@@ -31,6 +31,11 @@ import java.util.stream.Collectors;
 @Transactional
 @Service
 public class GroupService {
+
+    private final String NOT_GROUP_OWNER = "그룹장이 아닙니다.";
+    private final String INVALID_GROUP_PATH = "유효하지 않은 초대 코드입니다. : ";
+    private final String ALREADY_JOINED_GROUP = "이미 가입한 그룹입니다. : ";
+    private final String INVALID_GROUP_PASSWORD = "비밀번호가 일치하지 않습니다.";
     private final GroupRepository groupRepository;
     private final MemberGroupRepository memberGroupRepository;
     private final MemberRepository memberRepository;
@@ -91,7 +96,7 @@ public class GroupService {
                                                  .orElseThrow(() -> new GroupNotFoundException(groupId));
 
         if (groupEntity.isSecret() && !groupEntity.isEqualPassword(request.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException(INVALID_GROUP_PASSWORD);
         }
 
         MemberGroupEntity memberGroupEntity = memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberId)
@@ -112,14 +117,14 @@ public class GroupService {
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         GroupEntity groupEntity = groupRepository.findByPathAndDeletedFalse(request.getPath())
-                                                 .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 초대 코드입니다."));
+                                                 .orElseThrow(() -> new IllegalArgumentException(INVALID_GROUP_PATH + request.getPath()));
         MemberGroupEntity memberGroupEntity = memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberId)
                                                                    .orElse(null);
         if (memberGroupEntity == null) {
             memberGroupRepository.save(MemberGroupConverter.to(memberEntity.getId(), groupEntity.getId()));
             return GroupConverter.from(groupEntity);
         }
-        throw new IllegalArgumentException("이미 가입되어 있는 그룹입니다.");
+        throw new IllegalArgumentException(ALREADY_JOINED_GROUP + groupEntity.getGroupName());
     }
     public void deleteGroup(Long groupId) {
         Long memberId = auditorHolder.get();
@@ -131,7 +136,7 @@ public class GroupService {
                                                  .orElseThrow(() -> new GroupNotFoundException(groupId));
 
         if (!groupEntity.isOwner(memberId)) {
-            throw new IllegalArgumentException("그룹장만 그룹을 삭제할 수 있습니다.");
+            throw new IllegalArgumentException(NOT_GROUP_OWNER);
         }
 
         rankRepository.findByGroupIdAndDeletedFalse(groupId)
@@ -169,7 +174,7 @@ public class GroupService {
             groupEntity.changeGroupInfo(request);
             return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), null);
         }
-        throw new IllegalArgumentException("그룹장만 그룹 정보를 변경할 수 있습니다.");
+        throw new IllegalArgumentException(NOT_GROUP_OWNER);
     }
 
     public GroupResponse changeGroupColor(GroupColorEditRequest request) {
@@ -187,8 +192,17 @@ public class GroupService {
     }
 
     public GroupResponse getGroupByPath(GroupPathJoinRequest request) {
-        return groupRepository.findByPathAndDeletedFalse(request.getPath())
-                       .map(GroupConverter::from)
-                       .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 초대 코드입니다."));
+        Long memberId = auditorHolder.get();
+        memberRepository.findById(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        GroupEntity groupEntity = groupRepository.findByPathAndDeletedFalse(request.getPath())
+                                                 .orElseThrow(() -> new IllegalArgumentException(INVALID_GROUP_PATH + request.getPath()));
+
+        if (memberGroupRepository.existsByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberId)) {
+            throw new IllegalArgumentException(ALREADY_JOINED_GROUP + groupEntity.getGroupName());
+        }
+
+        return GroupConverter.from(groupEntity);
     }
 }
