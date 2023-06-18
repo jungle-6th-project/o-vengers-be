@@ -46,9 +46,6 @@ class RoomStompServiceTest {
     @Mock
     private MemberRoomRepository memberRoomRepository;
 
-    @Mock
-    private TokenResolver tokenResolver;
-
     @InjectMocks
     private RoomStompService roomService;
 
