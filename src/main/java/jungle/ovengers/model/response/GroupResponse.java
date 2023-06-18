@@ -14,4 +14,5 @@ public class GroupResponse {
     private String groupName;
     private boolean isSecret;
     private String color;
+    private String path;
 }
