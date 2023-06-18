@@ -38,8 +38,6 @@ class GroupServiceTest {
     @Mock
     private MemberRepository memberRepository;
     @Mock
-    private RankRepository rankRepository;
-    @Mock
     private AuditorHolder auditorHolder;
     @InjectMocks
     private GroupService groupService;

@@ -31,9 +31,6 @@ class RankServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
-    @Mock
-    private AuditorHolder auditorHolder;
-
     @InjectMocks
     private RankService rankService;
 
