@@ -14,6 +14,9 @@
         </layout>
     </appender>
 
+    <springProperty name="AWS_CLOUD_WATCH_ACCESS_KEY" source="cloud.aws.credentials.accessKey"/>
+    <springProperty name="AWS_CLOUD_WATCH_SECRET_KEY" source="cloud.aws.credentials.secretKey"/>
+
     <appender name="aws_cloud_watch_log" class="ca.pjer.logback.AwsLogsAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
@@ -28,8 +31,8 @@
         <maxFlushTimeMillis>30000</maxFlushTimeMillis>
         <maxBlockTimeMillis>5000</maxBlockTimeMillis>
         <retentionTimeDays>0</retentionTimeDays>
-        <accessKeyId>${{ secrets.AWS_CLOUD_WATCH_IAM_ACCESS_KEY }}</accessKeyId>
-        <secretAccessKey>${{ secrets.AWS_CLOUD_WATCH_IAM_SECRET_ACCESS_KEY }}</secretAccessKey>
+        <accessKeyId>${AWS_CLOUD_WATCH_ACCESS_KEY}</accessKeyId>
+        <secretAccessKey>${AWS_CLOUD_WATCH_SECRET_KEY}</secretAccessKey>
     </appender>
 
     <appender name="INFO_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
