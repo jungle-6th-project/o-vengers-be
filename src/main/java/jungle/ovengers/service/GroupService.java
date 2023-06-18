@@ -62,7 +62,7 @@ public class GroupService {
         return groupRepository.findAll()
                               .stream()
                               .filter(groupEntity -> !groupEntity.isDeleted() && !excludedGroupIds.contains(groupEntity.getId()))
-                              .map(groupEntity -> new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), null))
+                              .map(GroupConverter::from)
                               .collect(Collectors.toList());
     }
 
@@ -78,10 +78,7 @@ public class GroupService {
                            .map(memberGroupEntity -> {
                                GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(memberGroupEntity.getGroupId())
                                                                         .orElseThrow(() -> new GroupNotFoundException(memberGroupEntity.getGroupId()));
-                               return new GroupResponse(groupEntity.getId(),
-                                                        groupEntity.getGroupName(),
-                                                        groupEntity.isSecret(),
-                                                        memberGroupEntity.getColor());
+                               return GroupConverter.from(groupEntity);
                            })
                            .collect(Collectors.toList());
     }
@@ -170,11 +167,11 @@ public class GroupService {
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
         GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(request.getGroupId())
                                                  .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
-        if (groupEntity.isOwner(memberId)) {
-            groupEntity.changeGroupInfo(request);
-            return new GroupResponse(groupEntity.getId(), groupEntity.getGroupName(), groupEntity.isSecret(), null);
+        if (!groupEntity.isOwner(memberId)) {
+            throw new IllegalArgumentException(NOT_GROUP_OWNER);
         }
-        throw new IllegalArgumentException(NOT_GROUP_OWNER);
+        groupEntity.changeGroupInfo(request);
+        return GroupConverter.from(groupEntity);
     }
 
     public GroupResponse changeGroupColor(GroupColorEditRequest request) {
@@ -188,7 +185,7 @@ public class GroupService {
                                                                    .orElseThrow(() -> new MemberGroupNotFoundException(memberId, request.getGroupId()));
         memberGroupEntity.changeColor(request.getColor());
 
-        return new GroupResponse(memberGroupEntity.getGroupId(), groupEntity.getGroupName(), groupEntity.isSecret(), memberGroupEntity.getColor());
+        return GroupConverter.from(groupEntity, memberGroupEntity);
     }
 
     public GroupResponse getGroupByPath(GroupPathJoinRequest request) {

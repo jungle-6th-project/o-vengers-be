@@ -34,7 +34,7 @@ public class GroupController {
         return ApiResponseGenerator.success(groupService.getAllGroups(), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
-    @ApiOperation(value = "사용자 그룹 조회")
+    @ApiOperation(value = "사용자가 속한 그룹들 정보 조회")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping
     public ApiResponse<ApiResponse.SuccessBody<List<GroupResponse>>> browse() {

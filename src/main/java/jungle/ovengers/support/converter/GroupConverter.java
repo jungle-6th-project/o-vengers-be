@@ -1,6 +1,7 @@
 package jungle.ovengers.support.converter;
 
 import jungle.ovengers.entity.GroupEntity;
+import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.model.request.GroupAddRequest;
 import jungle.ovengers.model.response.GroupResponse;
 import lombok.experimental.UtilityClass;
@@ -26,6 +27,17 @@ public final class GroupConverter {
                             .groupId(groupEntity.getId())
                             .groupName(groupEntity.getGroupName())
                             .isSecret(groupEntity.isSecret())
+                            .path(groupEntity.getPath())
+                            .build();
+    }
+
+    public GroupResponse from(GroupEntity groupEntity, MemberGroupEntity memberGroupEntity) {
+        return GroupResponse.builder()
+                            .groupId(groupEntity.getId())
+                            .groupName(groupEntity.getGroupName())
+                            .isSecret(groupEntity.isSecret())
+                            .path(groupEntity.getPath())
+                            .color(memberGroupEntity.getColor())
                             .build();
     }
 }
