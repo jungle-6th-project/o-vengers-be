@@ -26,7 +26,7 @@ public class StudyHistoryController {
 
     private final StudyHistoryService studyHistoryService;
 
-    @ApiOperation(value = "누적 학습 시간 조회 - 마이페이지 일별 누적 시간 차트")
+    @ApiOperation(value = "마이페이지 일자별 학습 누적 시간 조회 - 당일, 주간, 월간")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping("/durations")
     public ApiResponse<ApiResponse.SuccessBody<List<StudyHistoryResponse>>> readDaily(StudyHistoryRequest request) {
