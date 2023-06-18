@@ -34,7 +34,7 @@ public class GroupService {
 
     private final String NOT_GROUP_OWNER = "그룹장이 아닙니다.";
     private final String INVALID_GROUP_PATH = "유효하지 않은 초대 코드입니다. : ";
-    private final String ALREADY_JOINED_GROUP = "이미 가입한 그룹입니다. : ";
+    private final String ALREADY_JOINED_GROUP = "이미 가입한 그룹입니다.";
     private final String INVALID_GROUP_PASSWORD = "비밀번호가 일치하지 않습니다.";
     private final GroupRepository groupRepository;
     private final MemberGroupRepository memberGroupRepository;
@@ -124,7 +124,7 @@ public class GroupService {
             memberGroupRepository.save(MemberGroupConverter.to(memberEntity.getId(), groupEntity.getId()));
             return GroupConverter.from(groupEntity);
         }
-        throw new IllegalArgumentException(ALREADY_JOINED_GROUP + groupEntity.getGroupName());
+        throw new IllegalArgumentException(ALREADY_JOINED_GROUP);
     }
     public void deleteGroup(Long groupId) {
         Long memberId = auditorHolder.get();
@@ -200,7 +200,7 @@ public class GroupService {
                                                  .orElseThrow(() -> new IllegalArgumentException(INVALID_GROUP_PATH + request.getPath()));
 
         if (memberGroupRepository.existsByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberId)) {
-            throw new IllegalArgumentException(ALREADY_JOINED_GROUP + groupEntity.getGroupName());
+            throw new IllegalArgumentException(ALREADY_JOINED_GROUP);
         }
 
         return GroupConverter.from(groupEntity);
