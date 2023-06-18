@@ -189,6 +189,6 @@ public class GroupService {
     public GroupResponse getGroupByPath(GroupPathJoinRequest request) {
         return groupRepository.findByPathAndDeletedFalse(request.getPath())
                        .map(GroupConverter::from)
-                       .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 그룹 초대 주소입니다."));
+                       .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 초대 코드입니다."));
     }
 }
