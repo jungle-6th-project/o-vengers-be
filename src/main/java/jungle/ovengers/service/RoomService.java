@@ -3,12 +3,16 @@ package jungle.ovengers.service;
 import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.entity.RoomEntity;
+import jungle.ovengers.exception.RoomNotFoundException;
 import jungle.ovengers.model.request.RoomBrowseRequest;
+import jungle.ovengers.model.request.RoomEntryHistoryAddRequest;
 import jungle.ovengers.model.request.WholeRoomBrowseRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.repository.MemberRoomRepository;
+import jungle.ovengers.repository.RoomEntryHistoryRepository;
 import jungle.ovengers.repository.RoomRepository;
 import jungle.ovengers.support.converter.RoomConverter;
+import jungle.ovengers.support.converter.RoomEntryHistoryConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +30,10 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final MemberRoomRepository memberRoomRepository;
+    private final RoomEntryHistoryRepository roomEntryHistoryRepository;
     private final AuditorHolder auditorHolder;
+    private final String NOT_INVOLVED_ROOM = "사용자가 참여하고 있는 방이 아닙니다.";
+    private final String INVALID_ENTER_TIME = "입장 가능한 시간이 아닙니다.";
 
     public List<RoomResponse> getRooms(RoomBrowseRequest request) {
         LocalDateTime from = request.getFrom();
@@ -79,5 +86,19 @@ public class RoomService {
         return joinedRoomEntities.stream()
                                  .map(RoomConverter::from)
                                  .collect(Collectors.toList());
+    }
+
+    public void generateRoomEntryHistory(RoomEntryHistoryAddRequest request) {
+        Long memberId = auditorHolder.get();
+        Long roomId = request.getRoomId();
+        RoomEntity roomEntity = roomRepository.findByIdAndDeletedFalse(roomId)
+                                              .orElseThrow(() -> new RoomNotFoundException(roomId));
+        if (roomEntity.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException(INVALID_ENTER_TIME);
+        }
+        MemberRoomEntity memberRoomEntity = memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)
+                                                                .orElseThrow(() -> new IllegalArgumentException(NOT_INVOLVED_ROOM + "memberId :" + memberId + " roomId :" + roomId));
+
+        roomEntryHistoryRepository.save(RoomEntryHistoryConverter.to(memberRoomEntity));
     }
 }

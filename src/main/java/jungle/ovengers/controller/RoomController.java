@@ -3,6 +3,7 @@ package jungle.ovengers.controller;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.RoomBrowseRequest;
+import jungle.ovengers.model.request.RoomEntryHistoryAddRequest;
 import jungle.ovengers.model.request.WholeRoomBrowseRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.service.RoomService;
@@ -12,9 +13,7 @@ import jungle.ovengers.support.MessageCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -45,5 +44,13 @@ public class RoomController {
     @GetMapping("/all")
     public ApiResponse<ApiResponse.SuccessBody<List<RoomResponse>>> browseByAllGroups(WholeRoomBrowseRequest request) {
         return ApiResponseGenerator.success(roomService.getRoomsByAllGroups(request), HttpStatus.OK, MessageCode.SUCCESS);
+    }
+
+    @ApiOperation(value = "방 입장시 입장 시간 기록 생성")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @PostMapping("/histories")
+    public ApiResponse<ApiResponse.SuccessBody<Void>> addEntryExitHistory(@RequestBody RoomEntryHistoryAddRequest request) {
+        roomService.generateRoomEntryHistory(request);
+        return ApiResponseGenerator.success(HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
     }
 }
