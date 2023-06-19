@@ -78,7 +78,7 @@ public class GroupService {
                            .map(memberGroupEntity -> {
                                GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(memberGroupEntity.getGroupId())
                                                                         .orElseThrow(() -> new GroupNotFoundException(memberGroupEntity.getGroupId()));
-                               return GroupConverter.from(groupEntity);
+                               return GroupConverter.from(groupEntity, memberGroupEntity);
                            })
                            .collect(Collectors.toList());
     }
