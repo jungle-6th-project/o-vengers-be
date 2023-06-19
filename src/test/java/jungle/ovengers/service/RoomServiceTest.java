@@ -1,10 +1,14 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
+import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.entity.RoomEntity;
+import jungle.ovengers.entity.RoomEntryHistoryEntity;
 import jungle.ovengers.model.request.RoomBrowseRequest;
+import jungle.ovengers.model.request.RoomEntryHistoryAddRequest;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.repository.MemberRoomRepository;
+import jungle.ovengers.repository.RoomEntryHistoryRepository;
 import jungle.ovengers.repository.RoomRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,12 +18,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RoomServiceTest {
@@ -30,6 +37,9 @@ public class RoomServiceTest {
     private MemberRoomRepository memberRoomRepository;
 
     @Mock
+    private RoomEntryHistoryRepository roomEntryHistoryRepository;
+
+    @Mock
     private AuditorHolder auditorHolder;
 
     @InjectMocks
@@ -38,23 +48,35 @@ public class RoomServiceTest {
     private Long roomId;
     private Long memberId;
     private Long groupId;
+    private Long memberRoomId;
     private RoomEntity roomEntity;
+
+    private MemberRoomEntity memberRoomEntity;
 
     @BeforeEach
     public void setup() {
         roomId = 1L;
         memberId = 1L;
         groupId = 1L;
+        memberRoomId = 1L;
         roomEntity = RoomEntity.builder()
                                .id(roomId)
                                .startTime(LocalDateTime.now())
                                .endTime(LocalDateTime.now()
-                                                     .plusHours(1))
+                                                     .plusMinutes(25))
                                .profiles(List.of("profile1", "profile2"))
                                .ownerId(memberId)
                                .deleted(false)
                                .groupId(groupId)
                                .build();
+        memberRoomEntity = MemberRoomEntity.builder()
+                                           .time(roomEntity.getStartTime())
+                                           .memberId(memberId)
+                                           .roomId(roomId)
+                                           .durationTime(Duration.ZERO)
+                                           .deleted(false)
+                                           .id(memberRoomId)
+                                           .build();
     }
 
     @DisplayName("속해있는 그룹의 전체 방 정보를 조회할때, 데이터가 잘 조회 되는지 테스트")
@@ -103,5 +125,43 @@ public class RoomServiceTest {
         assertThat(results.size()).isEqualTo(1);
         assertThat(results.get(0)
                           .getRoomId()).isEqualTo(roomId);
+    }
+
+    @DisplayName("방 입장시 입장 시간 기록을 요청했을때, 잘 처리되는지 테스트")
+    @Test
+    public void testGenerateRoomEntryHistory() {
+        //given
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
+        when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
+        //when
+        roomService.generateRoomEntryHistory(new RoomEntryHistoryAddRequest(roomId));
+        //then
+        verify(roomEntryHistoryRepository, times(1)).save(any(RoomEntryHistoryEntity.class));
+    }
+
+    @DisplayName("방 입장 가능 시간이 지난 이후에 입장 시간 기록을 요청했을때, 예외가 발생되는지 테스트")
+    @Test
+    public void testGenerateRoomEntryHistoryWithInvalidEnterTime() {
+        //given
+        RoomEntity invalidRoomEntity = RoomEntity.builder()
+                                                 .id(roomId)
+                                                 .startTime(LocalDateTime.now()
+                                                                         .minusDays(1))
+                                                 .endTime(LocalDateTime.now()
+                                                                       .minusDays(1)
+                                                                       .plusMinutes(25))
+                                                 .profiles(List.of("profile1", "profile2"))
+                                                 .ownerId(memberId)
+                                                 .deleted(false)
+                                                 .groupId(groupId)
+                                                 .build();
+
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(invalidRoomEntity));
+        //when
+        assertThatThrownBy(() -> roomService.generateRoomEntryHistory(new RoomEntryHistoryAddRequest(roomId))).isInstanceOf(IllegalArgumentException.class);
+        //then
+        verify(memberRoomRepository, never()).findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId);
     }
 }
