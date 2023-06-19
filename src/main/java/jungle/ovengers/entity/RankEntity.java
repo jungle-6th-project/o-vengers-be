@@ -30,7 +30,7 @@ public class RankEntity {
     @Column(nullable = false)
     private boolean deleted;
 
-    public void addDuration(Duration duration) {
+    public void plusDuration(Duration duration) {
         this.duration = this.duration.plus(duration);
     }
 

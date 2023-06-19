@@ -27,4 +27,8 @@ public class RoomEntryHistoryEntity {
 
     @Column
     private LocalDateTime exitTime;
+
+    public void updateExitTime(LocalDateTime exitTime) {
+        this.exitTime = exitTime;
+    }
 }

@@ -3,8 +3,9 @@ package jungle.ovengers.controller;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.RoomBrowseRequest;
-import jungle.ovengers.model.request.RoomEntryHistoryAddRequest;
+import jungle.ovengers.model.request.RoomHistoryRequest;
 import jungle.ovengers.model.request.WholeRoomBrowseRequest;
+import jungle.ovengers.model.response.RoomHistoryResponse;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.service.RoomService;
 import jungle.ovengers.support.ApiResponse;
@@ -46,11 +47,18 @@ public class RoomController {
         return ApiResponseGenerator.success(roomService.getRoomsByAllGroups(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
-    @ApiOperation(value = "방 입장시 입장 시간 기록 생성")
+    @ApiOperation(value = "방 입장시 해당 방 입장 시간 기록 생성")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @PostMapping("/histories")
-    public ApiResponse<ApiResponse.SuccessBody<Void>> addEntryExitHistory(@RequestBody RoomEntryHistoryAddRequest request) {
-        roomService.generateRoomEntryHistory(request);
-        return ApiResponseGenerator.success(HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+    public ApiResponse<ApiResponse.SuccessBody<RoomHistoryResponse>> addEntryHistory(@RequestBody RoomHistoryRequest request) {
+        return ApiResponseGenerator.success(roomService.generateRoomEntryHistory(request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+    }
+
+    @ApiOperation(value = "방 나가기 요청시 해당 방 퇴장 기록 생성")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @PatchMapping("/histories")
+    public ApiResponse<ApiResponse.SuccessBody<RoomHistoryResponse>> editExitHistory(@RequestBody RoomHistoryRequest request) {
+        return ApiResponseGenerator.success(roomService.updateRoomExitHistory(request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+
     }
 }
