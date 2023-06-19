@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface GroupRepository extends JpaRepository<GroupEntity, Long> {
     Optional<GroupEntity> findByIdAndDeletedFalse(Long groupId);
     Optional<GroupEntity> findByPathAndDeletedFalse(String path);
+
+    Optional<GroupEntity> findByIdAndOwnerIdAndDeletedFalse(Long groupId, Long memberId);
 }

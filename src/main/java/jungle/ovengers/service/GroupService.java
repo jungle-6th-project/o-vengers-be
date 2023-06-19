@@ -1,19 +1,13 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
-import jungle.ovengers.entity.GroupEntity;
-import jungle.ovengers.entity.MemberEntity;
-import jungle.ovengers.entity.MemberGroupEntity;
-import jungle.ovengers.entity.RankEntity;
+import jungle.ovengers.entity.*;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberGroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.model.request.*;
 import jungle.ovengers.model.response.GroupResponse;
-import jungle.ovengers.repository.GroupRepository;
-import jungle.ovengers.repository.MemberGroupRepository;
-import jungle.ovengers.repository.MemberRepository;
-import jungle.ovengers.repository.RankRepository;
+import jungle.ovengers.repository.*;
 import jungle.ovengers.support.converter.GroupConverter;
 import jungle.ovengers.support.converter.MemberGroupConverter;
 import jungle.ovengers.support.converter.RankConverter;
@@ -40,6 +34,9 @@ public class GroupService {
     private final MemberGroupRepository memberGroupRepository;
     private final MemberRepository memberRepository;
     private final RankRepository rankRepository;
+    private final RoomRepository roomRepository;
+    private final MemberRoomRepository memberRoomRepository;
+    private final TodoRepository todoRepository;
     private final AuditorHolder auditorHolder;
 
     public GroupResponse generateGroup(GroupAddRequest request) {
@@ -129,19 +126,12 @@ public class GroupService {
         memberRepository.findById(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
-        GroupEntity groupEntity = groupRepository.findById(groupId)
-                                                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+        GroupEntity groupEntity = groupRepository.findByIdAndOwnerIdAndDeletedFalse(groupId, memberId)
+                                                 .orElseThrow(() -> new IllegalArgumentException(NOT_GROUP_OWNER));
 
-        if (!groupEntity.isOwner(memberId)) {
-            throw new IllegalArgumentException(NOT_GROUP_OWNER);
-        }
-
-        rankRepository.findByGroupIdAndDeletedFalse(groupId)
-                      .forEach(RankEntity::delete);
-
+        this.deleteAllAssociations(groupId);
         groupEntity.delete();
-        memberGroupRepository.findByGroupId(groupId)
-                             .forEach(MemberGroupEntity::delete);
+
     }
 
     public void withdrawGroup(GroupWithdrawRequest request) {
@@ -150,14 +140,48 @@ public class GroupService {
         memberRepository.findById(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
-        groupRepository.findById(request.getGroupId())
-                       .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
+        GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(request.getGroupId())
+                                                 .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
 
-        rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(request.getGroupId(), memberId)
+        if (groupEntity.isOwner(memberId)) {
+            deleteAllAssociations(groupEntity.getId());
+            return;
+        }
+
+        this.deleteSingleAssociation(groupEntity.getId(), memberId);
+    }
+
+    /* 그룹의 장이 탈퇴 또는 삭제하여, 그룹 자체가 사라질 경우 */
+    private void deleteAllAssociations(Long groupId) {
+        rankRepository.findByGroupIdAndDeletedFalse(groupId)
+                      .forEach(RankEntity::delete);
+        memberGroupRepository.findByGroupIdAndDeletedFalse(groupId)
+                             .forEach(MemberGroupEntity::delete);
+        roomRepository.findByGroupIdAndDeletedFalse(groupId)
+                      .forEach(roomEntity -> {
+                          roomEntity.delete();
+                          memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())
+                                              .forEach(MemberRoomEntity::delete);
+                      });
+        todoRepository.findByGroupIdAndDeletedFalse(groupId)
+                      .forEach(TodoEntity::delete);
+    }
+
+    /* 그룹 구성원 개인이 탈퇴할 경우 */
+    private void deleteSingleAssociation(Long groupId, Long memberId) {
+        rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)
                       .ifPresent(RankEntity::delete);
-
-        memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(request.getGroupId(), memberId)
+        memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)
                              .ifPresent(MemberGroupEntity::delete);
+        roomRepository.findByGroupIdAndDeletedFalse(groupId)
+                      .forEach(roomEntity -> {
+                          memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomEntity.getId())
+                                              .ifPresent(MemberRoomEntity::delete);
+                      });
+        roomRepository.findByGroupIdAndOwnerId(groupId, memberId)
+                      .ifPresent(RoomEntity::delete);
+        todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)
+                      .forEach(TodoEntity::delete);
     }
 
     public GroupResponse changeGroupInfo(GroupEditRequest request) {
