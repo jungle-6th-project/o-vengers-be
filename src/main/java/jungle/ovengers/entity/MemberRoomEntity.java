@@ -47,4 +47,8 @@ public class MemberRoomEntity {
     public void delete() {
         this.deleted = true;
     }
+
+    public void accumulateDuration(Duration durationTime) {
+        this.durationTime = this.durationTime.plus(durationTime);
+    }
 }

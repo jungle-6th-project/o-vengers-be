@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -126,6 +127,7 @@ public class RoomService {
                                                                                   .orElseThrow(() -> new IllegalArgumentException(NOT_INVOLVED_ROOM + "memberId :" + memberId + " roomId :" + roomId));
 
         roomEntryHistoryEntity.updateExitTime(exitTime);
+        memberRoomEntity.accumulateDuration(Duration.between(roomEntryHistoryEntity.getEnterTime(), roomEntryHistoryEntity.getExitTime()));
         return RoomHistoryConverter.from(roomEntryHistoryEntity);
     }
 }
