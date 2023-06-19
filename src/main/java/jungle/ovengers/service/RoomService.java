@@ -2,6 +2,7 @@ package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.MemberRoomEntity;
+import jungle.ovengers.entity.RankEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.entity.RoomEntryHistoryEntity;
 import jungle.ovengers.exception.RoomNotFoundException;
@@ -11,6 +12,7 @@ import jungle.ovengers.model.request.WholeRoomBrowseRequest;
 import jungle.ovengers.model.response.RoomHistoryResponse;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.repository.MemberRoomRepository;
+import jungle.ovengers.repository.RankRepository;
 import jungle.ovengers.repository.RoomEntryHistoryRepository;
 import jungle.ovengers.repository.RoomRepository;
 import jungle.ovengers.support.converter.RoomConverter;
@@ -36,6 +38,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final MemberRoomRepository memberRoomRepository;
     private final RoomEntryHistoryRepository roomEntryHistoryRepository;
+    private final RankRepository rankRepository;
     private final AuditorHolder auditorHolder;
     private final String NOT_INVOLVED_ROOM = "사용자가 참여하고 있는 방이 아닙니다.";
     private final String INVALID_ENTER_TIME = "입장 가능한 시간이 아닙니다.";
@@ -127,7 +130,11 @@ public class RoomService {
                                                                                   .orElseThrow(() -> new IllegalArgumentException(NOT_INVOLVED_ROOM + "memberId :" + memberId + " roomId :" + roomId));
 
         roomEntryHistoryEntity.updateExitTime(exitTime);
-        memberRoomEntity.accumulateDuration(Duration.between(roomEntryHistoryEntity.getEnterTime(), roomEntryHistoryEntity.getExitTime()));
+
+        memberRoomEntity.plusDuration(Duration.between(roomEntryHistoryEntity.getEnterTime(), roomEntryHistoryEntity.getExitTime()));
+        rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(roomEntity.getGroupId(), memberId)
+                      .ifPresent(rank -> rank.plusDuration(memberRoomEntity.getDurationTime()));
+
         return RoomHistoryConverter.from(roomEntryHistoryEntity);
     }
 }
