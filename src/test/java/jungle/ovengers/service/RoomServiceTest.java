@@ -2,6 +2,7 @@ package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.MemberRoomEntity;
+import jungle.ovengers.entity.RankEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.entity.RoomEntryHistoryEntity;
 import jungle.ovengers.model.request.RoomBrowseRequest;
@@ -9,6 +10,7 @@ import jungle.ovengers.model.request.RoomHistoryRequest;
 import jungle.ovengers.model.response.RoomHistoryResponse;
 import jungle.ovengers.model.response.RoomResponse;
 import jungle.ovengers.repository.MemberRoomRepository;
+import jungle.ovengers.repository.RankRepository;
 import jungle.ovengers.repository.RoomEntryHistoryRepository;
 import jungle.ovengers.repository.RoomRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +43,9 @@ public class RoomServiceTest {
     private RoomEntryHistoryRepository roomEntryHistoryRepository;
 
     @Mock
+    private RankRepository rankRepository;
+
+    @Mock
     private AuditorHolder auditorHolder;
 
     @InjectMocks
@@ -52,10 +57,12 @@ public class RoomServiceTest {
     private Long groupId;
     private Long memberRoomId;
     private Long roomEntryHistoryId;
+    private Long rankId;
     private RoomEntity roomEntity;
 
     private MemberRoomEntity memberRoomEntity;
     private RoomEntryHistoryEntity roomEntryHistoryEntity;
+    private RankEntity rankEntity;
 
     @BeforeEach
     public void setup() {
@@ -65,6 +72,7 @@ public class RoomServiceTest {
         groupId = 1L;
         memberRoomId = 1L;
         roomEntryHistoryId = 1L;
+        rankId = 1L;
         roomEntity = RoomEntity.builder()
                                .id(roomId)
                                .startTime(now)
@@ -88,6 +96,14 @@ public class RoomServiceTest {
                                                        .exitTime(null)
                                                        .id(roomEntryHistoryId)
                                                        .build();
+
+        rankEntity = RankEntity.builder()
+                               .rankId(rankId)
+                               .duration(Duration.ZERO)
+                               .groupId(groupId)
+                               .memberId(memberId)
+                               .deleted(false)
+                               .build();
     }
 
     @DisplayName("속해있는 그룹의 전체 방 정보를 조회할때, 데이터가 잘 조회 되는지 테스트")
@@ -210,11 +226,11 @@ public class RoomServiceTest {
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId))
                 .thenReturn(Optional.of(memberRoomEntity));
         when(roomEntryHistoryRepository.findByMemberRoomIdAndExitTimeIsNull(memberRoomId)).thenReturn(Collections.singletonList(roomEntryHistoryEntity));
+        when(rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(rankEntity));
         //when
         RoomHistoryResponse result = roomService.updateRoomExitHistory(new RoomHistoryRequest(roomId));
         //then
         assertThat(result.getEnterTime()).isEqualTo(testRoomEntity.getStartTime());
         assertThat(result.getExitTime()).isEqualTo(testRoomEntity.getEndTime());
     }
-
 }
