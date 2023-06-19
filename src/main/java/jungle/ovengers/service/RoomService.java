@@ -131,9 +131,10 @@ public class RoomService {
 
         roomEntryHistoryEntity.updateExitTime(exitTime);
 
-        memberRoomEntity.plusDuration(Duration.between(roomEntryHistoryEntity.getEnterTime(), roomEntryHistoryEntity.getExitTime()));
+        Duration calculatedDuration = Duration.between(roomEntryHistoryEntity.getEnterTime(), roomEntryHistoryEntity.getExitTime());
+        memberRoomEntity.plusDuration(calculatedDuration);
         rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(roomEntity.getGroupId(), memberId)
-                      .ifPresent(rank -> rank.plusDuration(memberRoomEntity.getDurationTime()));
+                      .ifPresent(rank -> rank.plusDuration(calculatedDuration));
 
         return RoomHistoryConverter.from(roomEntryHistoryEntity);
     }
