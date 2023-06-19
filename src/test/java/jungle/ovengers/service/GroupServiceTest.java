@@ -1,15 +1,10 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
-import jungle.ovengers.entity.GroupEntity;
-import jungle.ovengers.entity.MemberEntity;
-import jungle.ovengers.entity.MemberGroupEntity;
+import jungle.ovengers.entity.*;
 import jungle.ovengers.model.request.*;
 import jungle.ovengers.model.response.GroupResponse;
-import jungle.ovengers.repository.GroupRepository;
-import jungle.ovengers.repository.MemberGroupRepository;
-import jungle.ovengers.repository.MemberRepository;
-import jungle.ovengers.repository.RankRepository;
+import jungle.ovengers.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,20 +36,35 @@ class GroupServiceTest {
     @Mock
     private RankRepository rankRepository;
     @Mock
+    private RoomRepository roomRepository;
+    @Mock
+    private MemberRoomRepository memberRoomRepository;
+    @Mock
+    private TodoRepository todoRepository;
+    @Mock
     private AuditorHolder auditorHolder;
     @InjectMocks
     private GroupService groupService;
 
     private Long memberId;
     private Long groupId;
+    private Long roomId;
+    private Long memberRoomId;
+    private Long todoId;
     private GroupEntity groupEntity;
     private MemberEntity memberEntity;
     private MemberGroupEntity memberGroupEntity;
+    private RoomEntity roomEntity;
+    private MemberRoomEntity memberRoomEntity;
+    private TodoEntity todoEntity;
 
     @BeforeEach
     public void setup() {
         memberId = 1L;
         groupId = 1L;
+        roomId = 1L;
+        memberRoomId = 1L;
+        todoId = 1L;
         groupEntity = GroupEntity.builder()
                                  .id(groupId)
                                  .ownerId(memberId)
@@ -77,6 +88,35 @@ class GroupServiceTest {
                                              .deleted(false)
                                              .color("color")
                                              .build();
+        roomEntity = RoomEntity.builder()
+                               .id(roomId)
+                               .groupId(groupId)
+                               .profiles(List.of(memberEntity.getProfile()))
+                               .startTime(LocalDateTime.now())
+                               .endTime(LocalDateTime.now()
+                                                     .plusMinutes(25))
+                               .ownerId(memberId)
+                               .deleted(false)
+                               .build();
+
+        memberRoomEntity = MemberRoomEntity.builder()
+                                           .id(memberRoomId)
+                                           .roomId(roomId)
+                                           .memberId(memberId)
+                                           .durationTime(Duration.ZERO)
+                                           .deleted(false)
+                                           .time(roomEntity.getStartTime())
+                                           .build();
+
+        todoEntity = TodoEntity.builder()
+                               .id(todoId)
+                               .groupId(groupId)
+                               .content("content")
+                               .done(false)
+                               .deleted(false)
+                               .createdTime(LocalDateTime.now())
+                               .memberId(memberId)
+                               .build();
     }
 
     @DisplayName("사용자가 그룹 생성 요청을 했을 경우, 그룹이 잘 생성되는지 테스트")
@@ -259,15 +299,16 @@ class GroupServiceTest {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
-        when(groupRepository.findById(groupEntity.getId())).thenReturn(Optional.of(groupEntity));
+        when(groupRepository.findByIdAndOwnerIdAndDeletedFalse(groupEntity.getId(), memberId)).thenReturn(Optional.of(groupEntity));
 
         //when
         groupService.deleteGroup(groupId);
 
         //then
-        verify(memberGroupRepository).findByGroupId(groupId);
-        verify(groupRepository).findById(groupId);
-        verify(memberGroupRepository).findByGroupId(groupId);
+        verify(rankRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(memberGroupRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(roomRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(todoRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
     }
 
     @DisplayName("그룹장이 아닌 사용자가 그룹 삭제 요청을 할 경우, 에외가 발생되는지 테스트")
@@ -286,7 +327,7 @@ class GroupServiceTest {
                                              .createdAt(LocalDateTime.now())
                                              .deleted(false)
                                              .build();
-        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
+        when(groupRepository.findByIdAndOwnerIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.empty());
         //when, then
         assertThatThrownBy(() -> groupService.deleteGroup(groupId))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -294,19 +335,49 @@ class GroupServiceTest {
         verify(memberGroupRepository, never()).findByGroupId(groupId);
     }
 
-    @DisplayName("그룹에서 사용자가 잘 탈퇴되는지 테스트")
+    @DisplayName("그룹 멤버가 그룹에서 탈퇴할 경우 가입 정보가 잘 삭제되는지 테스트")
     @Test
-    public void testWithdrawGroup() {
+    public void testWithdrawGroupWhoIsMember() {
+        //given
+        Long otherMemberId = 2L;
+        GroupEntity groupEntity = GroupEntity.builder()
+                                             .id(groupId)
+                                             .ownerId(otherMemberId)
+                                             .path("path")
+                                             .groupName("groupName")
+                                             .isSecret(false)
+                                             .createdAt(LocalDateTime.now())
+                                             .deleted(false)
+                                             .build();
+
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        //when
+        groupService.withdrawGroup(new GroupWithdrawRequest(groupId));
+        //then
+        verify(rankRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
+        verify(memberGroupRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
+        verify(roomRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(roomRepository, times(1)).findByGroupIdAndOwnerId(groupId, memberId);
+        verify(todoRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
+    }
+
+    @DisplayName("그룹 주인이 그룹에서 탈퇴할 경우 그룹이 잘 삭제되는지 테스트")
+    @Test
+    public void testWithdrawGroupWhoIsOwner() {
         //given
         GroupWithdrawRequest request = new GroupWithdrawRequest(groupId);
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
-        when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
-        when(memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         //when
         groupService.withdrawGroup(request);
         //then
-        verify(memberGroupRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
+        verify(rankRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(memberGroupRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(roomRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(todoRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
     }
 
     @DisplayName("사용자가 속한 그룹의 색깔을 변경했을때, 잘 변경 되는지 테스트")
