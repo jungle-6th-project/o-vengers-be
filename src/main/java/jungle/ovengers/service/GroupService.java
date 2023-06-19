@@ -144,6 +144,7 @@ public class GroupService {
                                                  .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
 
         if (groupEntity.isOwner(memberId)) {
+            groupEntity.delete();
             deleteAllAssociations(groupEntity.getId());
             return;
         }
