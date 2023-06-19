@@ -66,4 +66,10 @@ public class TodoService {
         todoRepository.findById(request.getTodoId())
                       .ifPresent(TodoEntity::delete);
     }
+
+    public void deleteDoneTodo() {
+        log.info("All deleted done todo successful");
+        todoRepository.findByDoneTrue()
+                      .forEach(TodoEntity::delete);
+    }
 }

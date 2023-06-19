@@ -9,4 +9,6 @@ public interface TodoRepository extends JpaRepository<TodoEntity, Long> {
     List<TodoEntity> findByGroupIdAndMemberIdAndDeletedFalse(Long groupId, Long memberId);
 
     List<TodoEntity> findByGroupIdAndDeletedFalse(Long groupId);
+
+    List<TodoEntity> findByDoneTrue();
 }
