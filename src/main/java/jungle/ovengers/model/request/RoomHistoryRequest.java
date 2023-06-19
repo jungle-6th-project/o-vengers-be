@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomEntryHistoryAddRequest {
+public class RoomHistoryRequest {
     private Long roomId;
 }

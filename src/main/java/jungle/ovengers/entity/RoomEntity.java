@@ -36,6 +36,7 @@ public class RoomEntity {
     private boolean deleted;
 
     @Column
+    @Builder.Default
     @Convert(converter = ProfileImagesConverter.class)
     private List<String> profiles = new ArrayList<>();
 
@@ -57,5 +58,9 @@ public class RoomEntity {
 
     public boolean isBefore(LocalDateTime to) {
         return this.endTime.isBefore(to) || this.endTime.isEqual(to);
+    }
+
+    public boolean isValidTime(LocalDateTime time) {
+        return this.endTime.isAfter(time);
     }
 }
