@@ -1,8 +1,6 @@
 package jungle.ovengers.entity;
 
 import lombok.*;
-import org.springframework.cglib.core.Local;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -31,17 +29,20 @@ public class MemberRoomEntity {
     private Duration durationTime;
 
     @Column(nullable = false)
-    private LocalDateTime time;
+    private LocalDateTime startTime;
+
+    @Column(nullable = false)
+    private LocalDateTime endTime;
 
     @Column(nullable = false)
     private boolean deleted;
 
     public boolean isAfter(LocalDateTime from) {
-        return this.time.isAfter(from) || this.time.isEqual(from);
+        return this.startTime.isAfter(from) || this.startTime.isEqual(from);
     }
 
     public boolean isBefore(LocalDateTime to) {
-        return this.time.isBefore(to);
+        return this.startTime.isBefore(to);
     }
 
     public void delete() {

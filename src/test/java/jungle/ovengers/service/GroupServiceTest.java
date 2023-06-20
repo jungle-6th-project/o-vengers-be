@@ -105,7 +105,8 @@ class GroupServiceTest {
                                            .memberId(memberId)
                                            .durationTime(Duration.ZERO)
                                            .deleted(false)
-                                           .time(roomEntity.getStartTime())
+                                           .startTime(roomEntity.getStartTime())
+                                           .endTime(roomEntity.getEndTime())
                                            .build();
 
         todoEntity = TodoEntity.builder()

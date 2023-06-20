@@ -15,7 +15,8 @@ public class MemberRoomConverter {
                                .memberId(memberId)
                                .roomId(roomEntity.getId())
                                .durationTime(Duration.ZERO)
-                               .time(roomEntity.getStartTime())
+                               .startTime(roomEntity.getStartTime())
+                               .endTime(roomEntity.getEndTime())
                                .build();
     }
 }
