@@ -60,7 +60,11 @@ public class RoomEntity {
         return this.endTime.isBefore(to) || this.endTime.isEqual(to);
     }
 
-    public boolean isValidTime(LocalDateTime time) {
-        return this.endTime.isAfter(time);
+    public boolean isAfterEndTime(LocalDateTime time) {
+        return time.isAfter(this.endTime);
+    }
+
+    public boolean isBeforeStartTime(LocalDateTime time) {
+        return time.isBefore(this.startTime);
     }
 }
