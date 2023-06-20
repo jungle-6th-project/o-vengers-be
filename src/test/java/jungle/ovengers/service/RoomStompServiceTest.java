@@ -113,7 +113,6 @@ class RoomStompServiceTest {
         when(roomRepository.findByGroupIdAndStartTimeAndDeletedFalse(groupId, request.getStartTime())).thenReturn(Optional.empty());
         when(roomRepository.save(any(RoomEntity.class))).thenReturn(roomEntity);
 
-        when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomEntity.getId())).thenReturn(Optional.empty());
         when(memberRoomRepository.save(any(MemberRoomEntity.class))).thenReturn(memberRoomEntity);
 
         //when
