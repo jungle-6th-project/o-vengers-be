@@ -31,7 +31,6 @@ public class MemberController {
     }
 
     @ApiOperation(value = "토큰 재발급 요청")
-    @ApiImplicitParam(name = "refreshToken", value = "리프레시 토큰 값")
     @PostMapping("/tokens")
     public ApiResponse<ApiResponse.SuccessBody<Token>> refreshToken(@RequestHeader("X-BBODOK-REFRESH-TOKEN") String refreshToken) {
         return ApiResponseGenerator.success(memberService.reissueTokens(refreshToken), HttpStatus.CREATED);
