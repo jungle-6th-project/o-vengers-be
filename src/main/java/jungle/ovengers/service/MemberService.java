@@ -1,8 +1,10 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
+import jungle.ovengers.config.security.filter.token.TokenResolver;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.exception.MemberNotFoundException;
+import jungle.ovengers.exception.RefreshTokenInvalidException;
 import jungle.ovengers.model.dto.MemberDto;
 import jungle.ovengers.model.oauth.KakaoTokenResponse;
 import jungle.ovengers.model.oauth.KakaoUserInfoResponse;
@@ -22,16 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.NoSuchElementException;
-
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final MemberRoomRepository memberRoomRepository;
     private final TokenGenerator tokenGenerator;
+    private final TokenResolver tokenResolver;
     private final AuditorHolder auditorHolder;
 
     private final String client_id = "997f10e0eac4d170ed7b30fa0c28d314";
@@ -88,14 +88,13 @@ public class MemberService {
                              .baseUrl(kakaoApiUri)
                              .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                              .build();
-        KakaoUserInfoResponse kakaoUserInfoResponse = webClient.post()
-                                                               .uri(uriBuilder -> uriBuilder.path("/v2/user/me")
-                                                                                            .build())
-                                                               .header("Authorization", "Bearer " + kakaoTokenResponse.getAccessToken())
-                                                               .retrieve()
-                                                               .bodyToMono(KakaoUserInfoResponse.class)
-                                                               .block();
-        return kakaoUserInfoResponse;
+        return webClient.post()
+                        .uri(uriBuilder -> uriBuilder.path("/v2/user/me")
+                                                     .build())
+                        .header("Authorization", "Bearer " + kakaoTokenResponse.getAccessToken())
+                        .retrieve()
+                        .bodyToMono(KakaoUserInfoResponse.class)
+                        .block();
     }
 
     private KakaoTokenResponse getKakaoTokenResponse(String authCode) {
@@ -113,5 +112,15 @@ public class MemberService {
                         .retrieve()
                         .bodyToMono(KakaoTokenResponse.class)
                         .block();
+    }
+
+    public Token reissueTokens(String refreshToken) {
+        Long memberId = tokenResolver.resolveToken(refreshToken)
+                                     .orElseThrow(RefreshTokenInvalidException::new);
+
+        if (memberRepository.existsById(memberId)) {
+            throw new RefreshTokenInvalidException();
+        }
+        return tokenGenerator.generateToken(memberId);
     }
 }

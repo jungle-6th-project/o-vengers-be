@@ -28,13 +28,20 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @ApiOperation(value = "kakao 인증 api")
+    @ApiOperation(value = "kakao 로그인 요청")
     @ApiImplicitParam(name = "request", value = "카카오 인증 서버로부터 발급된 인가 코드")
-    @PostMapping("/tokens")
+    @PostMapping("/login")
     public ApiResponse<ApiResponse.SuccessBody<Token>> publishToken(@RequestBody AuthRequest request) {
-        log.info("요청 들어옴 : {}", request.getAuthCode());
         return ApiResponseGenerator.success(memberService.publishToken(request), HttpStatus.OK);
     }
+
+    @ApiOperation(value = "토큰 재발급 요청")
+    @ApiImplicitParam(name = "refreshToken", value = "리프레시 토큰 값")
+    @PostMapping("/tokens")
+    public ApiResponse<ApiResponse.SuccessBody<Token>> refreshToken(@RequestHeader("X-BBODOK-REFRESH-TOKEN") String refreshToken) {
+        return ApiResponseGenerator.success(memberService.reissueTokens(refreshToken), HttpStatus.CREATED);
+    }
+
 
     @ApiOperation(value = "사용자 정보 조회 api")
     @ApiImplicitParams({

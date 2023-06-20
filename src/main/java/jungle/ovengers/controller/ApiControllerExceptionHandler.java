@@ -90,6 +90,12 @@ public class ApiControllerExceptionHandler {
         return ApiResponseGenerator.fail("INVALID TOKEN", TOKEN_INVALID_MESSAGE, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(RefreshTokenInvalidException.class)
+    public ApiResponse<ApiResponse.FailureBody> handleInvalidRefreshToken(RefreshTokenInvalidException ex, HttpServletRequest request) {
+        loggingHandler.writeLog(ex, request);
+        return ApiResponseGenerator.fail("INVALID REFRESH TOKEN", TOKEN_INVALID_MESSAGE, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ApiResponse<ApiResponse.FailureBody> handleIllegal(IllegalArgumentException ex, HttpServletRequest request) {
         loggingHandler.writeLog(ex, request);
