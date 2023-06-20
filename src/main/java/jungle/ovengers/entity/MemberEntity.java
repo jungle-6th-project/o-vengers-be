@@ -27,5 +27,12 @@ public class MemberEntity {
     private String email;
 
     @Column(nullable = false)
+    private Long certificationId;
+
+    @Column(nullable = false)
     private boolean deleted;
+
+    public void delete() {
+        this.deleted = true;
+    }
 }

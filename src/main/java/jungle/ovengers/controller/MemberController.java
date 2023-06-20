@@ -4,9 +4,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.AuthRequest;
-import jungle.ovengers.model.request.StudyHistoryRequest;
 import jungle.ovengers.model.response.MemberResponse;
-import jungle.ovengers.model.response.StudyHistoryResponse;
 import jungle.ovengers.model.response.Token;
 import jungle.ovengers.service.MemberService;
 import jungle.ovengers.support.ApiResponse;
@@ -16,9 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,6 +35,16 @@ public class MemberController {
     @PostMapping("/tokens")
     public ApiResponse<ApiResponse.SuccessBody<Token>> refreshToken(@RequestHeader("X-BBODOK-REFRESH-TOKEN") String refreshToken) {
         return ApiResponseGenerator.success(memberService.reissueTokens(refreshToken), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "사용자 탈퇴 요청")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header"),
+    })
+    @DeleteMapping
+    public ApiResponse<ApiResponse.SuccessBody<Void>> delete() {
+        memberService.logout();
+        return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.RESOURCE_DELETED);
     }
 
 
