@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +84,8 @@ public class RoomServiceTest {
                                .groupId(groupId)
                                .build();
         memberRoomEntity = MemberRoomEntity.builder()
-                                           .time(roomEntity.getStartTime())
+                                           .startTime(roomEntity.getStartTime())
+                                           .endTime(roomEntity.getEndTime())
                                            .memberId(memberId)
                                            .roomId(roomId)
                                            .durationTime(Duration.ZERO)
@@ -232,5 +234,43 @@ public class RoomServiceTest {
         //then
         assertThat(result.getEnterTime()).isEqualTo(testRoomEntity.getStartTime());
         assertThat(result.getExitTime()).isEqualTo(testRoomEntity.getEndTime());
+    }
+
+    @DisplayName("사용자가 예약한 방들 중 현재 입장 가능한 가장 빠른 방이 잘 조회되는지 테스트")
+    @Test
+    public void testGetNearestRoom() {
+        //given
+        List<MemberRoomEntity> memberRoomEntities = new ArrayList<>();
+        RoomEntity otherRoomEntity = RoomEntity.builder()
+                                               .id(2L)
+                                               .startTime(now)
+                                               .endTime(now.plusMinutes(25))
+                                               .profiles(List.of("profile1", "profile2"))
+                                               .ownerId(memberId)
+                                               .deleted(false)
+                                               .groupId(groupId)
+                                               .build();
+        MemberRoomEntity otherMemberRoomEntity = MemberRoomEntity.builder()
+                                                                 .startTime(otherRoomEntity.getStartTime()
+                                                                                           .plusMinutes(25))
+                                                                 .endTime(otherRoomEntity.getEndTime()
+                                                                                         .plusMinutes(25))
+                                                                 .memberId(memberId)
+                                                                 .roomId(otherRoomEntity.getId())
+                                                                 .durationTime(Duration.ZERO)
+                                                                 .deleted(false)
+                                                                 .id(2L)
+                                                                 .build();
+        memberRoomEntities.add(otherMemberRoomEntity);
+        memberRoomEntities.add(memberRoomEntity);
+
+        when(auditorHolder.get()).thenReturn(memberId);
+        when(memberRoomRepository.findByMemberIdAndDeletedFalse(memberId)).thenReturn(memberRoomEntities);
+        when(roomRepository.findByIdAndDeletedFalse(memberRoomEntity.getRoomId())).thenReturn(Optional.of(roomEntity));
+        //when
+        RoomResponse result = roomService.getNearestRoom();
+        //then
+        assertThat(result.getRoomId()).isEqualTo(roomId);
+        assertThat(result.getEndTime()).isEqualTo(roomEntity.getEndTime());
     }
 }

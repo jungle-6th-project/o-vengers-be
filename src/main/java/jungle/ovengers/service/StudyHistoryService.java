@@ -41,7 +41,7 @@ public class StudyHistoryService {
                                                                         .collect(Collectors.toList());
 
         return memberRoomEntities.stream()
-                                 .collect(Collectors.groupingBy(memberRoomEntity -> memberRoomEntity.getTime()
+                                 .collect(Collectors.groupingBy(memberRoomEntity -> memberRoomEntity.getStartTime()
                                                                                                     .toLocalDate(),
                                                                 Collectors.mapping(MemberRoomEntity::getDurationTime, Collectors.reducing(Duration.ZERO, Duration::plus))));
     }

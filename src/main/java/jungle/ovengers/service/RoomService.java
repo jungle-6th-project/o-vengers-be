@@ -142,4 +142,26 @@ public class RoomService {
 
         return RoomHistoryConverter.from(roomEntryHistoryEntity);
     }
+
+    /**
+     * 방의 종료 시간이 현재 시간 보다 늦은 방 예약들 중, 현재 시간과 가장 가까운 방을 조회함.
+     */
+    public RoomResponse getNearestRoom() {
+        Long memberId = auditorHolder.get();
+        MemberRoomEntity memberRoomEntity = memberRoomRepository.findByMemberIdAndDeletedFalse(memberId)
+                                                                .stream()
+                                                                .filter(memberRoom -> LocalDateTime.now()
+                                                                                                   .isBefore(memberRoom.getStartTime()
+                                                                                                                       .plusMinutes(25)))
+                                                                .min(Comparator.comparing(memberRoom -> memberRoom.getStartTime()
+                                                                                                                  .plusMinutes(25)))
+                                                                .orElse(null);
+
+        if (memberRoomEntity == null) {
+            return null;
+        }
+
+        return RoomConverter.from(roomRepository.findByIdAndDeletedFalse(memberRoomEntity.getRoomId())
+                                                .orElse(null));
+    }
 }

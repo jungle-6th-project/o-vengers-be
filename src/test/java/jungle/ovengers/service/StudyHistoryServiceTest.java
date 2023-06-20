@@ -51,14 +51,17 @@ class StudyHistoryServiceTest {
                                            .roomId(roomId)
                                            .memberId(memberId)
                                            .deleted(false)
-                                           .time(now)
+                                           .startTime(now)
+                                           .endTime(now.plusMinutes(25))
                                            .durationTime(Duration.ofHours(3))
                                            .build();
         memberRoomEntity2 = MemberRoomEntity.builder()
                                             .roomId(otherRoomId)
                                             .memberId(memberId)
                                             .deleted(false)
-                                            .time(now.plusDays(1))
+                                            .startTime(now.plusDays(1))
+                                            .endTime(now.plusDays(1)
+                                                        .plusMinutes(25))
                                             .durationTime(Duration.ofHours(1))
                                             .build();
     }

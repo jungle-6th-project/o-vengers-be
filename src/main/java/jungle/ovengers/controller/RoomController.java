@@ -59,6 +59,12 @@ public class RoomController {
     @PatchMapping("/histories")
     public ApiResponse<ApiResponse.SuccessBody<RoomHistoryResponse>> editExitHistory(@RequestBody RoomHistoryRequest request) {
         return ApiResponseGenerator.success(roomService.updateRoomExitHistory(request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);
+    }
 
+    @ApiOperation(value = "사용자가 입장 가능한 가장 빠른 방 정보 조회")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
+    @GetMapping("/nearest")
+    public ApiResponse<ApiResponse.SuccessBody<RoomResponse>> readNearest() {
+        return ApiResponseGenerator.success(roomService.getNearestRoom(), HttpStatus.OK, MessageCode.SUCCESS);
     }
 }

@@ -27,6 +27,10 @@ public final class RoomConverter {
     }
 
     public static RoomResponse from(RoomEntity roomEntity) {
+        if (roomEntity == null) {
+            return null;
+        }
+
         return RoomResponse.builder()
                            .roomId(roomEntity.getId())
                            .startTime(roomEntity.getStartTime())
