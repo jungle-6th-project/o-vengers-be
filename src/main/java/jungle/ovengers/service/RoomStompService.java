@@ -42,10 +42,11 @@ public class RoomStompService {
                        .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
 
         RoomEntity roomEntity = roomRepository.findByGroupIdAndStartTimeAndDeletedFalse(request.getGroupId(), request.getStartTime())
-                                              .orElseGet(() -> roomRepository.save(RoomConverter.to(request, memberEntity)));
-
-       memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomEntity.getId())
-                                                                .orElseGet(() -> memberRoomRepository.save(MemberRoomConverter.to(memberId, roomEntity)));
+                                              .orElse(null);
+        if (roomEntity == null) {
+            roomEntity = roomRepository.save(RoomConverter.to(request, memberEntity));
+            memberRoomRepository.save(MemberRoomConverter.to(memberId, roomEntity));
+        }
 
         return RoomConverter.from(roomEntity);
     }
