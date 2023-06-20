@@ -32,6 +32,7 @@ public final class RoomConverter {
                            .startTime(roomEntity.getStartTime())
                            .endTime(roomEntity.getEndTime())
                            .profiles(roomEntity.getProfiles())
+                           .groupId(roomEntity.getGroupId())
                            .build();
     }
 

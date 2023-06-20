@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RoomResponse {
     private Long roomId;
+    private Long groupId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private List<String> profiles;
