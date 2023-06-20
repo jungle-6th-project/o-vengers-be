@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 @UtilityClass
 public final class RoomEntryHistoryConverter {
 
-    public static RoomEntryHistoryEntity to(MemberRoomEntity memberRoomEntity) {
+    public static RoomEntryHistoryEntity to(MemberRoomEntity memberRoomEntity, LocalDateTime enterTime) {
         return RoomEntryHistoryEntity.builder()
                                      .memberRoomId(memberRoomEntity.getId())
-                                     .enterTime(LocalDateTime.now())
+                                     .enterTime(enterTime)
                                      .build();
     }
 }

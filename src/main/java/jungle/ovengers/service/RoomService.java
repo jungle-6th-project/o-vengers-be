@@ -2,7 +2,6 @@ package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.entity.MemberRoomEntity;
-import jungle.ovengers.entity.RankEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.entity.RoomEntryHistoryEntity;
 import jungle.ovengers.exception.RoomNotFoundException;
@@ -101,13 +100,18 @@ public class RoomService {
         Long roomId = request.getRoomId();
         RoomEntity roomEntity = roomRepository.findByIdAndDeletedFalse(roomId)
                                               .orElseThrow(() -> new RoomNotFoundException(roomId));
-        if (!roomEntity.isValidTime(LocalDateTime.now())) { // 입장 시간이 roomEntity에 설정된 endTime 보다 늦을 경우
+        LocalDateTime enterTime = LocalDateTime.now();
+        if (roomEntity.isBeforeStartTime(enterTime)) { // 입장 시간이 roomEntity에 설정된 startTime 보다 빠를 경우
+            enterTime = roomEntity.getStartTime();
+        }
+
+        if (roomEntity.isAfterEndTime(enterTime)) { // 입장 시간이 roomEntity에 설정된 endTime 보다 늦을 경우
             throw new IllegalArgumentException(INVALID_ENTER_TIME);
         }
         MemberRoomEntity memberRoomEntity = memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)
                                                                 .orElseThrow(() -> new IllegalArgumentException(NOT_INVOLVED_ROOM + "memberId :" + memberId + " roomId :" + roomId));
 
-        return RoomHistoryConverter.from(roomEntryHistoryRepository.save(RoomEntryHistoryConverter.to(memberRoomEntity)));
+        return RoomHistoryConverter.from(roomEntryHistoryRepository.save(RoomEntryHistoryConverter.to(memberRoomEntity, enterTime)));
     }
 
     public RoomHistoryResponse updateRoomExitHistory(RoomHistoryRequest request) {
@@ -117,7 +121,7 @@ public class RoomService {
                                               .orElseThrow(() -> new RoomNotFoundException(roomId));
 
         LocalDateTime exitTime = LocalDateTime.now();
-        if (!roomEntity.isValidTime(LocalDateTime.now())) { // 나가는 시간이 roomEntity 에 설정된 endTime 보다 늦을 경우
+        if (roomEntity.isAfterEndTime(LocalDateTime.now())) { // 나가는 시간이 roomEntity 에 설정된 endTime 보다 늦을 경우
             exitTime = roomEntity.getEndTime();
         }
 
