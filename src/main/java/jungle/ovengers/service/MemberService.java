@@ -88,14 +88,13 @@ public class MemberService {
                              .baseUrl(kakaoApiUri)
                              .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                              .build();
-        KakaoUserInfoResponse kakaoUserInfoResponse = webClient.post()
-                                                               .uri(uriBuilder -> uriBuilder.path("/v2/user/me")
-                                                                                            .build())
-                                                               .header("Authorization", "Bearer " + kakaoTokenResponse.getAccessToken())
-                                                               .retrieve()
-                                                               .bodyToMono(KakaoUserInfoResponse.class)
-                                                               .block();
-        return kakaoUserInfoResponse;
+        return webClient.post()
+                        .uri(uriBuilder -> uriBuilder.path("/v2/user/me")
+                                                     .build())
+                        .header("Authorization", "Bearer " + kakaoTokenResponse.getAccessToken())
+                        .retrieve()
+                        .bodyToMono(KakaoUserInfoResponse.class)
+                        .block();
     }
 
     private KakaoTokenResponse getKakaoTokenResponse(String authCode) {
