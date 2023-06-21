@@ -117,10 +117,10 @@ public class MemberService {
 
     public Token reissueTokens(String refreshToken) {
         Long memberId = tokenResolver.resolveToken(refreshToken)
-                                     .orElseThrow(RefreshTokenInvalidException::new);
+                                     .orElseThrow(() -> new RefreshTokenInvalidException(refreshToken));
 
-        if (memberRepository.existsById(memberId)) {
-            throw new RefreshTokenInvalidException();
+        if (!memberRepository.existsById(memberId)) {
+            throw new RefreshTokenInvalidException(refreshToken);
         }
         return tokenGenerator.generateToken(memberId);
     }
