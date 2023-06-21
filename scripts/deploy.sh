@@ -17,6 +17,10 @@ else
   sleep 5
 fi
 
+echo "> Stopping Docker Compose"
+docker-compose -f "$REPOSITORY/resources/docker-compose.yml" down
+sleep 5
+
 echo "> Starting Docker Compose"
 docker-compose -f "$REPOSITORY/resources/docker-compose.yml" up -d
 
