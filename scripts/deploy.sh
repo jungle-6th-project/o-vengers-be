@@ -18,12 +18,12 @@ else
 fi
 
 echo "> Stopping Docker Compose"
-docker-compose -f "$REPOSITORY/resources/docker-compose.yml" down
+sudo docker-compose -f "$REPOSITORY/resources/docker-compose.yml" down
 sleep 5
 
 echo "> Starting Docker Compose"
-docker-compose -f "$REPOSITORY/resources/docker-compose.yml" up -d
+sudo docker-compose -f "$REPOSITORY/resources/docker-compose.yml" up -d
 
 echo "> $JAR_PATH 배포"
-nohup java -jar \
+sudo nohup java -jar \
         $JAR_PATH > $REPOSITORY/nohup.out 2>&1 &
