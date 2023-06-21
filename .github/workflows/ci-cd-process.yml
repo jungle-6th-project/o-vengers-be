@@ -26,12 +26,10 @@ jobs:
         mkdir -p src/main/resources
         echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
         find src
+
     - name: Start Redis Docker container
-      uses: docker/compose-action@v1
-      with:
-        compose-file: ./resources/docker-compose.yml
-        project-directory: .
-        service-ports: 6379:6379
+      run: docker-compose -f ./resources/docker-compose.yml up -d
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
