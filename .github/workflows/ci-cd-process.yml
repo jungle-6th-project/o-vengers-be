@@ -27,9 +27,6 @@ jobs:
         echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
         find src
 
-    - name: Start Redis Docker container
-      run: docker-compose -f ./resources/docker-compose.yml up -d
-
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
@@ -51,5 +48,3 @@ jobs:
         --deployment-config-name CodeDeployDefault.OneAtATime
         --deployment-group-name ${{ secrets.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }}
         --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=$GITHUB_SHA.zip
-    - name: Start Docker Compose services
-      run: docker-compose -f ./resources/docker-compose.yml up -d
