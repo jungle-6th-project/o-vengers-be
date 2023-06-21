@@ -47,6 +47,10 @@ dependencies {
 	//batch + scheduler
 	implementation "org.springframework.boot:spring-boot-starter-batch"
 	implementation "org.springframework.boot:spring-boot-starter-quartz"
+	//redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
 	testImplementation "org.springframework.batch:spring-batch-test"
 }
