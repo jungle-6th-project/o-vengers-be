@@ -8,6 +8,7 @@ import jungle.ovengers.repository.MemberRoomRepository;
 import jungle.ovengers.support.converter.StudyHistoryConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,15 @@ public class StudyHistoryService {
     private final MemberRoomRepository memberRoomRepository;
     private final AuditorHolder auditorHolder;
 
+
+    public String makeRedisKey() {
+        return "history" + auditorHolder.get()
+                                        .toString();
+    }
+
+    @Cacheable(cacheNames = "dailyDuration", key = "{#root.target.makeRedisKey()}")
     public List<StudyHistoryResponse> getDailyDuration(StudyHistoryRequest request) {
+        log.info("Cache Study History");
         Map<LocalDate, Duration> localDateDurationMap = calculateDailyDuration(request);
         return localDateDurationMap.keySet()
                                    .stream()

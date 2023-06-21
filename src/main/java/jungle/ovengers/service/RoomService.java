@@ -19,6 +19,7 @@ import jungle.ovengers.support.converter.RoomEntryHistoryConverter;
 import jungle.ovengers.support.converter.RoomHistoryConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,7 +115,14 @@ public class RoomService {
         return RoomHistoryConverter.from(roomEntryHistoryRepository.save(RoomEntryHistoryConverter.to(memberRoomEntity, enterTime)));
     }
 
+    public String makeRedisKey() {
+        return "history" + auditorHolder.get()
+                                        .toString();
+    }
+
+    @CacheEvict(cacheNames = "dailyDuration", key = "{#root.target.makeRedisKey()}")
     public RoomHistoryResponse updateRoomExitHistory(RoomHistoryRequest request) {
+        log.info("Cache Evict Study History");
         Long memberId = auditorHolder.get();
         Long roomId = request.getRoomId();
         RoomEntity roomEntity = roomRepository.findByIdAndDeletedFalse(roomId)

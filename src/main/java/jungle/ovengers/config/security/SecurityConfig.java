@@ -43,7 +43,7 @@ public class SecurityConfig {
                          "/api/v1/members/kakao",
                          "/api/v1/members/tokens",
                          "/swagger-resources/**",
-                         "/swagger-ui/*",
+                         "/swagger-ui/**",
                          "/v2/api-docs",
                          "/bbodok-websocket")
             .permitAll()
