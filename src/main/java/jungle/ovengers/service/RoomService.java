@@ -121,7 +121,12 @@ public class RoomService {
                                               .orElseThrow(() -> new RoomNotFoundException(roomId));
 
         LocalDateTime exitTime = LocalDateTime.now();
-        if (roomEntity.isAfterEndTime(LocalDateTime.now())) { // 나가는 시간이 roomEntity 에 설정된 endTime 보다 늦을 경우
+
+        if (roomEntity.isBeforeStartTime(exitTime)) { // 나가는 시간이 roomEntity에 설정된 startTime 보다 빠를 경우
+            return null;
+        }
+
+        if (roomEntity.isAfterEndTime(LocalDateTime.now())) { // 나가는 시간이 roomEntity에 설정된 endTime 보다 늦을 경우
             exitTime = roomEntity.getEndTime();
         }
 

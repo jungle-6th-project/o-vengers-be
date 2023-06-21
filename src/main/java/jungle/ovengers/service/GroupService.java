@@ -152,7 +152,7 @@ public class GroupService {
         this.deleteSingleAssociation(groupEntity.getId(), memberId);
     }
 
-    /* 그룹의 장이 탈퇴 또는 삭제하여, 그룹 자체가 사라질 경우 */
+    /** 그룹의 장이 탈퇴 또는 삭제하여, 그룹 자체가 사라질 경우 */
     private void deleteAllAssociations(Long groupId) {
         rankRepository.findByGroupIdAndDeletedFalse(groupId)
                       .forEach(RankEntity::delete);
@@ -168,7 +168,7 @@ public class GroupService {
                       .forEach(TodoEntity::delete);
     }
 
-    /* 그룹 구성원 개인이 탈퇴할 경우 */
+    /** 그룹 구성원 개인이 탈퇴할 경우 */
     private void deleteSingleAssociation(Long groupId, Long memberId) {
         rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)
                       .ifPresent(RankEntity::delete);
