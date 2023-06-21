@@ -51,3 +51,5 @@ jobs:
         --deployment-config-name CodeDeployDefault.OneAtATime
         --deployment-group-name ${{ secrets.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }}
         --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=$GITHUB_SHA.zip
+    - name: Start Docker Compose services
+      run: docker-compose -f ./resources/docker-compose.yml up -d
