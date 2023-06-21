@@ -25,5 +25,5 @@ echo "> Starting Docker Compose"
 sudo docker-compose -f "$REPOSITORY/resources/docker-compose.yml" up -d
 
 echo "> $JAR_PATH 배포"
-sudo nohup java -jar \
+nohup java -jar \
         $JAR_PATH > $REPOSITORY/nohup.out 2>&1 &
