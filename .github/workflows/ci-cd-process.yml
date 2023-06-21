@@ -28,7 +28,7 @@ jobs:
         find src
 
     - name: Start Redis Docker container
-      run: docker-compose -f ./resources/docker-compose.yml up -d
+      run: docker-compose -f o-vengers/resources/docker-compose.yml up -d
 
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
