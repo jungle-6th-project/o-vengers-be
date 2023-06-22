@@ -177,16 +177,33 @@ public class GroupService {
                       .ifPresent(RankEntity::delete);
         memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberEntity.getId())
                              .ifPresent(MemberGroupEntity::delete);
-        roomRepository.findByGroupIdAndDeletedFalse(groupId)
-                      .forEach(roomEntity -> {
-                          memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberEntity.getId(), roomEntity.getId())
-                                              .ifPresent(MemberRoomEntity::delete);
-                          memberRoomRepository.flush();
-                          roomEntity.removeProfile(memberEntity.getProfile());
-                          if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(roomEntity.getId())) {
-                              roomEntity.delete();
-                          }
-                      });
+
+        List<RoomEntity> roomEntities = roomRepository.findByGroupIdAndDeletedFalse(groupId);
+
+        roomEntities.forEach(roomEntity -> {
+            memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberEntity.getId(), roomEntity.getId())
+                                .ifPresent(MemberRoomEntity::delete);
+            roomEntity.removeProfile(memberEntity.getProfile());
+        });
+
+        memberRoomRepository.flush();
+
+        roomEntities.forEach(roomEntity -> {
+            if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(roomEntity.getId())) {
+                roomEntity.delete();
+            }
+        });
+//
+//        roomRepository.findByGroupIdAndDeletedFalse(groupId)
+//                      .forEach(roomEntity -> {
+//                          memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberEntity.getId(), roomEntity.getId())
+//                                              .ifPresent(MemberRoomEntity::delete);
+//                          memberRoomRepository.flush();
+//                          roomEntity.removeProfile(memberEntity.getProfile());
+//                          if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(roomEntity.getId())) {
+//                              roomEntity.delete();
+//                          }
+//                      });
         todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberEntity.getId())
                       .forEach(TodoEntity::delete);
     }
