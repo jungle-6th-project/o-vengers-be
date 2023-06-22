@@ -44,7 +44,7 @@ public class GroupService {
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
         GroupEntity groupEntity = groupRepository.save(GroupConverter.to(request, memberId));
-        memberGroupRepository.save(MemberGroupConverter.to(memberId, groupEntity.getId()));
+        memberGroupRepository.save(MemberGroupConverter.to(memberEntity, groupEntity));
         rankRepository.save(RankConverter.to(memberEntity, groupEntity));
 
         return GroupConverter.from(groupEntity);
@@ -97,7 +97,7 @@ public class GroupService {
                                                                    .orElse(null);
 
         if (memberGroupEntity == null) {
-            memberGroupRepository.save(MemberGroupConverter.to(memberId, groupId));
+            memberGroupRepository.save(MemberGroupConverter.to(memberEntity, groupEntity));
             rankRepository.save(RankConverter.to(memberEntity, groupEntity));
         }
 
@@ -115,7 +115,8 @@ public class GroupService {
         MemberGroupEntity memberGroupEntity = memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberId)
                                                                    .orElse(null);
         if (memberGroupEntity == null) {
-            memberGroupRepository.save(MemberGroupConverter.to(memberEntity.getId(), groupEntity.getId()));
+            memberGroupRepository.save(MemberGroupConverter.to(memberEntity, groupEntity));
+            rankRepository.save(RankConverter.to(memberEntity, groupEntity));
             return GroupConverter.from(groupEntity);
         }
         throw new IllegalArgumentException(ALREADY_JOINED_GROUP);
