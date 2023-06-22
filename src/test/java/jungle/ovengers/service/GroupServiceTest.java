@@ -352,7 +352,7 @@ class GroupServiceTest {
                                              .build();
 
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         //when
         groupService.withdrawGroup(new GroupWithdrawRequest(groupId));
@@ -360,7 +360,6 @@ class GroupServiceTest {
         verify(rankRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
         verify(memberGroupRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
         verify(roomRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
-        verify(roomRepository, times(1)).findByGroupIdAndOwnerId(groupId, memberId);
         verify(todoRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
     }
 
@@ -370,7 +369,7 @@ class GroupServiceTest {
         //given
         GroupWithdrawRequest request = new GroupWithdrawRequest(groupId);
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         //when
         groupService.withdrawGroup(request);
