@@ -120,19 +120,6 @@ public class GroupService {
         }
         throw new IllegalArgumentException(ALREADY_JOINED_GROUP);
     }
-    public void deleteGroup(Long groupId) {
-        Long memberId = auditorHolder.get();
-
-        memberRepository.findById(memberId)
-                        .orElseThrow(() -> new MemberNotFoundException(memberId));
-
-        GroupEntity groupEntity = groupRepository.findByIdAndOwnerIdAndDeletedFalse(groupId, memberId)
-                                                 .orElseThrow(() -> new IllegalArgumentException(NOT_GROUP_OWNER));
-
-        this.deleteAllAssociations(groupId);
-        groupEntity.delete();
-
-    }
 
     public void withdrawGroup(GroupWithdrawRequest request) {
         Long memberId = auditorHolder.get();
@@ -143,68 +130,44 @@ public class GroupService {
         GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(request.getGroupId())
                                                  .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
 
-        if (groupEntity.isOwner(memberId)) {
-            groupEntity.delete();
-            deleteAllAssociations(groupEntity.getId());
-            return;
-        }
-
-        this.deleteSingleAssociation(groupEntity.getId(), memberEntity);
-    }
-
-    /** 그룹의 장이 탈퇴 또는 삭제하여, 그룹 자체가 사라질 경우 */
-    private void deleteAllAssociations(Long groupId) {
-        rankRepository.findByGroupIdAndDeletedFalse(groupId)
-                      .forEach(RankEntity::delete);
-        memberGroupRepository.findByGroupIdAndDeletedFalse(groupId)
-                             .forEach(MemberGroupEntity::delete);
-        roomRepository.findByGroupIdAndDeletedFalse(groupId)
-                      .forEach(roomEntity -> {
-                          roomEntity.delete();
-                          memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())
-                                              .forEach(MemberRoomEntity::delete);
-                      });
-        todoRepository.findByGroupIdAndDeletedFalse(groupId)
-                      .forEach(TodoEntity::delete);
+        this.deleteSingleAssociation(groupEntity, memberEntity);
     }
 
     /**
-     * 그룹 구성원 개인이 탈퇴할 경우
+     * 그룹 구성원 개인이 탈퇴할 경우 -> 트랜잭션 분리해서 개선하기
      */
-    private void deleteSingleAssociation(Long groupId, MemberEntity memberEntity) {
-
-        rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberEntity.getId())
+    private void deleteSingleAssociation(GroupEntity groupEntity, MemberEntity memberEntity) {
+        // 랭킹 연관 데이터 삭제
+        rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberEntity.getId())
                       .ifPresent(RankEntity::delete);
-        memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberEntity.getId())
+        // 그룹에 속한 사용자의 데이터 삭제
+        memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberEntity.getId())
                              .ifPresent(MemberGroupEntity::delete);
+        memberGroupRepository.flush();
 
-        List<RoomEntity> roomEntities = roomRepository.findByGroupIdAndDeletedFalse(groupId);
+        // 해당 그룹에 속한 사용자가 더 이상 없다면 그룹 삭제
+        if (!memberGroupRepository.existsByGroupIdAndDeletedFalse(groupEntity.getId())) {
+            groupEntity.delete();
+        }
 
+        // 사용자가 예약한 방 데이터 삭제
+        List<RoomEntity> roomEntities = roomRepository.findByGroupIdAndDeletedFalse(groupEntity.getId());
         roomEntities.forEach(roomEntity -> {
             memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberEntity.getId(), roomEntity.getId())
                                 .ifPresent(MemberRoomEntity::delete);
             roomEntity.removeProfile(memberEntity.getProfile());
         });
-
         memberRoomRepository.flush();
 
+        // 사용자가 예약했던 방에 더 이상 예약자가 없다면, 방 자체를 삭제
         roomEntities.forEach(roomEntity -> {
             if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(roomEntity.getId())) {
                 roomEntity.delete();
             }
         });
-//
-//        roomRepository.findByGroupIdAndDeletedFalse(groupId)
-//                      .forEach(roomEntity -> {
-//                          memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberEntity.getId(), roomEntity.getId())
-//                                              .ifPresent(MemberRoomEntity::delete);
-//                          memberRoomRepository.flush();
-//                          roomEntity.removeProfile(memberEntity.getProfile());
-//                          if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(roomEntity.getId())) {
-//                              roomEntity.delete();
-//                          }
-//                      });
-        todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberEntity.getId())
+
+        // 사용자가 해당 그룹에서 작성했던 todo 삭제
+        todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberEntity.getId())
                       .forEach(TodoEntity::delete);
     }
 

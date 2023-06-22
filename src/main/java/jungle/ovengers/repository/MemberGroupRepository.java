@@ -7,17 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MemberGroupRepository extends JpaRepository<MemberGroupEntity, Long> {
-    List<MemberGroupEntity> findByMemberId(Long memberId);
-
     List<MemberGroupEntity> findByMemberIdAndDeletedFalse(Long memberId);
-
-    List<MemberGroupEntity> findByGroupId(Long groupId);
-
-    List<MemberGroupEntity> findByGroupIdAndDeletedFalse(Long groupId);
 
     boolean existsByGroupIdAndMemberIdAndDeletedFalse(Long groupId, Long memberId);
 
-    Optional<MemberGroupEntity> findByGroupIdAndMemberId(Long groupId, Long memberId);
+    boolean existsByGroupIdAndDeletedFalse(Long groupId);
+
     Optional<MemberGroupEntity> findByGroupIdAndMemberIdAndDeletedFalse(Long groupId, Long memberId);
 
 }
