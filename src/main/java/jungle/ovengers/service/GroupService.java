@@ -137,8 +137,8 @@ public class GroupService {
     public void withdrawGroup(GroupWithdrawRequest request) {
         Long memberId = auditorHolder.get();
 
-        memberRepository.findById(memberId)
-                        .orElseThrow(() -> new MemberNotFoundException(memberId));
+        MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
+                                                    .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(request.getGroupId())
                                                  .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
@@ -149,7 +149,7 @@ public class GroupService {
             return;
         }
 
-        this.deleteSingleAssociation(groupEntity.getId(), memberId);
+        this.deleteSingleAssociation(groupEntity.getId(), memberEntity);
     }
 
     /** 그룹의 장이 탈퇴 또는 삭제하여, 그룹 자체가 사라질 경우 */
@@ -168,20 +168,26 @@ public class GroupService {
                       .forEach(TodoEntity::delete);
     }
 
-    /** 그룹 구성원 개인이 탈퇴할 경우 */
-    private void deleteSingleAssociation(Long groupId, Long memberId) {
-        rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)
+    /**
+     * 그룹 구성원 개인이 탈퇴할 경우
+     */
+    private void deleteSingleAssociation(Long groupId, MemberEntity memberEntity) {
+
+        rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberEntity.getId())
                       .ifPresent(RankEntity::delete);
-        memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)
+        memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberEntity.getId())
                              .ifPresent(MemberGroupEntity::delete);
         roomRepository.findByGroupIdAndDeletedFalse(groupId)
                       .forEach(roomEntity -> {
-                          memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomEntity.getId())
+                          memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberEntity.getId(), roomEntity.getId())
                                               .ifPresent(MemberRoomEntity::delete);
+                          memberRoomRepository.flush();
+                          roomEntity.removeProfile(memberEntity.getProfile());
+                          if (!memberRoomRepository.existsByRoomIdAndDeletedFalse(roomEntity.getId())) {
+                              roomEntity.delete();
+                          }
                       });
-        roomRepository.findByGroupIdAndOwnerId(groupId, memberId)
-                      .ifPresent(RoomEntity::delete);
-        todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)
+        todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberEntity.getId())
                       .forEach(TodoEntity::delete);
     }
 
