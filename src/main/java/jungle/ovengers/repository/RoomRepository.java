@@ -17,5 +17,5 @@ public interface RoomRepository extends JpaRepository<RoomEntity, Long> {
     @Query("SELECT r FROM RoomEntity r WHERE r.id IN :roomIds AND r.deleted = false")
     List<RoomEntity> findAllByIdAndDeletedFalse(List<Long> roomIds);
 
-    Optional<RoomEntity> findByGroupIdAndOwnerId(Long groupId, Long ownerId);
+    List<RoomEntity> findByDeletedFalseAndEndTimeBefore(LocalDateTime now);
 }
