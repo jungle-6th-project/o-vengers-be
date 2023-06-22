@@ -29,6 +29,7 @@ public class RoomEntity {
 
     @Column(nullable = false)
     private LocalDateTime endTime;
+
     @Column(nullable = false)
     private Long ownerId;
 

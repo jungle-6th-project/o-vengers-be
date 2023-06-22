@@ -177,4 +177,9 @@ public class RoomService {
         return RoomConverter.from(roomRepository.findByIdAndDeletedFalse(memberRoomEntity.getRoomId())
                                                 .orElse(null));
     }
+
+    public void deleteExpiredRoom() {
+        roomRepository.findByDeletedFalseAndEndTimeBefore(LocalDateTime.now())
+                      .forEach(RoomEntity::delete);
+    }
 }
