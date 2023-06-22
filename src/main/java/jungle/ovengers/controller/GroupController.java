@@ -68,14 +68,6 @@ public class GroupController {
         return ApiResponseGenerator.success(groupService.changeGroupColor(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
-    @ApiOperation(value = "그룹 삭제")
-    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
-    @DeleteMapping("/{groupId}")
-    public ApiResponse<ApiResponse.SuccessBody<Void>> delete(@PathVariable Long groupId) {
-        groupService.deleteGroup(groupId);
-        return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.RESOURCE_DELETED);
-    }
-
     @ApiOperation(value = "그룹 참가")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @PostMapping("/{groupId}")

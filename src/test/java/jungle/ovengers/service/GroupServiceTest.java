@@ -293,49 +293,6 @@ class GroupServiceTest {
         assertThatThrownBy(() -> groupService.joinGroupWithPath(new GroupPathJoinRequest("invalidPath"))).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @DisplayName("그룹장이 삭제를 요청할 경우 그룹이 잘 삭제 되는지 테스트")
-    @Test
-    public void testDeleteGroup() {
-
-        //given
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
-        when(groupRepository.findByIdAndOwnerIdAndDeletedFalse(groupEntity.getId(), memberId)).thenReturn(Optional.of(groupEntity));
-
-        //when
-        groupService.deleteGroup(groupId);
-
-        //then
-        verify(rankRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
-        verify(memberGroupRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
-        verify(roomRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
-        verify(todoRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
-    }
-
-    @DisplayName("그룹장이 아닌 사용자가 그룹 삭제 요청을 할 경우, 에외가 발생되는지 테스트")
-    @Test
-    public void testDeleteGroupWhenNotGroupOwner() {
-        //given
-        Long otherMember = 2L;
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
-        GroupEntity groupEntity = GroupEntity.builder()
-                                             .id(groupId)
-                                             .ownerId(otherMember)
-                                             .path("path")
-                                             .groupName("groupName")
-                                             .isSecret(false)
-                                             .createdAt(LocalDateTime.now())
-                                             .deleted(false)
-                                             .build();
-        when(groupRepository.findByIdAndOwnerIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.empty());
-        //when, then
-        assertThatThrownBy(() -> groupService.deleteGroup(groupId))
-                .isInstanceOf(IllegalArgumentException.class);
-
-        verify(memberGroupRepository, never()).findByGroupId(groupId);
-    }
-
     @DisplayName("그룹 멤버가 그룹에서 탈퇴할 경우 가입 정보가 잘 삭제되는지 테스트")
     @Test
     public void testWithdrawGroupWhoIsMember() {
@@ -363,7 +320,7 @@ class GroupServiceTest {
         verify(todoRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
     }
 
-    @DisplayName("그룹 주인이 그룹에서 탈퇴할 경우 그룹이 잘 삭제되는지 테스트")
+    @DisplayName("그룹의 마지막 사용자가 탈퇴할 경우, 탈퇴가 잘 되는지 테스트")
     @Test
     public void testWithdrawGroupWhoIsOwner() {
         //given
@@ -374,10 +331,10 @@ class GroupServiceTest {
         //when
         groupService.withdrawGroup(request);
         //then
-        verify(rankRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
-        verify(memberGroupRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(rankRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
+        verify(memberGroupRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
         verify(roomRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
-        verify(todoRepository, times(1)).findByGroupIdAndDeletedFalse(groupId);
+        verify(todoRepository, times(1)).findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId);
     }
 
     @DisplayName("사용자가 속한 그룹의 색깔을 변경했을때, 잘 변경 되는지 테스트")
