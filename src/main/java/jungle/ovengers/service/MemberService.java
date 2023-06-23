@@ -12,6 +12,7 @@ import jungle.ovengers.model.request.AuthRequest;
 import jungle.ovengers.model.response.MemberResponse;
 import jungle.ovengers.model.response.Token;
 import jungle.ovengers.repository.MemberRepository;
+import jungle.ovengers.repository.TokenStorage;
 import jungle.ovengers.support.TokenGenerator;
 import jungle.ovengers.support.converter.MemberConverter;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,8 @@ public class MemberService {
     private final String clientId = "997f10e0eac4d170ed7b30fa0c28d314";
     private final String kakaoUri = "https://kauth.kakao.com";
     private final String kakaoApiUri = "https://kapi.kakao.com";
+
+    private final TokenStorage tokenStorage;
 
     @Value("${kakao.adminKey}")
     private String adminKey;
@@ -74,13 +77,19 @@ public class MemberService {
         MemberEntity existMemberEntity = memberRepository.findByEmailAndDeletedFalse(kakaoUserInfoResponse.getKakaoAccount()
                                                                                                           .getEmail())
                                                          .orElse(null);
-
         if (existMemberEntity != null) {
-            return tokenGenerator.generateToken(existMemberEntity.getId());
+            Long memberId = existMemberEntity.getId();
+            Token token = tokenGenerator.generateToken(memberId);
+            tokenStorage.storeRefreshToken(token.getRefreshToken(), memberId);
+            return token;
         }
 
         MemberEntity memberEntity = memberRepository.save(MemberConverter.to(kakaoUserInfoResponse));
-        return tokenGenerator.generateToken(memberEntity.getId());
+        Long memberId = memberEntity.getId();
+        Token token = tokenGenerator.generateToken(memberId);
+        tokenStorage.storeRefreshToken(token.getRefreshToken(), memberId);
+
+        return token;
     }
 
     private KakaoUserInfoResponse getKakaoUserInfoResponse(KakaoTokenResponse kakaoTokenResponse) {
@@ -122,6 +131,14 @@ public class MemberService {
         if (!memberRepository.existsById(memberId)) {
             throw new RefreshTokenInvalidException(refreshToken);
         }
+
+        String redisRefreshToken = tokenStorage.getRefreshToken(memberId);
+        log.info("request refreshToken : " + refreshToken);
+        log.info("redis refreshToken : " + redisRefreshToken);
+        if (redisRefreshToken == null || !redisRefreshToken.equals(refreshToken)) {
+            throw new RefreshTokenInvalidException(refreshToken);
+        }
+
         return tokenGenerator.generateToken(memberId);
     }
 
