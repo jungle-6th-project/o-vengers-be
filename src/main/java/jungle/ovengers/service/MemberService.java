@@ -133,12 +133,11 @@ public class MemberService {
         }
 
         String redisRefreshToken = tokenStorage.getRefreshToken(memberId);
-        log.info("request refreshToken : " + refreshToken);
-        log.info("redis refreshToken : " + redisRefreshToken);
         if (redisRefreshToken == null || !redisRefreshToken.equals(refreshToken)) {
             throw new RefreshTokenInvalidException(refreshToken);
         }
-
+        Token token = tokenGenerator.generateToken(memberId);
+        tokenStorage.storeRefreshToken(token.getRefreshToken(), memberId);
         return tokenGenerator.generateToken(memberId);
     }
 
