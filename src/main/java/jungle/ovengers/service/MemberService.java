@@ -5,7 +5,6 @@ import jungle.ovengers.config.security.filter.token.TokenResolver;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.exception.RefreshTokenInvalidException;
-import jungle.ovengers.model.dto.MemberDto;
 import jungle.ovengers.model.oauth.KakaoTokenResponse;
 import jungle.ovengers.model.oauth.KakaoUserInfoResponse;
 import jungle.ovengers.model.request.AuthRequest;
@@ -54,19 +53,17 @@ public class MemberService {
         Long memberId = auditorHolder.get();
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
-        MemberDto memberDto = MemberConverter.from(memberEntity);
-        return new MemberResponse(memberDto.getName(), memberDto.getProfile(), memberDto.getEmail(), null);
+        return MemberConverter.from(memberEntity);
     }
 
     public MemberResponse getUserInfoByGroup(Long groupId) {
         Long memberId = auditorHolder.get();
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
-        MemberDto memberDto = MemberConverter.from(memberEntity);
         /*
             Todo : 어떤 그룹에서 몇 시간 누적 공부했는지 조회해서 내려주어야함.
          */
-        return new MemberResponse(memberDto.getName(), memberDto.getProfile(), memberDto.getEmail(), null);
+        return MemberConverter.from(memberEntity);
     }
 
     public Token publishToken(AuthRequest authRequest) {

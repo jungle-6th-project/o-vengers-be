@@ -2,23 +2,23 @@ package jungle.ovengers.support.converter;
 
 
 import jungle.ovengers.entity.MemberEntity;
-import jungle.ovengers.model.dto.MemberDto;
 import jungle.ovengers.model.oauth.KakaoUserInfoResponse;
+import jungle.ovengers.model.response.MemberResponse;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public final class MemberConverter {
-    public static MemberEntity to(MemberDto memberDto) {
+    public static MemberEntity to(MemberResponse memberResponse) {
         return MemberEntity.builder()
-                           .name(memberDto.getName())
-                           .profile(memberDto.getProfile())
-                           .email(memberDto.getEmail())
+                           .name(memberResponse.getName())
+                           .profile(memberResponse.getProfile())
+                           .email(memberResponse.getEmail())
                            .deleted(false)
                            .build();
     }
 
-    public static MemberDto from(MemberEntity memberEntity) {
-        return MemberDto.builder()
+    public static MemberResponse from(MemberEntity memberEntity) {
+        return MemberResponse.builder()
                         .name(memberEntity.getName())
                         .profile(memberEntity.getProfile())
                         .email(memberEntity.getEmail())
