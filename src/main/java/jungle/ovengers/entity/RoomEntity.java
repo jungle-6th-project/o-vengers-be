@@ -36,7 +36,7 @@ public class RoomEntity {
     @Column(nullable = false)
     private boolean deleted;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     @Builder.Default
     @Convert(converter = ProfileImagesConverter.class)
     private List<String> profiles = new ArrayList<>();
