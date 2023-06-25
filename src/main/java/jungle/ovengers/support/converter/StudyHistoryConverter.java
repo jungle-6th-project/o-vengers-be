@@ -12,7 +12,7 @@ public final class StudyHistoryConverter {
     public static StudyHistoryResponse from(LocalDate calculatedAt, Duration duration) {
         return StudyHistoryResponse.builder()
                                    .calculatedAt(calculatedAt)
-                                   .duration(duration)
+                                   .duration(duration.toString())
                                    .build();
     }
 }

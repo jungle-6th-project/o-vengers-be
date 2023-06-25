@@ -32,7 +32,7 @@ public class StudyHistoryService {
                                         .toString();
     }
 
-//    @Cacheable(cacheNames = "dailyDuration", key = "{#root.target.makeRedisKey()}")
+    @Cacheable(cacheNames = "dailyDuration", key = "{#root.target.makeRedisKey()}")
     public List<StudyHistoryResponse> getDailyDuration(StudyHistoryRequest request) {
         log.info("Cache Study History");
         Map<LocalDate, Duration> localDateDurationMap = calculateDailyDuration(request);

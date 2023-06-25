@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 @Getter
@@ -14,5 +13,5 @@ import java.time.LocalDate;
 @Builder
 public class StudyHistoryResponse {
     private LocalDate calculatedAt;
-    private Duration duration;
+    private String duration;
 }
