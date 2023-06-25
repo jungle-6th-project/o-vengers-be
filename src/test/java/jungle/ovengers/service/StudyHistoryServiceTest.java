@@ -77,7 +77,8 @@ class StudyHistoryServiceTest {
         List<StudyHistoryResponse> result = studyHistoryService.getDailyDuration(new StudyHistoryRequest(now.minusHours(1), now.plusHours(1)));
 
         //then
-        assertThat(result.get(0).getDuration()).isEqualTo(Duration.ofHours(3));
+        assertThat(Duration.parse(result.get(0)
+                                        .getDuration())).isEqualTo(Duration.ofHours(3));
     }
 
     @DisplayName("사용자가 여러 기간 동안 참여 했던 방에서의 누적 학습 시간이 잘 조회 되는지 테스트")
