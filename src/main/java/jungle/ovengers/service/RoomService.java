@@ -120,7 +120,7 @@ public class RoomService {
                                         .toString();
     }
 
-    @CacheEvict(cacheNames = "dailyDuration", key = "{#root.target.makeRedisKey()}")
+//    @CacheEvict(cacheNames = "dailyDuration", key = "{#root.target.makeRedisKey()}")
     public RoomHistoryResponse updateRoomExitHistory(RoomHistoryRequest request) {
         log.info("Cache Evict Study History");
         Long memberId = auditorHolder.get();
