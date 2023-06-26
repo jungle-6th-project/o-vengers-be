@@ -45,7 +45,8 @@ public class SecurityConfig {
                          "/swagger-resources/**",
                          "/swagger-ui/**",
                          "/v2/api-docs",
-                         "/bbodok-websocket")
+                         "/bbodok-websocket",
+                         "/favinco.ico")
             .permitAll()
             .antMatchers(HttpMethod.POST, "/api/v1/members/**")
             .permitAll()
