@@ -42,6 +42,7 @@ public class RoomService {
     private final AuditorHolder auditorHolder;
     private final String NOT_INVOLVED_ROOM = "사용자가 참여하고 있는 방이 아닙니다.";
     private final String INVALID_ENTER_TIME = "입장 가능한 시간이 아닙니다.";
+    private final int PPOMODORO_TIME = 25;
 
     public List<RoomResponse> getRooms(RoomBrowseRequest request) {
         LocalDateTime from = request.getFrom();
@@ -165,9 +166,9 @@ public class RoomService {
                                                                 .stream()
                                                                 .filter(memberRoom -> LocalDateTime.now()
                                                                                                    .isBefore(memberRoom.getStartTime()
-                                                                                                                       .plusMinutes(25)))
+                                                                                                                       .plusMinutes(PPOMODORO_TIME)))
                                                                 .min(Comparator.comparing(memberRoom -> memberRoom.getStartTime()
-                                                                                                                  .plusMinutes(25)))
+                                                                                                                  .plusMinutes(PPOMODORO_TIME)))
                                                                 .orElse(null);
 
         if (memberRoomEntity == null) {

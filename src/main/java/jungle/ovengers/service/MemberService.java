@@ -70,9 +70,7 @@ public class MemberService {
         KakaoTokenResponse kakaoTokenResponse = getKakaoTokenResponse(authRequest.getAuthCode());
         KakaoUserInfoResponse kakaoUserInfoResponse = getKakaoUserInfoResponse(kakaoTokenResponse);
 
-
-        MemberEntity existMemberEntity = memberRepository.findByEmailAndDeletedFalse(kakaoUserInfoResponse.getKakaoAccount()
-                                                                                                          .getEmail())
+        MemberEntity existMemberEntity = memberRepository.findByCertificationIdDeletedFalse(kakaoUserInfoResponse.getId())
                                                          .orElse(null);
         if (existMemberEntity != null) {
             Long memberId = existMemberEntity.getId();
