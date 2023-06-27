@@ -106,7 +106,7 @@ class RoomStompServiceTest {
         //given
         Long memberId = 1L;
         RoomAddRequest request = new RoomAddRequest(groupId, now, now.plusMinutes(25));
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
 
         when(groupRepository.findByIdAndDeletedFalse(request.getGroupId())).thenReturn(Optional.of(groupEntity));
 
@@ -143,7 +143,7 @@ class RoomStompServiceTest {
     @Test
     public void testJoinRoom() {
         //given
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
@@ -162,7 +162,7 @@ class RoomStompServiceTest {
     @Test
     public void testJoinRoomWhenAlreadyJoined() {
         //given
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.empty());
@@ -181,7 +181,7 @@ class RoomStompServiceTest {
     @Test
     public void testDeleteRoomWhenNobodyInRoom() {
         //given
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));

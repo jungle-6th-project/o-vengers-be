@@ -60,7 +60,7 @@ public class TodoService {
 
         memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
-        TodoEntity todoEntity = todoRepository.findById(request.getTodoId())
+        TodoEntity todoEntity = todoRepository.findByIdAndDeletedFalse(request.getTodoId())
                                               .orElseThrow(() -> new TodoNotFoundException(request.getTodoId()));
         todoEntity.changeTodoInfo(request);
         return TodoConverter.from(todoEntity);
@@ -71,7 +71,7 @@ public class TodoService {
 
         memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
-        todoRepository.findById(request.getTodoId())
+        todoRepository.findByIdAndDeletedFalse(request.getTodoId())
                       .ifPresent(TodoEntity::delete);
     }
 

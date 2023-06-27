@@ -135,7 +135,7 @@ class GroupServiceTest {
                                                   .build();
 
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.save(any(GroupEntity.class))).thenReturn(savedGroupEntity);
 
         //when
@@ -175,7 +175,7 @@ class GroupServiceTest {
     public void testGetMemberGroups() {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(memberGroupRepository.findByMemberIdAndDeletedFalse(memberId)).thenReturn(Collections.singletonList(memberGroupEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupEntity.getId())).thenReturn(Optional.of(groupEntity));
 
@@ -197,7 +197,7 @@ class GroupServiceTest {
         //given
         Long groupId = 1L;
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         when(memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
         //when
@@ -214,7 +214,7 @@ class GroupServiceTest {
         Long otherMemberId = 2L;
 
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
 
         GroupEntity groupEntity = GroupEntity.builder()
                                              .id(groupId)
@@ -245,7 +245,7 @@ class GroupServiceTest {
         Long otherMemberId = 2L;
 
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
 
         GroupEntity groupEntity = GroupEntity.builder()
                                              .id(groupId)
@@ -272,7 +272,7 @@ class GroupServiceTest {
     public void testJoinGroupWithValidPath() {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByPathAndDeletedFalse(groupEntity.getPath())).thenReturn(Optional.of(groupEntity));
         //when
         GroupResponse result = groupService.joinGroupWithPath(new GroupPathJoinRequest(groupEntity.getPath()));
@@ -286,7 +286,7 @@ class GroupServiceTest {
     public void testJoinGroupWithInvalidPath() {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByPathAndDeletedFalse("invalidPath")).thenReturn(Optional.empty());
 
         //when, then
@@ -342,7 +342,7 @@ class GroupServiceTest {
     public void testChangeMemberGroupColor() {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         when(memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
         //when
@@ -356,7 +356,7 @@ class GroupServiceTest {
     public void testChangeGroupInfoByGroupOwner() {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         //when
         GroupResponse result = groupService.changeGroupInfo(new GroupEditRequest(groupId, "changedGroupName", true, "changedPassword"));
@@ -371,7 +371,7 @@ class GroupServiceTest {
     public void testRejectChangeGroupByNotGroupOwner() {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
 
         Long otherMemberId = 2L;
         GroupEntity groupEntity = GroupEntity.builder()
