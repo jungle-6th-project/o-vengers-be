@@ -35,7 +35,7 @@ public class RoomStompService {
     public RoomResponse generateRoom(Long memberId, RoomAddRequest request) {
         RoomValidator.validateIfRoomTimeAfterNow(request);
 
-        MemberEntity memberEntity = memberRepository.findById(memberId)
+        MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         groupRepository.findByIdAndDeletedFalse(request.getGroupId())
@@ -52,7 +52,7 @@ public class RoomStompService {
     }
 
     public RoomResponse joinRoom(Long memberId, RoomJoinRequest request) {
-        MemberEntity memberEntity = memberRepository.findById(memberId)
+        MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         groupRepository.findByIdAndDeletedFalse(request.getGroupId())

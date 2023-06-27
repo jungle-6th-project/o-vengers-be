@@ -87,7 +87,7 @@ class TodoServiceTest {
     public void testGenerateTodo() {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
         when(todoRepository.save(any(TodoEntity.class))).thenReturn(todoEntity);
         //when
@@ -104,7 +104,7 @@ class TodoServiceTest {
     public void testGetGroupTodos() {
         //given
         when(auditorHolder.get()).thenReturn(memberId);
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
         when(todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Collections.singletonList(todoEntity));
         //when
         List<TodoResponse> result = todoService.getGroupTodos(new TodoReadRequest(groupId));
@@ -121,7 +121,8 @@ class TodoServiceTest {
     @Test
     public void testEditTodoContent() {
         //given
-        when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
+        when(todoRepository.findByIdAndDeletedFalse(todoId)).thenReturn(Optional.of(todoEntity));
+        when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
         //when
         TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, "changedContent", todoEntity.isDone()));
         //then
@@ -133,7 +134,8 @@ class TodoServiceTest {
     @Test
     public void testEditTodoDoneFalseToTrue() {
         //given
-        when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
+        when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
+        when(todoRepository.findByIdAndDeletedFalse(todoId)).thenReturn(Optional.of(todoEntity));
         //when
         TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, todoEntity.getContent(), true));
         //then
@@ -154,7 +156,8 @@ class TodoServiceTest {
                                           .doneAt(LocalDateTime.now())
                                           .deleted(false)
                                           .build();
-        when(todoRepository.findById(todoId)).thenReturn(Optional.of(todoEntity));
+        when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
+        when(todoRepository.findByIdAndDeletedFalse(todoId)).thenReturn(Optional.of(todoEntity));
         //when
         TodoResponse result = todoService.changeTodoInfo(new TodoEditRequest(todoId, todoEntity.getContent(), false));
         //then
@@ -165,9 +168,10 @@ class TodoServiceTest {
     @Test
     public void testDeleteTodo() {
         //given
+        when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
         //when
         todoService.deleteTodo(new TodoDeleteRequest(todoId));
         //then
-        verify(todoRepository, times(1)).findById(todoId);
+        verify(todoRepository, times(1)).findByIdAndDeletedFalse(todoId);
     }
 }

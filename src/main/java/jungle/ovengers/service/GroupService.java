@@ -41,7 +41,7 @@ public class GroupService {
 
     public GroupResponse generateGroup(GroupAddRequest request) {
         Long memberId = auditorHolder.get();
-        MemberEntity memberEntity = memberRepository.findById(memberId)
+        MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
         GroupEntity groupEntity = groupRepository.save(GroupConverter.to(request, memberId));
         memberGroupRepository.save(MemberGroupConverter.to(memberEntity, groupEntity));
@@ -66,7 +66,7 @@ public class GroupService {
     public List<GroupResponse> getMemberGroups() {
         Long memberId = auditorHolder.get();
 
-        memberRepository.findById(memberId)
+        memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         List<MemberGroupEntity> memberGroups = memberGroupRepository.findByMemberIdAndDeletedFalse(memberId);
@@ -83,7 +83,7 @@ public class GroupService {
     public GroupResponse joinGroup(Long groupId, GroupJoinRequest request) {
         Long memberId = auditorHolder.get();
 
-        MemberEntity memberEntity = memberRepository.findById(memberId)
+        MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(groupId)
@@ -107,7 +107,7 @@ public class GroupService {
     public GroupResponse joinGroupWithPath(GroupPathJoinRequest request) {
         Long memberId = auditorHolder.get();
 
-        MemberEntity memberEntity = memberRepository.findById(memberId)
+        MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         GroupEntity groupEntity = groupRepository.findByPathAndDeletedFalse(request.getPath())
@@ -185,7 +185,7 @@ public class GroupService {
     public GroupResponse changeGroupInfo(GroupEditRequest request) {
         Long memberId = auditorHolder.get();
 
-        memberRepository.findById(memberId)
+        memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
         GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(request.getGroupId())
                                                  .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
@@ -199,7 +199,7 @@ public class GroupService {
     public GroupResponse changeGroupColor(GroupColorEditRequest request) {
         Long memberId = auditorHolder.get();
 
-        memberRepository.findById(memberId)
+        memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
         GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(request.getGroupId())
                                                  .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
@@ -212,7 +212,7 @@ public class GroupService {
 
     public GroupResponse getGroupByPath(GroupPathJoinRequest request) {
         Long memberId = auditorHolder.get();
-        memberRepository.findById(memberId)
+        memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         GroupEntity groupEntity = groupRepository.findByPathAndDeletedFalse(request.getPath())
