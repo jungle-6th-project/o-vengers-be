@@ -172,6 +172,16 @@ public class GroupService {
                       .forEach(TodoEntity::delete);
     }
 
+    public void deleteAllAssociation(MemberEntity memberEntity) {
+        List<MemberGroupEntity> memberGroupEntities = memberGroupRepository.findByMemberIdAndDeletedFalse(memberEntity.getId());
+
+        for (MemberGroupEntity memberGroupEntity : memberGroupEntities) {
+            GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(memberGroupEntity.getGroupId())
+                                                     .orElseThrow(() -> new GroupNotFoundException(memberGroupEntity.getGroupId()));
+            this.deleteSingleAssociation(groupEntity, memberEntity);
+        }
+    }
+
     public GroupResponse changeGroupInfo(GroupEditRequest request) {
         Long memberId = auditorHolder.get();
 
