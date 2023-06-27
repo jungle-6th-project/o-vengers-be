@@ -1,6 +1,8 @@
 #!/bin/bash
 
 REPOSITORY=/home/ec2-user/app
+sudo chown -R ec2-user:ec2-user $REPOSITORY
+sudo chmod -R 755 $REPOSITORY
 cd $REPOSITORY
 
 APP_NAME=o-vengers
