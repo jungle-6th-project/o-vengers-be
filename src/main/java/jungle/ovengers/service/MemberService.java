@@ -137,7 +137,7 @@ public class MemberService {
         return tokenGenerator.generateToken(memberId);
     }
 
-    public void logout() {
+    public void withdraw() {
         Long memberId = auditorHolder.get();
         MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
