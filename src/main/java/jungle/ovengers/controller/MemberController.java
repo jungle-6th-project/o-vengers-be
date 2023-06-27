@@ -42,7 +42,7 @@ public class MemberController {
     })
     @DeleteMapping
     public ApiResponse<ApiResponse.SuccessBody<Void>> delete() {
-        memberService.logout();
+        memberService.withdraw();
         return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.RESOURCE_DELETED);
     }
 

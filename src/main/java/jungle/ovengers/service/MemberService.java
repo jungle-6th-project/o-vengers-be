@@ -33,6 +33,7 @@ import java.util.Map;
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final GroupService groupService;
     private final TokenGenerator tokenGenerator;
     private final TokenResolver tokenResolver;
     private final AuditorHolder auditorHolder;
@@ -136,7 +137,7 @@ public class MemberService {
         return tokenGenerator.generateToken(memberId);
     }
 
-    public void logout() {
+    public void withdraw() {
         Long memberId = auditorHolder.get();
         MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
@@ -157,6 +158,8 @@ public class MemberService {
                  .retrieve()
                  .toBodilessEntity()
                  .block();
+        tokenStorage.deleteRefreshToken(memberId);
+        groupService.deleteAllAssociation(memberEntity);
         log.info("사용자 탈퇴 성공");
     }
 }
