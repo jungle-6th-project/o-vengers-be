@@ -36,7 +36,7 @@ public class TodoService {
     public TodoResponse generateTodo(TodoAddRequest request) {
         Long memberId = auditorHolder.get();
 
-        memberRepository.findById(memberId)
+        memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
         groupRepository.findById(request.getGroupId())
                        .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
@@ -46,7 +46,7 @@ public class TodoService {
     public List<TodoResponse> getGroupTodos(TodoReadRequest request) {
         Long memberId = auditorHolder.get();
 
-        memberRepository.findById(memberId)
+        memberRepository.findByIdAndDeletedFalse(memberId)
                         .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         return todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(request.getGroupId(), memberId)
@@ -56,6 +56,10 @@ public class TodoService {
     }
 
     public TodoResponse changeTodoInfo(TodoEditRequest request) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findByIdAndDeletedFalse(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
         TodoEntity todoEntity = todoRepository.findById(request.getTodoId())
                                               .orElseThrow(() -> new TodoNotFoundException(request.getTodoId()));
         todoEntity.changeTodoInfo(request);
@@ -63,6 +67,10 @@ public class TodoService {
     }
 
     public void deleteTodo(TodoDeleteRequest request) {
+        Long memberId = auditorHolder.get();
+
+        memberRepository.findByIdAndDeletedFalse(memberId)
+                        .orElseThrow(() -> new MemberNotFoundException(memberId));
         todoRepository.findById(request.getTodoId())
                       .ifPresent(TodoEntity::delete);
     }

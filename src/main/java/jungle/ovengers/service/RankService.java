@@ -38,6 +38,7 @@ public class RankService {
 
         Map<Long, MemberEntity> memberMap = memberRepository.findAllById(memberIds)
                                                             .stream()
+                                                            .filter(memberEntity -> !memberEntity.isDeleted())
                                                             .collect(Collectors.toMap(MemberEntity::getId, Function.identity()));
         return ranks.stream()
                     .map(rank -> RankConverter.from(rank, memberMap.get(rank.getMemberId())))
