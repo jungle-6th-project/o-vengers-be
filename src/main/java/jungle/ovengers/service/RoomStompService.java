@@ -34,7 +34,7 @@ public class RoomStompService {
     private final RoomRepository roomRepository;
     private final MemberRoomRepository memberRoomRepository;
 
-    @CachePut(cacheNames = "groupRooms", key = "#request.groupId")
+//    @CachePut(cacheNames = "groupRooms", key = "#request.groupId")
     public RoomResponse generateRoom(Long memberId, RoomAddRequest request) {
         RoomValidator.validateIfRoomTimeAfterNow(request);
 
@@ -54,7 +54,7 @@ public class RoomStompService {
         return RoomConverter.from(roomEntity);
     }
 
-    @CachePut(cacheNames = "groupRooms", key = "#request.groupId")
+//    @CachePut(cacheNames = "groupRooms", key = "#request.groupId")
     public RoomResponse joinRoom(Long memberId, RoomJoinRequest request) {
         MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
