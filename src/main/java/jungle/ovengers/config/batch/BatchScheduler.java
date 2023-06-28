@@ -30,7 +30,22 @@ public class BatchScheduler {
 
         try {
             jobLauncher.run(batchConfig.deleteTodoJob(), jobParameters);
-        } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException | JobParametersInvalidException | JobRestartException ex) {
+        } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
+                 JobParametersInvalidException | JobRestartException ex) {
+            log.error(ex.getMessage());
+        }
+    }
+
+    @Scheduled(cron = "0 */10 * * * *")
+    public void runGetGroupRoomsJob() {
+        Map<String, JobParameter> confMap = new HashMap<>();
+        confMap.put("time", new JobParameter(System.currentTimeMillis()));
+        JobParameters jobParameters = new JobParameters(confMap);
+
+        try {
+            jobLauncher.run(batchConfig.getGroupRoomsJob(), jobParameters);
+        } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
+                 JobParametersInvalidException | JobRestartException ex) {
             log.error(ex.getMessage());
         }
     }

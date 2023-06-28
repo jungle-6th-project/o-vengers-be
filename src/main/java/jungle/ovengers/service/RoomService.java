@@ -20,6 +20,7 @@ import jungle.ovengers.support.converter.RoomHistoryConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +45,7 @@ public class RoomService {
     private final String INVALID_ENTER_TIME = "입장 가능한 시간이 아닙니다.";
     private final int PPOMODORO_TIME = 25;
 
+    @Cacheable(cacheNames = "groupRooms", key = "#request.groupId")
     public List<RoomResponse> getRooms(RoomBrowseRequest request) {
         LocalDateTime from = request.getFrom();
         LocalDateTime to = request.getTo();
