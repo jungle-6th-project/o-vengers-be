@@ -19,6 +19,7 @@ import jungle.ovengers.support.validator.RoomValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,7 @@ public class RoomStompService {
     private final RoomRepository roomRepository;
     private final MemberRoomRepository memberRoomRepository;
 
-    @CacheEvict(cacheNames = "groupRooms", key = "#request.groupId")
+    @CachePut(cacheNames = "groupRooms", key = "#request.groupId")
     public RoomResponse generateRoom(Long memberId, RoomAddRequest request) {
         RoomValidator.validateIfRoomTimeAfterNow(request);
 
@@ -53,7 +54,7 @@ public class RoomStompService {
         return RoomConverter.from(roomEntity);
     }
 
-    @CacheEvict(cacheNames = "groupRooms", key = "#request.groupId")
+    @CachePut(cacheNames = "groupRooms", key = "#request.groupId")
     public RoomResponse joinRoom(Long memberId, RoomJoinRequest request) {
         MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
