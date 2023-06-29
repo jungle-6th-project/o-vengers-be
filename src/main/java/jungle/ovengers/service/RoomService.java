@@ -45,7 +45,7 @@ public class RoomService {
     private final String INVALID_ENTER_TIME = "입장 가능한 시간이 아닙니다.";
     private final int PPOMODORO_TIME = 25;
 
-//    @Cacheable(cacheNames = "groupRooms", key = "#request.groupId")
+    @Cacheable(cacheNames = "groupRooms", key = "#request.groupId")
     public List<RoomResponse> getRooms(RoomBrowseRequest request) {
         LocalDateTime from = request.getFrom();
         LocalDateTime to = request.getTo();
