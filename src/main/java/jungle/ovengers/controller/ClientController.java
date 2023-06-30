@@ -1,5 +1,7 @@
 package jungle.ovengers.controller;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import jungle.ovengers.model.request.ClientAddRequest;
 import jungle.ovengers.model.response.ClientAddResponse;
 import jungle.ovengers.service.ClientService;
@@ -21,6 +23,8 @@ import javax.validation.Valid;
 public class ClientController {
     private final ClientService clientService;
 
+    @ApiOperation(value = "전체 그룹 조회")
+    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @PostMapping
     public ApiResponse<ApiResponse.SuccessBody<ClientAddResponse>> add(@RequestBody @Valid ClientAddRequest request) {
         return ApiResponseGenerator.success(clientService.saveFcmToken(request), HttpStatus.CREATED, MessageCode.RESOURCE_CREATED);

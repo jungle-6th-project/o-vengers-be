@@ -17,8 +17,4 @@ public class ClientAddRequest {
     @NotBlank
     @Length(max = 1000)
     private String fcmToken;
-
-    @NotBlank
-    @Length(max = 1000)
-    private String identificationKey;
 }
