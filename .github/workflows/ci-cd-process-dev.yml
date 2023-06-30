@@ -25,11 +25,6 @@ jobs:
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_YML_DEV }}" | base64 --decode > src/main/resources/application.yml
           find src
-      - name: Set firebase admin sdk file
-        run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.FIREBASE_ADMIN_SDK_DEV }}" | base64 --decode > src/main/resources/o-vengers-firebase-adminsdk-gpcsd-dc4c8a5963.json
-          find src
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
