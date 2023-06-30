@@ -6,7 +6,6 @@ import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import jungle.ovengers.entity.ClientEntity;
 import jungle.ovengers.entity.NotificationEntity;
-import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.repository.ClientRepository;
 import jungle.ovengers.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
