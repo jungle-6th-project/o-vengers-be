@@ -8,10 +8,7 @@ import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.model.request.RoomAddRequest;
 import jungle.ovengers.model.request.RoomJoinRequest;
 import jungle.ovengers.model.response.RoomResponse;
-import jungle.ovengers.repository.GroupRepository;
-import jungle.ovengers.repository.MemberRepository;
-import jungle.ovengers.repository.MemberRoomRepository;
-import jungle.ovengers.repository.RoomRepository;
+import jungle.ovengers.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,6 +42,9 @@ class RoomStompServiceTest {
 
     @Mock
     private MemberRoomRepository memberRoomRepository;
+
+    @Mock
+    private NotificationRepository notificationRepository;
 
     @InjectMocks
     private RoomStompService roomService;
