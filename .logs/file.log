@@ -1,0 +1,33 @@
+[2023-06-18 16:33:29:880][main] INFO  jungle.ovengers.OVengersApplication - Starting OVengersApplication using Java 16.0.1 on MacBook-Pro-2.local with PID 93983 (/Users/chaesang-yeob/Desktop/o-vengers/build/classes/java/main started by chaesang-yeob in /Users/chaesang-yeob/Desktop/o-vengers)
+[2023-06-18 16:33:29:883][main] INFO  jungle.ovengers.OVengersApplication - The following 1 profile is active: "local"
+[2023-06-18 16:33:30:2226][main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2023-06-18 16:33:30:2391][main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 156 ms. Found 7 JPA repository interfaces.
+[2023-06-18 16:33:31:3103][main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+[2023-06-18 16:33:31:3111][main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+[2023-06-18 16:33:31:3112][main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+[2023-06-18 16:33:31:3112][main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.75]
+[2023-06-18 16:33:31:3274][main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+[2023-06-18 16:33:31:3276][main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2342 ms
+[2023-06-18 16:33:31:3497][main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+[2023-06-18 16:33:31:3533][main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+[2023-06-18 16:33:32:3700][main] INFO  o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+[2023-06-18 16:33:32:3768][main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+[2023-06-18 16:33:32:4124][main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+[2023-06-18 16:33:32:4139][main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+[2023-06-18 16:33:33:4949][main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+[2023-06-18 16:33:33:4958][main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2023-06-18 16:33:33:5023][main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[2023-06-18 16:33:35:6655][main] INFO  o.s.s.w.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4b60ff1c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1c74251b, org.springframework.security.web.context.SecurityContextPersistenceFilter@5a503cf0, org.springframework.security.web.header.HeaderWriterFilter@727b3b0, org.springframework.web.filter.CorsFilter@1aaa3406, org.springframework.security.web.authentication.logout.LogoutFilter@23ba2c1e, jungle.ovengers.config.security.filter.token.AuthenticationFilter@791dcda7, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6f78c132, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2a4bee4e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@35c95587, org.springframework.security.web.session.SessionManagementFilter@7806db3f, org.springframework.security.web.access.ExceptionTranslationFilter@5b784f16, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@6a28d987]
+[2023-06-18 16:33:35:6946][main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+[2023-06-18 16:33:35:6964][main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+[2023-06-18 16:33:36:8257][main] WARN  s.d.s.r.o.OperationImplicitParameterReader - Unable to interpret the implicit parameter configuration with dataType: , dataTypeClass: class java.lang.Void
+[2023-06-18 16:33:37:8830][main] INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Starting...
+[2023-06-18 16:33:37:8830][main] INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@16488ed7]]
+[2023-06-18 16:33:37:8831][main] INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Started.
+[2023-06-18 16:33:37:8848][main] INFO  jungle.ovengers.OVengersApplication - Started OVengersApplication in 8.495 seconds (JVM running for 9.459)
+[2023-06-18 16:33:59:31038][SpringApplicationShutdownHook] INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopping...
+[2023-06-18 16:33:59:31038][SpringApplicationShutdownHook] INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@16488ed7]]
+[2023-06-18 16:33:59:31038][SpringApplicationShutdownHook] INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopped.
+[2023-06-18 16:33:59:31076][SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+[2023-06-18 16:33:59:31077][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+[2023-06-18 16:33:59:31124][SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

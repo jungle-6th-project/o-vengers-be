@@ -36,7 +36,7 @@ public class BatchScheduler {
         }
     }
 
-    @Scheduled(cron = "0 25,55 * * * *")
+    @Scheduled(cron = "0 */10 * * * *")
     public void runGetGroupRoomsJob() {
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
@@ -44,20 +44,6 @@ public class BatchScheduler {
 
         try {
             jobLauncher.run(batchConfig.getGroupRoomsJob(), jobParameters);
-        } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
-                 JobParametersInvalidException | JobRestartException ex) {
-            log.error(ex.getMessage());
-        }
-    }
-
-    @Scheduled(cron = "*/10 * * * * *")
-    public void runSendPushMessagesJob() {
-        Map<String, JobParameter> confMap = new HashMap<>();
-        confMap.put("time", new JobParameter(System.currentTimeMillis()));
-        JobParameters jobParameters = new JobParameters(confMap);
-
-        try {
-            jobLauncher.run(batchConfig.sendPushMessagesJob(), jobParameters);
         } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException | JobRestartException ex) {
             log.error(ex.getMessage());

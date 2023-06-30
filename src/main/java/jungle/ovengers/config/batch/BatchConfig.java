@@ -2,7 +2,6 @@ package jungle.ovengers.config.batch;
 
 import jungle.ovengers.model.request.RoomBrowseRequest;
 import jungle.ovengers.repository.GroupRepository;
-import jungle.ovengers.service.NotificationService;
 import jungle.ovengers.service.RoomService;
 import jungle.ovengers.service.TodoService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +17,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Configuration
@@ -31,7 +28,7 @@ public class BatchConfig {
     private final StepBuilderFactory stepBuilderFactory;
     private final TodoService todoService;
     private final RoomService roomService;
-    private final NotificationService notificationService;
+
     private final GroupRepository groupRepository;
 
     @Bean
@@ -46,13 +43,6 @@ public class BatchConfig {
     public Job getGroupRoomsJob() {
         return jobBuilderFactory.get("getGroupRoomsJob")
                                 .start(getGroupRoomsStep())
-                                .build();
-    }
-
-    @Bean
-    public Job sendPushMessagesJob() {
-        return jobBuilderFactory.get("sendPushMessagesJob")
-                                .start(sendPushMessagesStep())
                                 .build();
     }
 
@@ -92,18 +82,6 @@ public class BatchConfig {
                                                     .forEach(groupEntity -> {
                                                         roomService.getRooms(new RoomBrowseRequest(groupEntity.getId(), from, to));
                                                     });
-                                     return RepeatStatus.FINISHED;
-                                 }))
-                                 .build();
-    }
-
-    @Bean
-    public Step sendPushMessagesStep() {
-
-        return stepBuilderFactory.get("getGroupRoomsStep")
-                                 .tasklet(((contribution, chunkContext) -> {
-                                     log.info("called sendPushMessagesStep()");
-                                     notificationService.sendEnterTimePushAlarm(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
                                      return RepeatStatus.FINISHED;
                                  }))
                                  .build();
