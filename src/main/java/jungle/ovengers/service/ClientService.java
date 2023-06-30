@@ -26,6 +26,7 @@ public class ClientService {
         Long memberId = auditorHolder.get();
         MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
+
         ClientEntity clientEntity = clientRepository.findByMemberId(memberId)
                                                     .orElse(null);
 
