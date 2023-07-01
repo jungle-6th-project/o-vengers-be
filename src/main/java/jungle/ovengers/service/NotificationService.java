@@ -41,6 +41,8 @@ public class NotificationService {
                                                    .build();
         FirebaseMessaging.getInstance()
                          .sendEachForMulticast(message);
+        log.info("send messages successfully!");
+
     }
 
     private List<String> findReceivers(LocalDateTime now) {
