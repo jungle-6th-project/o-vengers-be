@@ -1,10 +1,6 @@
 package jungle.ovengers.service;
 
-import jungle.ovengers.config.security.filter.token.TokenResolver;
-import jungle.ovengers.entity.GroupEntity;
-import jungle.ovengers.entity.MemberEntity;
-import jungle.ovengers.entity.MemberRoomEntity;
-import jungle.ovengers.entity.RoomEntity;
+import jungle.ovengers.entity.*;
 import jungle.ovengers.model.request.RoomAddRequest;
 import jungle.ovengers.model.request.RoomJoinRequest;
 import jungle.ovengers.model.response.RoomResponse;
@@ -46,6 +42,9 @@ class RoomStompServiceTest {
     @Mock
     private NotificationRepository notificationRepository;
 
+    @Mock
+    private ClientRepository clientRepository;
+
     @InjectMocks
     private RoomStompService roomService;
 
@@ -53,11 +52,14 @@ class RoomStompServiceTest {
     private Long groupId;
     private Long roomId;
     private Long memberRoomId;
+    private Long clientId;
     private LocalDateTime now;
     private MemberEntity memberEntity;
     private GroupEntity groupEntity;
     private RoomEntity roomEntity;
     private MemberRoomEntity memberRoomEntity;
+
+    private ClientEntity clientEntity;
 
     @BeforeEach
     public void setup() {
@@ -65,6 +67,7 @@ class RoomStompServiceTest {
         groupId = 1L;
         roomId = 1L;
         memberRoomId = 1L;
+        clientId = 1L;
         memberEntity = MemberEntity.builder()
                                    .id(memberId)
                                    .email("email")
@@ -98,6 +101,13 @@ class RoomStompServiceTest {
                                            .memberId(memberId)
                                            .deleted(false)
                                            .build();
+        clientEntity = ClientEntity.builder()
+                                   .id(clientId)
+                                   .fcmToken("fcmToken")
+                                   .memberId(memberId)
+                                   .createdAt(now)
+                                   .updatedAt(now)
+                                   .build();
     }
 
     @DisplayName("예약 방 생성 요청이 들어왔을때 잘 생성 되는지 테스트")
@@ -114,6 +124,7 @@ class RoomStompServiceTest {
         when(roomRepository.save(any(RoomEntity.class))).thenReturn(roomEntity);
 
         when(memberRoomRepository.save(any(MemberRoomEntity.class))).thenReturn(memberRoomEntity);
+        when(clientRepository.findByMemberId(memberId)).thenReturn(Optional.of(clientEntity));
 
         //when
         RoomResponse result = roomService.generateRoom(memberId, request);
