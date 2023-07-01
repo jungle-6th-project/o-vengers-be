@@ -1,6 +1,8 @@
 #!/bin/bash
 
 REPOSITORY=/home/ec2-user/app
+sudo chown -R ec2-user:ec2-user $REPOSITORY
+sudo chmod -R 755 $REPOSITORY
 cd $REPOSITORY
 
 APP_NAME=o-vengers
@@ -25,5 +27,5 @@ echo "> Starting Docker Compose"
 sudo docker-compose -f "$REPOSITORY/resources/docker-compose.yml" up -d
 
 echo "> $JAR_PATH 배포"
-nohup java -jar \
+sudo nohup java -jar \
         $JAR_PATH > $REPOSITORY/nohup.out 2>&1 &
