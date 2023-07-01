@@ -12,4 +12,6 @@ public interface ClientRepository extends JpaRepository<ClientEntity, Long> {
 
     @Query("SELECT c FROM ClientEntity c WHERE c.memberId IN :memberIds")
     List<ClientEntity> findByMemberIds(List<Long> memberIds);
+
+    void deleteByMemberId(Long memberId);
 }

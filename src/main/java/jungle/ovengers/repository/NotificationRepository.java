@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
+    void deleteByMemberId(Long memberId);
 
     void deleteByMemberIdAndRoomId(Long memberId, Long roomId);
 

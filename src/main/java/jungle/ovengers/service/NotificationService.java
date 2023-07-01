@@ -36,7 +36,7 @@ public class NotificationService {
                                                    .addAllTokens(tokens)
                                                    .setNotification(Notification.builder()
                                                                                 .setTitle("뽀독뽀독 - 온라인 독서실")
-                                                                                .setBody("입장 5분 전입니다.")
+                                                                                .setBody("공부방 입장 시간입니다.")
                                                                                 .build())
                                                    .build();
         FirebaseMessaging.getInstance()

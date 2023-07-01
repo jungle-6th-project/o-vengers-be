@@ -10,7 +10,9 @@ import jungle.ovengers.model.oauth.KakaoUserInfoResponse;
 import jungle.ovengers.model.request.AuthRequest;
 import jungle.ovengers.model.response.MemberResponse;
 import jungle.ovengers.model.response.Token;
+import jungle.ovengers.repository.ClientRepository;
 import jungle.ovengers.repository.MemberRepository;
+import jungle.ovengers.repository.NotificationRepository;
 import jungle.ovengers.repository.TokenStorage;
 import jungle.ovengers.support.TokenGenerator;
 import jungle.ovengers.support.converter.MemberConverter;
@@ -33,6 +35,8 @@ import java.util.Map;
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final ClientRepository clientRepository;
+    private final NotificationRepository notificationRepository;
     private final GroupService groupService;
     private final TokenGenerator tokenGenerator;
     private final TokenResolver tokenResolver;
@@ -160,6 +164,10 @@ public class MemberService {
                  .block();
         tokenStorage.deleteRefreshToken(memberId);
         groupService.deleteAllAssociation(memberEntity);
+
+        clientRepository.deleteByMemberId(memberId);
+        notificationRepository.deleteByMemberId(memberId);
+
         log.info("사용자 탈퇴 성공");
     }
 }
