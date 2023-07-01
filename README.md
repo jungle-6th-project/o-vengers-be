@@ -4,6 +4,11 @@
 
 ----
 
+![image](https://github.com/depromeet12th/three-days-server/assets/78407939/287741a3-8e02-4eea-a946-f1765018ca7e)
+  
+정글 6기 오독오독 팀 - [채상엽](https://github.com/saint6839)(BE)
+
+
 # 📚Tech Stack📚
 
 |                                                                                                                                                                                                  Communications                                                                                                                                                                                                   |                                                                                                                                                                                                           Server                                                                                                                                                                                                           |                                                                                                                                                                                                       Database                                                                                                                                                                                                        |                                                                                                                                                                                                                                                                                                                                             Infrastructure                                                                                                                                                                                                                                                                                                                                             |
