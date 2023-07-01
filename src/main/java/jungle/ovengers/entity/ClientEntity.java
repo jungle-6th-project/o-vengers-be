@@ -21,7 +21,7 @@ public class ClientEntity {
     @Column(name = "client_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private Long memberId;
 
     @Column(name = "fcm_token", length = 1000, nullable = false)
