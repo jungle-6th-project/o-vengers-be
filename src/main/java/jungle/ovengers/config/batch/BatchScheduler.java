@@ -50,7 +50,7 @@ public class BatchScheduler {
         }
     }
 
-    @Scheduled(cron = "0 25,55 * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     public void runSendPushMessagesJob() {
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
