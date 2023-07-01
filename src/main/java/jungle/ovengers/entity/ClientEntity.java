@@ -37,5 +37,6 @@ public class ClientEntity {
 
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+        this.updatedAt = LocalDateTime.now();
     }
 }
