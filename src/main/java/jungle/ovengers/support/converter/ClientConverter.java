@@ -6,6 +6,8 @@ import jungle.ovengers.model.request.ClientAddRequest;
 import jungle.ovengers.model.response.ClientAddResponse;
 import lombok.experimental.UtilityClass;
 
+import java.time.LocalDateTime;
+
 @UtilityClass
 public final class ClientConverter {
 
@@ -18,9 +20,12 @@ public final class ClientConverter {
     }
 
     public ClientEntity to(ClientAddRequest request, MemberEntity memberEntity) {
+        LocalDateTime now = LocalDateTime.now();
         return ClientEntity.builder()
                            .memberId(memberEntity.getId())
                            .fcmToken(request.getFcmToken())
+                           .createdAt(now)
+                           .updatedAt(now)
                            .build();
     }
 }
