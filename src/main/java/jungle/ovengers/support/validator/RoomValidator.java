@@ -12,7 +12,7 @@ public final class RoomValidator {
     private final int INTERVAL_MINUTES = 25;
     public static void validateIfRoomTimeAfterNow(RoomAddRequest request) {
         if (isInvalidTime(request)) {
-            throw new IllegalArgumentException("유효하지 않은 요청입니다.");
+            throw new IllegalArgumentException("유효하지 않은 요청 시간입니다.");
         }
     }
 
