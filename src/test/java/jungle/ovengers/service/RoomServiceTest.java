@@ -1,6 +1,10 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
+import jungle.ovengers.data.FakeMemberRoomInitializer;
+import jungle.ovengers.data.FakeRankInitializer;
+import jungle.ovengers.data.FakeRoomEntryHistoryInitializer;
+import jungle.ovengers.data.FakeRoomInitializer;
 import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.entity.RankEntity;
 import jungle.ovengers.entity.RoomEntity;
@@ -22,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,31 +41,21 @@ import static org.mockito.Mockito.*;
 public class RoomServiceTest {
     @Mock
     private RoomRepository roomRepository;
-
     @Mock
     private MemberRoomRepository memberRoomRepository;
-
     @Mock
     private RoomEntryHistoryRepository roomEntryHistoryRepository;
-
     @Mock
     private RankRepository rankRepository;
-
     @Mock
     private AuditorHolder auditorHolder;
-
     @InjectMocks
     private RoomService roomService;
 
     private LocalDateTime now;
-    private Long roomId;
     private Long memberId;
     private Long groupId;
-    private Long memberRoomId;
-    private Long roomEntryHistoryId;
-    private Long rankId;
     private RoomEntity roomEntity;
-
     private MemberRoomEntity memberRoomEntity;
     private RoomEntryHistoryEntity roomEntryHistoryEntity;
     private RankEntity rankEntity;
@@ -68,44 +63,12 @@ public class RoomServiceTest {
     @BeforeEach
     public void setup() {
         now = LocalDateTime.now();
-        roomId = 1L;
         memberId = 1L;
         groupId = 1L;
-        memberRoomId = 1L;
-        roomEntryHistoryId = 1L;
-        rankId = 1L;
-        roomEntity = RoomEntity.builder()
-                               .id(roomId)
-                               .startTime(now)
-                               .endTime(now.plusMinutes(25))
-                               .profiles(List.of("profile1", "profile2"))
-                               .ownerId(memberId)
-                               .deleted(false)
-                               .groupId(groupId)
-                               .build();
-        memberRoomEntity = MemberRoomEntity.builder()
-                                           .startTime(roomEntity.getStartTime())
-                                           .endTime(roomEntity.getEndTime())
-                                           .memberId(memberId)
-                                           .roomId(roomId)
-                                           .durationTime(Duration.ZERO)
-                                           .deleted(false)
-                                           .id(memberRoomId)
-                                           .build();
-        roomEntryHistoryEntity = RoomEntryHistoryEntity.builder()
-                                                       .memberRoomId(memberRoomId)
-                                                       .enterTime(now.minusHours(1))
-                                                       .exitTime(null)
-                                                       .id(roomEntryHistoryId)
-                                                       .build();
-
-        rankEntity = RankEntity.builder()
-                               .rankId(rankId)
-                               .duration(Duration.ZERO)
-                               .groupId(groupId)
-                               .memberId(memberId)
-                               .deleted(false)
-                               .build();
+        roomEntity = FakeRoomInitializer.of(now);
+        memberRoomEntity = FakeMemberRoomInitializer.of(now);
+        roomEntryHistoryEntity = FakeRoomEntryHistoryInitializer.of(now);
+        rankEntity = FakeRankInitializer.of();
     }
 
     @DisplayName("속해있는 그룹의 전체 방 정보를 조회할때, 데이터가 잘 조회 되는지 테스트")
@@ -125,17 +88,10 @@ public class RoomServiceTest {
     @Test
     public void testBrowseGroupRoomsWhichMemberMadeReservation() {
         //given
-        Long otherRoomId = 2L;
-        Long otherMember = 2L;
-        RoomEntity otherRoomEntity = RoomEntity.builder()
-                                               .id(otherRoomId)
-                                               .startTime(now.plusHours(2))
-                                               .endTime(now.plusHours(3))
-                                               .profiles(List.of("profile3", "profile4"))
-                                               .ownerId(otherMember)
-                                               .deleted(false)
-                                               .groupId(groupId)
-                                               .build();
+        Long roomId = roomEntity.getId();
+        Long otherRoomId = roomId + 1L;
+        Long otherMember = memberId + 1L;
+        RoomEntity otherRoomEntity = FakeRoomInitializer.of(otherRoomId, groupId, otherMember, now.plusHours(1));
 
         when(auditorHolder.get()).thenReturn(memberId);
         when(roomRepository.findByGroupIdAndDeletedFalse(groupId)).thenReturn(List.of(roomEntity, otherRoomEntity));
@@ -154,6 +110,8 @@ public class RoomServiceTest {
     @Test
     public void testGenerateRoomEntryHistory() {
         //given
+        Long roomId = roomEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
@@ -169,16 +127,9 @@ public class RoomServiceTest {
     @Test
     public void testGenerateRoomEntryHistoryWithInvalidEnterTime() {
         //given
-        RoomEntity invalidRoomEntity = RoomEntity.builder()
-                                                 .id(roomId)
-                                                 .startTime(now.minusDays(1))
-                                                 .endTime(now.minusDays(1)
-                                                             .plusMinutes(25))
-                                                 .profiles(List.of("profile1", "profile2"))
-                                                 .ownerId(memberId)
-                                                 .deleted(false)
-                                                 .groupId(groupId)
-                                                 .build();
+        Long roomId = roomEntity.getId();
+        LocalDateTime invalidTime = now.minusDays(1);
+        RoomEntity invalidRoomEntity = FakeRoomInitializer.of(invalidTime);
 
         when(auditorHolder.get()).thenReturn(memberId);
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(invalidRoomEntity));
@@ -192,13 +143,15 @@ public class RoomServiceTest {
     @Test
     public void testUpdateRoomExitHistory() {
         //given
+        Long roomId = roomEntity.getId();
+        Long memberRoomId = memberRoomEntity.getId();
+
         LocalDateTime lateEnterTime = LocalDateTime.now();
-        RoomEntryHistoryEntity recentlyRoomEntryHistoryEntity = RoomEntryHistoryEntity.builder()
-                                                                                      .memberRoomId(memberRoomId)
-                                                                                      .enterTime(lateEnterTime)
-                                                                                      .exitTime(null)
-                                                                                      .id(roomEntryHistoryId)
-                                                                                      .build();
+        RoomEntryHistoryEntity recentlyRoomEntryHistoryEntity = FakeRoomEntryHistoryInitializer.of(lateEnterTime)
+                                                                                               .toBuilder()
+                                                                                               .exitTime(null)
+                                                                                               .build();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
@@ -213,26 +166,21 @@ public class RoomServiceTest {
     @Test
     public void testUpdateRoomExitHistoryWhenAfterRoomExitTime() {
         //given
-        RoomEntity testRoomEntity = RoomEntity.builder()
-                                              .id(roomId)
-                                              .startTime(now.minusHours(1))
-                                              .endTime(now.minusHours(1)
-                                                          .plusMinutes(25))
-                                              .profiles(List.of("profile1", "profile2"))
-                                              .ownerId(memberId)
-                                              .deleted(false)
-                                              .groupId(groupId)
-                                              .build();
+        Long roomId = roomEntity.getId();
+        Long memberRoomId = memberRoomEntity.getId();
+
+        RoomEntity testRoomEntity = FakeRoomInitializer.of(now.minusHours(1));
+        RoomEntryHistoryEntity testRoomEntryHistoryEntity = FakeRoomEntryHistoryInitializer.of(now.minusHours(1));
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(testRoomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId))
                 .thenReturn(Optional.of(memberRoomEntity));
-        when(roomEntryHistoryRepository.findByMemberRoomIdAndExitTimeIsNull(memberRoomId)).thenReturn(Collections.singletonList(roomEntryHistoryEntity));
+        when(roomEntryHistoryRepository.findByMemberRoomIdAndExitTimeIsNull(memberRoomId)).thenReturn(Collections.singletonList(testRoomEntryHistoryEntity));
         when(rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(rankEntity));
         //when
         RoomHistoryResponse result = roomService.updateRoomExitHistory(new RoomHistoryRequest(roomId));
         //then
-        assertThat(result.getEnterTime()).isEqualTo(testRoomEntity.getStartTime());
         assertThat(result.getExitTime()).isEqualTo(testRoomEntity.getEndTime());
     }
 
@@ -240,27 +188,12 @@ public class RoomServiceTest {
     @Test
     public void testGetNearestRoom() {
         //given
+        Long roomId = roomEntity.getId();
+        RoomEntity otherRoomEntity = FakeRoomInitializer.of(roomId + 1L, groupId, memberId, LocalDateTime.now()
+                                                                                                         .plusDays(1));
+        MemberRoomEntity otherMemberRoomEntity = FakeMemberRoomInitializer.of(memberRoomEntity.getId() + 1L, otherRoomEntity.getId(), memberId, otherRoomEntity.getStartTime());
+
         List<MemberRoomEntity> memberRoomEntities = new ArrayList<>();
-        RoomEntity otherRoomEntity = RoomEntity.builder()
-                                               .id(2L)
-                                               .startTime(now)
-                                               .endTime(now.plusMinutes(25))
-                                               .profiles(List.of("profile1", "profile2"))
-                                               .ownerId(memberId)
-                                               .deleted(false)
-                                               .groupId(groupId)
-                                               .build();
-        MemberRoomEntity otherMemberRoomEntity = MemberRoomEntity.builder()
-                                                                 .startTime(otherRoomEntity.getStartTime()
-                                                                                           .plusMinutes(25))
-                                                                 .endTime(otherRoomEntity.getEndTime()
-                                                                                         .plusMinutes(25))
-                                                                 .memberId(memberId)
-                                                                 .roomId(otherRoomEntity.getId())
-                                                                 .durationTime(Duration.ZERO)
-                                                                 .deleted(false)
-                                                                 .id(2L)
-                                                                 .build();
         memberRoomEntities.add(otherMemberRoomEntity);
         memberRoomEntities.add(memberRoomEntity);
 

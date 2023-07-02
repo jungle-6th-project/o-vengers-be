@@ -1,6 +1,9 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
+import jungle.ovengers.data.FakeGroupInitializer;
+import jungle.ovengers.data.FakeMemberInitializer;
+import jungle.ovengers.data.FakeTodoInitializer;
 import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.TodoEntity;
@@ -41,51 +44,24 @@ class TodoServiceTest {
     private AuditorHolder auditorHolder;
     @InjectMocks
     private TodoService todoService;
-
-    private Long memberId;
-    private Long groupId;
-    private Long todoId;
     private GroupEntity groupEntity;
     private MemberEntity memberEntity;
     private TodoEntity todoEntity;
 
     @BeforeEach
     public void setup() {
-        memberId = 1L;
-        groupId = 1L;
-        todoId = 1L;
-        groupEntity = GroupEntity.builder()
-                                 .id(groupId)
-                                 .ownerId(memberId)
-                                 .path("path")
-                                 .groupName("groupName")
-                                 .isSecret(false)
-                                 .createdAt(LocalDateTime.now())
-                                 .deleted(false)
-                                 .build();
-        memberEntity = MemberEntity.builder()
-                                   .id(memberId)
-                                   .email("email")
-                                   .profile("profile")
-                                   .name("name")
-                                   .deleted(false)
-                                   .build();
-        todoEntity = TodoEntity.builder()
-                               .id(todoId)
-                               .memberId(memberId)
-                               .groupId(groupId)
-                               .content("content")
-                               .done(false)
-                               .createdTime(LocalDateTime.now())
-                               .doneAt(LocalDateTime.now())
-                               .deleted(false)
-                               .build();
+        groupEntity = FakeGroupInitializer.of();
+        memberEntity = FakeMemberInitializer.of();
+        todoEntity = FakeTodoInitializer.of();
     }
 
     @DisplayName("사용자가 해당하는 그룹에 Todo를 생성했을때, 잘 추가되는지 테스트")
     @Test
     public void testGenerateTodo() {
         //given
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(groupEntity));
@@ -103,6 +79,9 @@ class TodoServiceTest {
     @Test
     public void testGetGroupTodos() {
         //given
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
         when(todoRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Collections.singletonList(todoEntity));
@@ -121,6 +100,8 @@ class TodoServiceTest {
     @Test
     public void testEditTodoContent() {
         //given
+        Long todoId = todoEntity.getId();
+
         when(todoRepository.findByIdAndDeletedFalse(todoId)).thenReturn(Optional.of(todoEntity));
         when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
         //when
@@ -134,6 +115,8 @@ class TodoServiceTest {
     @Test
     public void testEditTodoDoneFalseToTrue() {
         //given
+        Long todoId = todoEntity.getId();
+
         when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
         when(todoRepository.findByIdAndDeletedFalse(todoId)).thenReturn(Optional.of(todoEntity));
         //when
@@ -146,6 +129,10 @@ class TodoServiceTest {
     @Test
     public void testEditTodoDoneTrueToFalse() {
         //given
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+        Long todoId = todoEntity.getId();
+
         TodoEntity todoEntity = TodoEntity.builder()
                                           .id(todoId)
                                           .memberId(memberId)
@@ -168,6 +155,8 @@ class TodoServiceTest {
     @Test
     public void testDeleteTodo() {
         //given
+        Long todoId = todoEntity.getId();
+
         when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
         //when
         todoService.deleteTodo(new TodoDeleteRequest(todoId));
