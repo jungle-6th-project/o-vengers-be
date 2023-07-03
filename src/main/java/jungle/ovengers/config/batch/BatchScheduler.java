@@ -64,7 +64,7 @@ public class BatchScheduler {
         }
     }
 
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void runWithdrawFailedMemberJob() {
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
