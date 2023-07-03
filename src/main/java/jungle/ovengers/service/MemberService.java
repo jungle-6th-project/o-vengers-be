@@ -3,6 +3,7 @@ package jungle.ovengers.service;
 import jungle.ovengers.config.security.AuditorHolder;
 import jungle.ovengers.config.security.filter.token.TokenResolver;
 import jungle.ovengers.entity.MemberEntity;
+import jungle.ovengers.enums.MemberStatus;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.exception.RefreshTokenInvalidException;
 import jungle.ovengers.model.oauth.KakaoTokenResponse;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -37,7 +39,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final ClientRepository clientRepository;
     private final NotificationRepository notificationRepository;
-    private final GroupService groupService;
+    private final MemberWithdrawService memberWithdrawService;
     private final TokenGenerator tokenGenerator;
     private final TokenResolver tokenResolver;
     private final AuditorHolder auditorHolder;
@@ -143,9 +145,8 @@ public class MemberService {
 
     public void withdraw() {
         Long memberId = auditorHolder.get();
-        MemberEntity memberEntity = memberRepository.findByIdAndDeletedFalse(memberId)
+        MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
-        memberEntity.delete();
         WebClient webClient = WebClient.builder()
                                        .baseUrl(kakaoUri)
                                        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -162,12 +163,8 @@ public class MemberService {
                  .retrieve()
                  .toBodilessEntity()
                  .block();
-        tokenStorage.deleteRefreshToken(memberId);
-        groupService.deleteAllAssociation(memberEntity);
 
-        clientRepository.deleteByMemberId(memberId);
-        notificationRepository.deleteByMemberId(memberId);
-
-        log.info("사용자 탈퇴 성공");
+        memberEntity.delete();
+        memberWithdrawService.deleteAssociations(memberEntity);
     }
 }

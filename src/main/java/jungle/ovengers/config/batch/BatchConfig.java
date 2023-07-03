@@ -2,6 +2,7 @@ package jungle.ovengers.config.batch;
 
 import jungle.ovengers.model.request.RoomBrowseRequest;
 import jungle.ovengers.repository.GroupRepository;
+import jungle.ovengers.service.MemberWithdrawService;
 import jungle.ovengers.service.NotificationService;
 import jungle.ovengers.service.RoomService;
 import jungle.ovengers.service.TodoService;
@@ -18,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 @Slf4j
@@ -26,13 +26,14 @@ import java.time.temporal.ChronoUnit;
 @EnableBatchProcessing
 @RequiredArgsConstructor
 public class BatchConfig {
+    private final GroupRepository groupRepository;
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final TodoService todoService;
     private final RoomService roomService;
     private final NotificationService notificationService;
-    private final GroupRepository groupRepository;
+    private final MemberWithdrawService memberWithdrawService;
 
     @Bean
     public Job deleteTodoJob() {
@@ -53,6 +54,13 @@ public class BatchConfig {
     public Job sendPushMessagesJob() {
         return jobBuilderFactory.get("sendPushMessagesJob")
                                 .start(sendPushMessagesStep())
+                                .build();
+    }
+
+    @Bean
+    public Job withdrawFailedMemberJob() {
+        return jobBuilderFactory.get("withdrawFailedMemberJob")
+                                .start(withdrawFailedMemberStep())
                                 .build();
     }
 
@@ -99,11 +107,22 @@ public class BatchConfig {
 
     @Bean
     public Step sendPushMessagesStep() {
-
         return stepBuilderFactory.get("getGroupRoomsStep")
                                  .tasklet(((contribution, chunkContext) -> {
                                      log.info("called sendPushMessagesStep()");
-                                     notificationService.sendEnterTimePushAlarm(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+                                     notificationService.sendEnterTimePushAlarm(LocalDateTime.now()
+                                                                                             .truncatedTo(ChronoUnit.MINUTES));
+                                     return RepeatStatus.FINISHED;
+                                 }))
+                                 .build();
+    }
+
+    @Bean
+    public Step withdrawFailedMemberStep() {
+        return stepBuilderFactory.get("getGroupRoomsStep")
+                                 .tasklet(((contribution, chunkContext) -> {
+                                     log.info("called deleteWithdrawFailMemberStep()");
+                                     memberWithdrawService.withdrawFailedMembers();
                                      return RepeatStatus.FINISHED;
                                  }))
                                  .build();

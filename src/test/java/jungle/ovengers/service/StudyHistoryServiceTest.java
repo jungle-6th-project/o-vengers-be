@@ -1,6 +1,7 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
+import jungle.ovengers.data.FakeMemberRoomInitializer;
 import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.model.request.StudyHistoryRequest;
 import jungle.ovengers.model.response.StudyHistoryResponse;
@@ -34,8 +35,6 @@ class StudyHistoryServiceTest {
     private StudyHistoryService studyHistoryService;
 
     private Long memberId;
-    private Long roomId;
-    private Long otherRoomId;
     private LocalDateTime now;
 
     private MemberRoomEntity memberRoomEntity;
@@ -43,27 +42,20 @@ class StudyHistoryServiceTest {
 
     @BeforeEach
     public void setup() {
+        Long roomId = 1L;
+        Long otherRoomId = roomId + 1L;
+
         memberId = 1L;
-        roomId = 1L;
-        otherRoomId = 2L;
         now = LocalDateTime.now();
-        memberRoomEntity = MemberRoomEntity.builder()
-                                           .roomId(roomId)
-                                           .memberId(memberId)
-                                           .deleted(false)
-                                           .startTime(now)
-                                           .endTime(now.plusMinutes(25))
-                                           .durationTime(Duration.ofHours(3))
-                                           .build();
-        memberRoomEntity2 = MemberRoomEntity.builder()
-                                            .roomId(otherRoomId)
-                                            .memberId(memberId)
-                                            .deleted(false)
-                                            .startTime(now.plusDays(1))
-                                            .endTime(now.plusDays(1)
-                                                        .plusMinutes(25))
-                                            .durationTime(Duration.ofHours(1))
-                                            .build();
+
+        memberRoomEntity = FakeMemberRoomInitializer.of(now)
+                                                    .toBuilder()
+                                                    .durationTime(Duration.ofHours(3))
+                                                    .build();
+        memberRoomEntity2 = FakeMemberRoomInitializer.of(memberRoomEntity.getId() + 1L, otherRoomId, memberId, now.plusDays(1))
+                                                     .toBuilder()
+                                                     .durationTime(Duration.ofHours(1))
+                                                     .build();
     }
 
     @DisplayName("사용자가 당일 참여 했던 방에서의 누적 학습 시간이 잘 조회되는지 테스트")

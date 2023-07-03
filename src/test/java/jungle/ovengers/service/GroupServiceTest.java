@@ -1,7 +1,12 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
-import jungle.ovengers.entity.*;
+import jungle.ovengers.data.FakeGroupInitializer;
+import jungle.ovengers.data.FakeMemberGroupInitializer;
+import jungle.ovengers.data.FakeMemberInitializer;
+import jungle.ovengers.entity.GroupEntity;
+import jungle.ovengers.entity.MemberEntity;
+import jungle.ovengers.entity.MemberGroupEntity;
 import jungle.ovengers.model.request.*;
 import jungle.ovengers.model.response.GroupResponse;
 import jungle.ovengers.repository.*;
@@ -13,9 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,121 +48,47 @@ class GroupServiceTest {
     @InjectMocks
     private GroupService groupService;
 
-    private Long memberId;
-    private Long groupId;
-    private Long roomId;
-    private Long memberRoomId;
-    private Long todoId;
     private GroupEntity groupEntity;
     private MemberEntity memberEntity;
     private MemberGroupEntity memberGroupEntity;
-    private RoomEntity roomEntity;
-    private MemberRoomEntity memberRoomEntity;
-    private TodoEntity todoEntity;
 
     @BeforeEach
     public void setup() {
-        memberId = 1L;
-        groupId = 1L;
-        roomId = 1L;
-        memberRoomId = 1L;
-        todoId = 1L;
-        groupEntity = GroupEntity.builder()
-                                 .id(groupId)
-                                 .ownerId(memberId)
-                                 .path("path")
-                                 .groupName("groupName")
-                                 .isSecret(false)
-                                 .createdAt(LocalDateTime.now())
-                                 .deleted(false)
-                                 .build();
-        memberEntity = MemberEntity.builder()
-                                   .id(memberId)
-                                   .email("email")
-                                   .profile("profile")
-                                   .name("name")
-                                   .deleted(false)
-                                   .build();
-        memberGroupEntity = MemberGroupEntity.builder()
-                                             .memberId(memberId)
-                                             .groupId(groupEntity.getId())
-                                             .id(memberId + 1)
-                                             .deleted(false)
-                                             .color("color")
-                                             .build();
-        roomEntity = RoomEntity.builder()
-                               .id(roomId)
-                               .groupId(groupId)
-                               .profiles(List.of(memberEntity.getProfile()))
-                               .startTime(LocalDateTime.now())
-                               .endTime(LocalDateTime.now()
-                                                     .plusMinutes(25))
-                               .ownerId(memberId)
-                               .deleted(false)
-                               .build();
-
-        memberRoomEntity = MemberRoomEntity.builder()
-                                           .id(memberRoomId)
-                                           .roomId(roomId)
-                                           .memberId(memberId)
-                                           .durationTime(Duration.ZERO)
-                                           .deleted(false)
-                                           .startTime(roomEntity.getStartTime())
-                                           .endTime(roomEntity.getEndTime())
-                                           .build();
-
-        todoEntity = TodoEntity.builder()
-                               .id(todoId)
-                               .groupId(groupId)
-                               .content("content")
-                               .done(false)
-                               .deleted(false)
-                               .createdTime(LocalDateTime.now())
-                               .memberId(memberId)
-                               .build();
+        memberEntity = FakeMemberInitializer.of();
+        groupEntity = FakeGroupInitializer.of();
+        memberGroupEntity = FakeMemberGroupInitializer.of();
     }
 
     @DisplayName("사용자가 그룹 생성 요청을 했을 경우, 그룹이 잘 생성되는지 테스트")
     @Test
     public void testGenerateGroup() {
         //given
-        GroupAddRequest request = new GroupAddRequest("groupName", false, "123", "path");
-        GroupEntity savedGroupEntity = GroupEntity.builder()
-                                                  .id(1L)
-                                                  .ownerId(memberId)
-                                                  .path(request.getPath())
-                                                  .groupName(request.getGroupName())
-                                                  .createdAt(LocalDateTime.now())
-                                                  .deleted(false)
-                                                  .build();
+        Long memberId = memberEntity.getId();
+        GroupAddRequest request = new GroupAddRequest(groupEntity.getGroupName(), groupEntity.isSecret(), groupEntity.getPassword(), groupEntity.getPath());
 
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
-        when(groupRepository.save(any(GroupEntity.class))).thenReturn(savedGroupEntity);
-
+        when(groupRepository.save(any(GroupEntity.class))).thenReturn(groupEntity);
         //when
         GroupResponse result = groupService.generateGroup(request);
-
         //then
         assertThat(result.getGroupId())
-                .isEqualTo(savedGroupEntity.getId());
+                .isEqualTo(groupEntity.getId());
         assertThat(result.getGroupName())
-                .isEqualTo(savedGroupEntity.getGroupName());
+                .isEqualTo(groupEntity.getGroupName());
         assertThat(result.isSecret())
-                .isEqualTo(savedGroupEntity.isSecret());
+                .isEqualTo(groupEntity.isSecret());
     }
 
     @DisplayName("전체 그룹 목록이 잘 불러와지는지 테스트")
     @Test
     public void testGetAllGroups() {
         //given
-        List<GroupEntity> mockGroupEntities = Arrays.asList(groupEntity);
+        List<GroupEntity> mockGroupEntities = Collections.singletonList(groupEntity);
 
         when(groupRepository.findAll()).thenReturn(mockGroupEntities);
-
         //when
         List<GroupResponse> result = groupService.getAllGroups();
-
         //then
         assertThat(result.get(0)
                          .getGroupId()).isEqualTo(groupEntity.getId());
@@ -174,14 +102,14 @@ class GroupServiceTest {
     @Test
     public void testGetMemberGroups() {
         //given
+        Long memberId = memberEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(memberGroupRepository.findByMemberIdAndDeletedFalse(memberId)).thenReturn(Collections.singletonList(memberGroupEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupEntity.getId())).thenReturn(Optional.of(groupEntity));
-
         //when
         List<GroupResponse> results = groupService.getMemberGroups();
-
         //then
         assertThat(results.get(0)
                           .getGroupName()).isEqualTo(groupEntity.getGroupName());
@@ -195,13 +123,15 @@ class GroupServiceTest {
     @Test
     public void testJoinGroupWhenAlreadyJoined() {
         //given
-        Long groupId = 1L;
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
         when(memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupId, memberId)).thenReturn(Optional.of(memberGroupEntity));
         //when
-        GroupResponse result = groupService.joinGroup(groupId, new GroupJoinRequest(null));
+        groupService.joinGroup(groupId, new GroupJoinRequest(null));
         //then
         verify(memberGroupRepository, never()).save(any(MemberGroupEntity.class));
     }
@@ -210,56 +140,38 @@ class GroupServiceTest {
     @Test
     public void testJoinGroup() {
         //given
-        Long groupId = 1L;
-        Long otherMemberId = 2L;
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+        Long otherMemberId = memberId + 1L;
+        GroupEntity notJoinedGroupEntity = FakeGroupInitializer.of(groupId, otherMemberId);
 
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
-
-        GroupEntity groupEntity = GroupEntity.builder()
-                                             .id(groupId)
-                                             .ownerId(otherMemberId)
-                                             .path("path")
-                                             .groupName("groupName")
-                                             .isSecret(false)
-                                             .createdAt(LocalDateTime.now())
-                                             .deleted(false)
-                                             .build();
-
-        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
-
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(notJoinedGroupEntity));
         //when
         GroupResponse result = groupService.joinGroup(groupId, null);
 
         //then
-        assertThat(result.getGroupId()).isEqualTo(groupEntity.getId());
-        assertThat(result.getGroupName()).isEqualTo(groupEntity.getGroupName());
-        assertThat(result.isSecret()).isEqualTo(groupEntity.isSecret());
+        assertThat(result.getGroupId()).isEqualTo(notJoinedGroupEntity.getId());
+        assertThat(result.getGroupName()).isEqualTo(notJoinedGroupEntity.getGroupName());
+        assertThat(result.isSecret()).isEqualTo(notJoinedGroupEntity.isSecret());
     }
 
-    @DisplayName("사용자가 비공개 그룹에 일치하는 비밀번호와 함께 참가 요청할 경우, 잘 참가 되는지 테스트")
+    @DisplayName("사용자가 비공개 그룹에 잘못된 비밀번호로 참가 요청했을때 예외가 발생하는지 테스트")
     @Test
     public void testJoinGroupWhenKnownPassword() {
         //given
-        Long groupId = 1L;
-        Long otherMemberId = 2L;
-
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+        Long otherMemberId = memberId + 1L;
+        GroupEntity notJoinedGroupEntity = FakeGroupInitializer.of(groupId, otherMemberId)
+                                                               .toBuilder()
+                                                               .isSecret(true)
+                                                               .password("password")
+                                                               .build();
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
-
-        GroupEntity groupEntity = GroupEntity.builder()
-                                             .id(groupId)
-                                             .ownerId(otherMemberId)
-                                             .path("path")
-                                             .groupName("groupName")
-                                             .isSecret(true)
-                                             .password("password")
-                                             .createdAt(LocalDateTime.now())
-                                             .deleted(false)
-                                             .build();
-
-        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
-
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(notJoinedGroupEntity));
         //when, then
         assertThatThrownBy(() -> groupService.joinGroup(groupId, new GroupJoinRequest("wrong password")))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -271,6 +183,8 @@ class GroupServiceTest {
     @Test
     public void testJoinGroupWithValidPath() {
         //given
+        Long memberId = memberEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByPathAndDeletedFalse(groupEntity.getPath())).thenReturn(Optional.of(groupEntity));
@@ -285,10 +199,11 @@ class GroupServiceTest {
     @Test
     public void testJoinGroupWithInvalidPath() {
         //given
+        Long memberId = memberEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByPathAndDeletedFalse("invalidPath")).thenReturn(Optional.empty());
-
         //when, then
         assertThatThrownBy(() -> groupService.joinGroupWithPath(new GroupPathJoinRequest("invalidPath"))).isInstanceOf(IllegalArgumentException.class);
     }
@@ -297,20 +212,14 @@ class GroupServiceTest {
     @Test
     public void testWithdrawGroupWhoIsMember() {
         //given
-        Long otherMemberId = 2L;
-        GroupEntity groupEntity = GroupEntity.builder()
-                                             .id(groupId)
-                                             .ownerId(otherMemberId)
-                                             .path("path")
-                                             .groupName("groupName")
-                                             .isSecret(false)
-                                             .createdAt(LocalDateTime.now())
-                                             .deleted(false)
-                                             .build();
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+        Long otherMemberId = memberId + 1L;
+        GroupEntity notOwnerGroupEntity = FakeGroupInitializer.of(groupId, otherMemberId);
 
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
-        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(notOwnerGroupEntity));
         //when
         groupService.withdrawGroup(new GroupWithdrawRequest(groupId));
         //then
@@ -324,7 +233,10 @@ class GroupServiceTest {
     @Test
     public void testWithdrawGroupWhoIsOwner() {
         //given
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
         GroupWithdrawRequest request = new GroupWithdrawRequest(groupId);
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
@@ -341,6 +253,9 @@ class GroupServiceTest {
     @Test
     public void testChangeMemberGroupColor() {
         //given
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
@@ -355,6 +270,9 @@ class GroupServiceTest {
     @Test
     public void testChangeGroupInfoByGroupOwner() {
         //given
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
         when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
@@ -370,20 +288,14 @@ class GroupServiceTest {
     @Test
     public void testRejectChangeGroupByNotGroupOwner() {
         //given
+        Long memberId = memberEntity.getId();
+        Long groupId = groupEntity.getId();
+        Long otherMemberId = 2L;
+        GroupEntity notOwnerGroupEntity = FakeGroupInitializer.of(groupId, otherMemberId);
+
         when(auditorHolder.get()).thenReturn(memberId);
         when(memberRepository.findByIdAndDeletedFalse(memberId)).thenReturn(Optional.of(memberEntity));
-
-        Long otherMemberId = 2L;
-        GroupEntity groupEntity = GroupEntity.builder()
-                                             .id(groupId)
-                                             .groupName("groupName")
-                                             .isSecret(false)
-                                             .ownerId(otherMemberId)
-                                             .deleted(false)
-                                             .path("path")
-                                             .createdAt(LocalDateTime.now())
-                                             .build();
-        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(groupEntity));
+        when(groupRepository.findByIdAndDeletedFalse(groupId)).thenReturn(Optional.of(notOwnerGroupEntity));
         //when
         assertThatThrownBy(() -> groupService.changeGroupInfo(new GroupEditRequest(groupId, "changedGroupName", true, "changedPassword")))
                 .isInstanceOf(IllegalArgumentException.class);

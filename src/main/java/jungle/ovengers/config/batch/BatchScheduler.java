@@ -23,7 +23,7 @@ public class BatchScheduler {
     private final BatchConfig batchConfig;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void runJob() {
+    public void runDeleteTodoJob() {
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
         JobParameters jobParameters = new JobParameters(confMap);
@@ -58,6 +58,20 @@ public class BatchScheduler {
 
         try {
             jobLauncher.run(batchConfig.sendPushMessagesJob(), jobParameters);
+        } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
+                 JobParametersInvalidException | JobRestartException ex) {
+            log.error(ex.getMessage());
+        }
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    public void runWithdrawFailedMemberJob() {
+        Map<String, JobParameter> confMap = new HashMap<>();
+        confMap.put("time", new JobParameter(System.currentTimeMillis()));
+        JobParameters jobParameters = new JobParameters(confMap);
+
+        try {
+            jobLauncher.run(batchConfig.withdrawFailedMemberJob(), jobParameters);
         } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException | JobRestartException ex) {
             log.error(ex.getMessage());
