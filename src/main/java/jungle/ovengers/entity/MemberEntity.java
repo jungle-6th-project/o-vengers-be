@@ -1,5 +1,6 @@
 package jungle.ovengers.entity;
 
+import jungle.ovengers.enums.MemberStatus;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -7,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
@@ -32,7 +33,12 @@ public class MemberEntity {
     @Column(nullable = false)
     private boolean deleted;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private MemberStatus status = MemberStatus.REGULAR;
+
     public void delete() {
         this.deleted = true;
+        this.status = MemberStatus.WITHDRAWN;
     }
 }
