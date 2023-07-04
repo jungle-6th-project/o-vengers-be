@@ -64,14 +64,14 @@ public class BatchScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "0/10 * * * * *")
     public void runWithdrawFailedMemberJob() {
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
         JobParameters jobParameters = new JobParameters(confMap);
 
         try {
-            jobLauncher.run(batchConfig.withdrawFailedMemberJob(), jobParameters);
+            jobLauncher.run(batchConfig.memberJob(), jobParameters);
         } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException | JobRestartException ex) {
             log.error(ex.getMessage());
