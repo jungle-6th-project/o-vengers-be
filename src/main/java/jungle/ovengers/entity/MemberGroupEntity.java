@@ -1,7 +1,9 @@
 package jungle.ovengers.entity;
 
 import lombok.*;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -29,6 +31,10 @@ public class MemberGroupEntity {
     @Column(nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     @Column(nullable = false)
     private boolean deleted;
