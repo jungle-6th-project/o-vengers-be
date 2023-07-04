@@ -3,6 +3,7 @@ package jungle.ovengers.entity;
 import jungle.ovengers.model.request.GroupEditRequest;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -36,12 +37,16 @@ public class GroupEntity {
     @Column(nullable = false)
     private String path;
 
-    @Column(updatable = false)
+    @Column(nullable = false)
+    private boolean deleted;
+
+    @Column(nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private boolean deleted;
+    @Column
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     public boolean isOwner(Long memberId) {
         return Objects.equals(this.ownerId, memberId);

@@ -13,7 +13,7 @@ public final class FakeTodoInitializer {
                          .content("content")
                          .done(false)
                          .deleted(false)
-                         .createdTime(LocalDateTime.now())
+                         .createdAt(LocalDateTime.now())
                          .memberId(1L)
                          .build();
     }
@@ -26,7 +26,7 @@ public final class FakeTodoInitializer {
                          .content("content")
                          .done(false)
                          .deleted(false)
-                         .createdTime(LocalDateTime.now())
+                         .createdAt(LocalDateTime.now())
                          .build();
     }
 }

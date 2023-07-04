@@ -165,6 +165,6 @@ public class MemberService {
                  .block();
 
         memberEntity.delete();
-        memberWithdrawService.deleteAssociations(memberEntity);
+        memberWithdrawService.deleteAssociationsAsync(memberEntity);
     }
 }

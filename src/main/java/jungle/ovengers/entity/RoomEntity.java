@@ -2,6 +2,8 @@ package jungle.ovengers.entity;
 
 import jungle.ovengers.support.converter.ProfileImagesConverter;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -40,6 +42,14 @@ public class RoomEntity {
     @Builder.Default
     @Convert(converter = ProfileImagesConverter.class)
     private List<String> profiles = new ArrayList<>();
+
+    @Column(nullable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Column
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     public void delete() {
         this.deleted = true;

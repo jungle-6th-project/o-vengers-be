@@ -13,7 +13,6 @@ public final class MemberGroupConverter {
         return MemberGroupEntity.builder()
                                 .groupId(groupEntity.getId())
                                 .memberId(memberEntity.getId())
-                                .createdAt(LocalDateTime.now())
                                 .deleted(false)
                                 .build();
     }

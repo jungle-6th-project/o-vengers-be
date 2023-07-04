@@ -17,7 +17,6 @@ public final class GroupConverter {
                           .isSecret(request.isSecret())
                           .password(request.getPassword())
                           .path(request.getPath())
-                          .createdAt(LocalDateTime.now())
                           .deleted(false)
                           .build();
     }

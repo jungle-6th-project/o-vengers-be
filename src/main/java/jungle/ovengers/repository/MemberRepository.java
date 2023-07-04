@@ -4,6 +4,7 @@ import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.enums.MemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +16,6 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
     Optional<MemberEntity> findByCertificationIdAndDeletedFalse(Long certificationId);
 
     List<MemberEntity> findAllByStatus(MemberStatus status);
+
+    List<MemberEntity> findAllByStatus(MemberStatus status, Pageable pageable);
 }
