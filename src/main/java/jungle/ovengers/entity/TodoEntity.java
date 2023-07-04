@@ -34,21 +34,21 @@ public class TodoEntity {
     private boolean done;
 
     @Column(nullable = false)
+    private boolean deleted;
+
+    @Column(nullable = false)
     @CreatedDate
-    private LocalDateTime createdTime;
+    private LocalDateTime createdAt;
 
     @Column
     @LastModifiedDate
-    private LocalDateTime doneAt;
-
-    @Column(nullable = false)
-    private boolean deleted;
+    private LocalDateTime updatedAt;
 
     public void changeTodoInfo(TodoEditRequest request) {
         this.content = request.getContent();
         this.done = request.isDone();
         if (done) {
-            this.doneAt = LocalDateTime.now();
+            this.updatedAt = LocalDateTime.now();
         }
     }
 
