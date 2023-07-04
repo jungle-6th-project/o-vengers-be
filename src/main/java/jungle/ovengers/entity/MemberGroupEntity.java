@@ -29,18 +29,18 @@ public class MemberGroupEntity {
     private Long groupId;
 
     @Column(nullable = false)
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-    @Column(nullable = false)
     private boolean deleted;
 
     @Column
     private String color;
+
+    @Column(nullable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Column
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     public void delete() {
         this.deleted = true;

@@ -37,15 +37,16 @@ public class MemberRoomEntity {
     private LocalDateTime endTime;
 
     @Column(nullable = false)
+    private boolean deleted;
+
+    @Column(nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false)
-    private boolean deleted;
 
     public boolean isAfter(LocalDateTime from) {
         return this.startTime.isAfter(from) || this.startTime.isEqual(from);

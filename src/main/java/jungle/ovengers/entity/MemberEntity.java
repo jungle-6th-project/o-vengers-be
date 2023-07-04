@@ -44,7 +44,7 @@ public class MemberEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
