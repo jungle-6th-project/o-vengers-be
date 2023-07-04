@@ -36,10 +36,6 @@ public class MemberGroupEntity {
     @Column
     private String color;
 
-    public boolean isEqualMemberId(Long memberId) {
-        return Objects.equals(this.memberId, memberId);
-    }
-
     public void delete() {
         this.deleted = true;
     }
