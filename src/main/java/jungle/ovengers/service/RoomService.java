@@ -26,8 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,11 +49,27 @@ public class RoomService {
         LocalDateTime from = request.getFrom();
         LocalDateTime to = request.getTo();
 
-        return roomRepository.findByGroupIdAndDeletedFalse(request.getGroupId())
-                             .stream()
-                             .filter(room -> room.isAfter(from) && room.isBefore(to))
-                             .map(RoomConverter::from)
-                             .collect(Collectors.toList());
+
+        List<RoomEntity> roomEntities = roomRepository.findByGroupIdAndDeletedFalse(request.getGroupId())
+                                                      .stream()
+                                                      .filter(room -> room.isAfter(from) && room.isBefore(to))
+                                                      .collect(Collectors.toList());
+
+        Map<RoomEntity, List<Long>> roomMembers = new HashMap<>();
+        for (RoomEntity roomEntity : roomEntities) {
+            List<Long> memberIds = memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())
+                                                     .stream()
+                                                     .map(MemberRoomEntity::getMemberId)
+                                                     .collect(Collectors.toList());
+            roomMembers.put(roomEntity, memberIds);
+        }
+
+        List<RoomResponse> responses = new ArrayList<>();
+        for (RoomEntity roomEntity : roomMembers.keySet()) {
+            responses.add(RoomConverter.from(roomEntity, roomMembers.get(roomEntity)));
+        }
+
+        return responses;
     }
 
     public List<RoomResponse> getJoinedRooms(RoomBrowseRequest request) {
