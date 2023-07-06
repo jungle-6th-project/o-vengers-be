@@ -79,7 +79,11 @@ public class RoomStompService {
         if (memberRoomEntity == null) {
             roomEntity.addProfile(memberEntity.getProfile());
             this.saveAssociations(memberEntity, groupEntity, roomEntity);
-            return RoomConverter.from(roomEntity);
+            List<Long> memberIds = memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())
+                                                       .stream()
+                                                       .map(MemberRoomEntity::getMemberId)
+                                                       .collect(Collectors.toList());
+            return RoomConverter.from(roomEntity, memberIds);
         }
 
         // 해당 방에 예약 정보가 이미 있을 경우 -> 방에서 사용자 정보 삭제, 연관 데이터들 제거
