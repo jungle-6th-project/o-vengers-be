@@ -19,10 +19,11 @@ public final class MemberConverter {
 
     public static MemberResponse from(MemberEntity memberEntity) {
         return MemberResponse.builder()
-                        .name(memberEntity.getName())
-                        .profile(memberEntity.getProfile())
-                        .email(memberEntity.getEmail())
-                        .build();
+                             .memberId(memberEntity.getId())
+                             .name(memberEntity.getName())
+                             .profile(memberEntity.getProfile())
+                             .email(memberEntity.getEmail())
+                             .build();
     }
 
     public static MemberEntity to(KakaoUserInfoResponse kakaoUserInfoResponse) {

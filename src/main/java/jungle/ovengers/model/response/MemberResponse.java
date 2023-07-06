@@ -12,6 +12,7 @@ import java.time.Duration;
 @NoArgsConstructor
 @Builder
 public class MemberResponse {
+    private Long memberId;
     private String name;
     private String profile;
     private String email;
