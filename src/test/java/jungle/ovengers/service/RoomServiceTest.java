@@ -1,22 +1,14 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
-import jungle.ovengers.data.FakeMemberRoomInitializer;
-import jungle.ovengers.data.FakeRankInitializer;
-import jungle.ovengers.data.FakeRoomEntryHistoryInitializer;
-import jungle.ovengers.data.FakeRoomInitializer;
-import jungle.ovengers.entity.MemberRoomEntity;
-import jungle.ovengers.entity.RankEntity;
-import jungle.ovengers.entity.RoomEntity;
-import jungle.ovengers.entity.RoomEntryHistoryEntity;
+import jungle.ovengers.data.*;
+import jungle.ovengers.entity.*;
+import jungle.ovengers.enums.MemberStatus;
 import jungle.ovengers.model.request.RoomBrowseRequest;
 import jungle.ovengers.model.request.RoomHistoryRequest;
 import jungle.ovengers.model.response.RoomHistoryResponse;
 import jungle.ovengers.model.response.RoomResponse;
-import jungle.ovengers.repository.MemberRoomRepository;
-import jungle.ovengers.repository.RankRepository;
-import jungle.ovengers.repository.RoomEntryHistoryRepository;
-import jungle.ovengers.repository.RoomRepository;
+import jungle.ovengers.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +40,8 @@ public class RoomServiceTest {
     @Mock
     private RankRepository rankRepository;
     @Mock
+    private MemberRepository memberRepository;
+    @Mock
     private AuditorHolder auditorHolder;
     @InjectMocks
     private RoomService roomService;
@@ -59,6 +53,7 @@ public class RoomServiceTest {
     private MemberRoomEntity memberRoomEntity;
     private RoomEntryHistoryEntity roomEntryHistoryEntity;
     private RankEntity rankEntity;
+    private MemberEntity memberEntity;
 
     @BeforeEach
     public void setup() {
@@ -69,6 +64,7 @@ public class RoomServiceTest {
         memberRoomEntity = FakeMemberRoomInitializer.of(now);
         roomEntryHistoryEntity = FakeRoomEntryHistoryInitializer.of(now);
         rankEntity = FakeRankInitializer.of();
+        memberEntity = FakeMemberInitializer.of();
     }
 
     @DisplayName("속해있는 그룹의 전체 방 정보를 조회할때, 데이터가 잘 조회 되는지 테스트")
@@ -76,34 +72,13 @@ public class RoomServiceTest {
     public void testBrowseGroupRooms() {
         //given
         when(roomRepository.findByGroupIdAndDeletedFalse(groupId)).thenReturn(Collections.singletonList(roomEntity));
+        when(memberRepository.findAllByMemberIdsAndStatus(anyList(), any())).thenReturn(Collections.singletonList(memberEntity));
         //when
         List<RoomResponse> results = roomService.getRooms(new RoomBrowseRequest(groupId, now.minusHours(3), now.plusHours(3)));
         //then
         assertThat(results.size()).isEqualTo(1);
         assertThat(results.get(0)
                           .getRoomId()).isEqualTo(roomEntity.getId());
-    }
-
-    @DisplayName("속해있는 그룹내에서 사용자가 예약한 방만 조회가 잘 되는지 테스트")
-    @Test
-    public void testBrowseGroupRoomsWhichMemberMadeReservation() {
-        //given
-        Long roomId = roomEntity.getId();
-        Long otherRoomId = roomId + 1L;
-        Long otherMember = memberId + 1L;
-        RoomEntity otherRoomEntity = FakeRoomInitializer.of(otherRoomId, groupId, otherMember, now.plusHours(1));
-
-        when(auditorHolder.get()).thenReturn(memberId);
-        when(roomRepository.findByGroupIdAndDeletedFalse(groupId)).thenReturn(List.of(roomEntity, otherRoomEntity));
-        when(memberRoomRepository.existsByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(true);
-        when(memberRoomRepository.existsByMemberIdAndRoomIdAndDeletedFalse(memberId, otherRoomId)).thenReturn(false);
-        when(roomRepository.findAllByIdAndDeletedFalse(List.of(roomId))).thenReturn(List.of(roomEntity));
-        //when
-        List<RoomResponse> results = roomService.getJoinedRooms(new RoomBrowseRequest(groupId, now.minusHours(5), now.plusHours(5)));
-        //then
-        assertThat(results.size()).isEqualTo(1);
-        assertThat(results.get(0)
-                          .getRoomId()).isEqualTo(roomId);
     }
 
     @DisplayName("방 입장시 입장 시간 기록을 요청했을때, 입장 시간 기록이 잘 생성되는지 테스트")

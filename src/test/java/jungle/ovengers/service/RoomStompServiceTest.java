@@ -2,6 +2,7 @@ package jungle.ovengers.service;
 
 import jungle.ovengers.data.*;
 import jungle.ovengers.entity.*;
+import jungle.ovengers.enums.MemberStatus;
 import jungle.ovengers.model.request.RoomAddRequest;
 import jungle.ovengers.model.request.RoomJoinRequest;
 import jungle.ovengers.model.response.RoomResponse;
@@ -123,6 +124,8 @@ class RoomStompServiceTest {
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.of(memberRoomEntity));
         when(memberRoomRepository.existsByRoomIdAndDeletedFalse(roomId)).thenReturn(true);
+        when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())).thenReturn(Collections.singletonList(memberRoomEntity));
+        when(memberRepository.findAllByMemberIdsAndStatus(Collections.singletonList(memberId), MemberStatus.REGULAR)).thenReturn(Collections.singletonList(memberEntity));
         //when
         RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
         //then
@@ -147,12 +150,14 @@ class RoomStompServiceTest {
         when(roomRepository.findByIdAndDeletedFalse(roomId)).thenReturn(Optional.of(roomEntity));
         when(memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId)).thenReturn(Optional.empty());
         when(memberRoomRepository.save(any(MemberRoomEntity.class))).thenReturn(memberRoomEntity);
+        when(memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())).thenReturn(Collections.singletonList(memberRoomEntity));
+        when(memberRepository.findAllByMemberIdsAndStatus(Collections.singletonList(memberId), MemberStatus.REGULAR)).thenReturn(Collections.singletonList(memberEntity));
         //when
         RoomResponse result = roomService.joinRoom(memberId, new RoomJoinRequest(roomId, groupId));
         //then
         verify(memberRoomRepository, never()).delete(any(MemberRoomEntity.class));
         assertThat(result.getProfiles()
-                         .size()).isEqualTo(3);
+                         .size()).isEqualTo(1);
         assertThat(result.getRoomId()).isEqualTo(roomId);
         assertThat(result.getEndTime()).isEqualTo(roomEntity.getEndTime());
         assertThat(result.getStartTime()).isEqualTo(roomEntity.getStartTime());

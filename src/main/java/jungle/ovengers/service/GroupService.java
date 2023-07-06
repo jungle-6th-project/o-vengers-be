@@ -158,7 +158,7 @@ public class GroupService {
         roomEntities.forEach(roomEntity -> {
             memberRoomRepository.findByMemberIdAndRoomIdAndDeletedFalse(memberEntity.getId(), roomEntity.getId())
                                 .ifPresent(MemberRoomEntity::delete);
-            roomEntity.removeProfile(memberEntity.getProfile());
+//            roomEntity.removeProfile(memberEntity.getProfile());
         });
         memberRoomRepository.flush();
 

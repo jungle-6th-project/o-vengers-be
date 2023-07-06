@@ -33,13 +33,6 @@ public class RoomController {
         return ApiResponseGenerator.success(roomService.getRooms(request), HttpStatus.OK, MessageCode.SUCCESS);
     }
 
-    @ApiOperation(value = "그룹 내 사용자가 예약해 놓은 방 예약 조회")
-    @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
-    @GetMapping("/reservation")
-    public ApiResponse<ApiResponse.SuccessBody<List<RoomResponse>>> browseWhichReserved(RoomBrowseRequest request) {
-        return ApiResponseGenerator.success(roomService.getJoinedRooms(request), HttpStatus.OK, MessageCode.SUCCESS);
-    }
-
     @ApiOperation(value = "전체 그룹 중 내 전체 방 예약 조회")
     @ApiImplicitParam(name = "Authorization", value = "JWT token", required = true, dataTypeClass = String.class, paramType = "header")
     @GetMapping("/all")

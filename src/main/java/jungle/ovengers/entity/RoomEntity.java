@@ -38,11 +38,6 @@ public class RoomEntity {
     @Column(nullable = false)
     private boolean deleted;
 
-    @Column(columnDefinition = "TEXT")
-    @Builder.Default
-    @Convert(converter = ProfileImagesConverter.class)
-    private List<String> profiles = new ArrayList<>();
-
     @Column(nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
@@ -53,14 +48,6 @@ public class RoomEntity {
 
     public void delete() {
         this.deleted = true;
-    }
-
-    public void addProfile(String profile) {
-        this.profiles.add(profile);
-    }
-
-    public void removeProfile(String profile) {
-        this.profiles.remove(profile);
     }
 
     public boolean isAfter(LocalDateTime from) {

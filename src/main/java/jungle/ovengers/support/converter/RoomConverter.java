@@ -19,7 +19,6 @@ public final class RoomConverter {
         return RoomEntity.builder()
                          .groupId(request.getGroupId())
                          .ownerId(memberEntity.getId())
-                         .profiles(profiles)
                          .startTime(request.getStartTime())
                          .endTime(request.getEndTime())
                          .deleted(false)
@@ -34,7 +33,6 @@ public final class RoomConverter {
                            .roomId(roomEntity.getId())
                            .startTime(roomEntity.getStartTime())
                            .endTime(roomEntity.getEndTime())
-                           .profiles(roomEntity.getProfiles())
                            .groupId(roomEntity.getGroupId())
                            .build();
     }
@@ -48,8 +46,22 @@ public final class RoomConverter {
                            .roomId(roomEntity.getId())
                            .startTime(roomEntity.getStartTime())
                            .endTime(roomEntity.getEndTime())
-                           .profiles(roomEntity.getProfiles())
                            .groupId(roomEntity.getGroupId())
+                           .memberIds(memberIds)
+                           .build();
+    }
+
+    public static RoomResponse from(RoomEntity roomEntity, List<Long> memberIds, List<String> profiles) {
+        if (roomEntity == null) {
+            return null;
+        }
+
+        return RoomResponse.builder()
+                           .roomId(roomEntity.getId())
+                           .startTime(roomEntity.getStartTime())
+                           .endTime(roomEntity.getEndTime())
+                           .groupId(roomEntity.getGroupId())
+                           .profiles(profiles)
                            .memberIds(memberIds)
                            .build();
     }
