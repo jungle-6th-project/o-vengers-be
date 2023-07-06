@@ -1,6 +1,9 @@
 package jungle.ovengers.service;
 
-import jungle.ovengers.entity.*;
+import jungle.ovengers.entity.GroupEntity;
+import jungle.ovengers.entity.MemberEntity;
+import jungle.ovengers.entity.MemberRoomEntity;
+import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.exception.RoomNotFoundException;
@@ -15,9 +18,11 @@ import jungle.ovengers.support.validator.RoomValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,10 +50,17 @@ public class RoomStompService {
         if (roomEntity == null) {
             RoomEntity newRoomEntity = roomRepository.save(RoomConverter.to(request, memberEntity));
             this.saveAssociations(memberEntity, groupEntity, newRoomEntity);
-            return RoomConverter.from(newRoomEntity);
+            List<Long> memberIds = memberRoomRepository.findByRoomIdAndDeletedFalse(newRoomEntity.getId())
+                                                       .stream()
+                                                       .map(MemberRoomEntity::getMemberId)
+                                                       .collect(Collectors.toList());
+            return RoomConverter.from(newRoomEntity, memberIds);
         }
-
-        return RoomConverter.from(roomEntity);
+        List<Long> memberIds = memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())
+                                                   .stream()
+                                                   .map(MemberRoomEntity::getMemberId)
+                                                   .collect(Collectors.toList());
+        return RoomConverter.from(roomEntity, memberIds);
     }
 
 
@@ -80,7 +92,12 @@ public class RoomStompService {
             return RoomConverter.from(roomEntity.getStartTime());
         }
 
-        return RoomConverter.from(roomEntity);
+        List<Long> memberIds = memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())
+                                                   .stream()
+                                                   .map(MemberRoomEntity::getMemberId)
+                                                   .collect(Collectors.toList());
+
+        return RoomConverter.from(roomEntity, memberIds);
     }
 
     private void deleteAssociations(MemberEntity memberEntity, RoomEntity roomEntity, MemberRoomEntity memberRoomEntity) {

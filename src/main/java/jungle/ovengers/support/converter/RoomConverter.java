@@ -25,7 +25,6 @@ public final class RoomConverter {
                          .deleted(false)
                          .build();
     }
-
     public static RoomResponse from(RoomEntity roomEntity) {
         if (roomEntity == null) {
             return null;
@@ -37,6 +36,21 @@ public final class RoomConverter {
                            .endTime(roomEntity.getEndTime())
                            .profiles(roomEntity.getProfiles())
                            .groupId(roomEntity.getGroupId())
+                           .build();
+    }
+
+    public static RoomResponse from(RoomEntity roomEntity, List<Long> memberIds) {
+        if (roomEntity == null) {
+            return null;
+        }
+
+        return RoomResponse.builder()
+                           .roomId(roomEntity.getId())
+                           .startTime(roomEntity.getStartTime())
+                           .endTime(roomEntity.getEndTime())
+                           .profiles(roomEntity.getProfiles())
+                           .groupId(roomEntity.getGroupId())
+                           .memberIds(memberIds)
                            .build();
     }
 
