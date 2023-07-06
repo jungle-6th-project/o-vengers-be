@@ -45,6 +45,8 @@ class GroupServiceTest {
     private TodoRepository todoRepository;
     @Mock
     private AuditorHolder auditorHolder;
+    @Mock
+    private CalendarStorage calendarStorage;
     @InjectMocks
     private GroupService groupService;
 
