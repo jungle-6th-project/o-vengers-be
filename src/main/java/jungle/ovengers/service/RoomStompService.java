@@ -4,6 +4,7 @@ import jungle.ovengers.entity.GroupEntity;
 import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.entity.RoomEntity;
+import jungle.ovengers.enums.MemberStatus;
 import jungle.ovengers.exception.GroupNotFoundException;
 import jungle.ovengers.exception.MemberNotFoundException;
 import jungle.ovengers.exception.RoomNotFoundException;
@@ -54,13 +55,22 @@ public class RoomStompService {
                                                        .stream()
                                                        .map(MemberRoomEntity::getMemberId)
                                                        .collect(Collectors.toList());
-            return RoomConverter.from(newRoomEntity, memberIds);
+            List<String> profiles = memberRepository.findAllByMemberIdsAndStatus(memberIds, MemberStatus.REGULAR)
+                                                    .stream()
+                                                    .map(MemberEntity::getProfile)
+                                                    .collect(Collectors.toList());
+            return RoomConverter.from(newRoomEntity, memberIds, profiles);
         }
+
         List<Long> memberIds = memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())
                                                    .stream()
                                                    .map(MemberRoomEntity::getMemberId)
                                                    .collect(Collectors.toList());
-        return RoomConverter.from(roomEntity, memberIds);
+        List<String> profiles = memberRepository.findAllByMemberIdsAndStatus(memberIds, MemberStatus.REGULAR)
+                                                .stream()
+                                                .map(MemberEntity::getProfile)
+                                                .collect(Collectors.toList());
+        return RoomConverter.from(roomEntity, memberIds, profiles);
     }
 
 
@@ -77,17 +87,19 @@ public class RoomStompService {
 
         // 해당 방에 예약 정보가 없을 경우 -> 방에 사용자 정보 추가, 연관 데이터 추가
         if (memberRoomEntity == null) {
-            roomEntity.addProfile(memberEntity.getProfile());
             this.saveAssociations(memberEntity, groupEntity, roomEntity);
             List<Long> memberIds = memberRoomRepository.findByRoomIdAndDeletedFalse(roomEntity.getId())
                                                        .stream()
                                                        .map(MemberRoomEntity::getMemberId)
                                                        .collect(Collectors.toList());
-            return RoomConverter.from(roomEntity, memberIds);
+            List<String> profiles = memberRepository.findAllByMemberIdsAndStatus(memberIds, MemberStatus.REGULAR)
+                                                    .stream()
+                                                    .map(MemberEntity::getProfile)
+                                                    .collect(Collectors.toList());
+            return RoomConverter.from(roomEntity, memberIds, profiles);
         }
 
         // 해당 방에 예약 정보가 이미 있을 경우 -> 방에서 사용자 정보 삭제, 연관 데이터들 제거
-        roomEntity.removeProfile(memberEntity.getProfile());
         this.deleteAssociations(memberEntity, roomEntity, memberRoomEntity);
 
         // 위 연관 사항으로 인해, 방에 사용자가 한 명도 없을 경우 -> 방을 삭제
@@ -101,7 +113,12 @@ public class RoomStompService {
                                                    .map(MemberRoomEntity::getMemberId)
                                                    .collect(Collectors.toList());
 
-        return RoomConverter.from(roomEntity, memberIds);
+        List<String> profiles = memberRepository.findAllByMemberIdsAndStatus(memberIds, MemberStatus.REGULAR)
+                                               .stream()
+                                               .map(MemberEntity::getProfile)
+                                               .collect(Collectors.toList());
+
+        return RoomConverter.from(roomEntity, memberIds, profiles);
     }
 
     private void deleteAssociations(MemberEntity memberEntity, RoomEntity roomEntity, MemberRoomEntity memberRoomEntity) {

@@ -1,19 +1,18 @@
 package jungle.ovengers.service;
 
 import jungle.ovengers.config.security.AuditorHolder;
+import jungle.ovengers.entity.MemberEntity;
 import jungle.ovengers.entity.MemberRoomEntity;
 import jungle.ovengers.entity.RoomEntity;
 import jungle.ovengers.entity.RoomEntryHistoryEntity;
+import jungle.ovengers.enums.MemberStatus;
 import jungle.ovengers.exception.RoomNotFoundException;
 import jungle.ovengers.model.request.RoomBrowseRequest;
 import jungle.ovengers.model.request.RoomHistoryRequest;
 import jungle.ovengers.model.request.WholeRoomBrowseRequest;
 import jungle.ovengers.model.response.RoomHistoryResponse;
 import jungle.ovengers.model.response.RoomResponse;
-import jungle.ovengers.repository.MemberRoomRepository;
-import jungle.ovengers.repository.RankRepository;
-import jungle.ovengers.repository.RoomEntryHistoryRepository;
-import jungle.ovengers.repository.RoomRepository;
+import jungle.ovengers.repository.*;
 import jungle.ovengers.support.converter.RoomConverter;
 import jungle.ovengers.support.converter.RoomEntryHistoryConverter;
 import jungle.ovengers.support.converter.RoomHistoryConverter;
@@ -39,6 +38,7 @@ public class RoomService {
     private final MemberRoomRepository memberRoomRepository;
     private final RoomEntryHistoryRepository roomEntryHistoryRepository;
     private final RankRepository rankRepository;
+    private final MemberRepository memberRepository;
     private final AuditorHolder auditorHolder;
     private final String NOT_INVOLVED_ROOM = "사용자가 참여하고 있는 방이 아닙니다.";
     private final String INVALID_ENTER_TIME = "입장 가능한 시간이 아닙니다.";
@@ -66,35 +66,15 @@ public class RoomService {
 
         List<RoomResponse> responses = new ArrayList<>();
         for (RoomEntity roomEntity : roomMembers.keySet()) {
-            responses.add(RoomConverter.from(roomEntity, roomMembers.get(roomEntity)));
+            List<Long> memberIds = roomMembers.get(roomEntity);
+            List<String> profiles = memberRepository.findAllByMemberIdsAndStatus(memberIds, MemberStatus.REGULAR)
+                                                   .stream()
+                                                   .map(MemberEntity::getProfile)
+                                                   .collect(Collectors.toList());
+            responses.add(RoomConverter.from(roomEntity, memberIds, profiles));
         }
 
         return responses;
-    }
-
-    public List<RoomResponse> getJoinedRooms(RoomBrowseRequest request) {
-        Long memberId = auditorHolder.get();
-        List<Long> joinedRoomIds = getJoinedRoomIds(memberId, request.getGroupId());
-        return getNonDeletedRoomsByIds(joinedRoomIds)
-                .stream()
-                .map(RoomConverter::from)
-                .collect(Collectors.toList());
-    }
-
-    private List<Long> getJoinedRoomIds(Long memberId, Long groupId) {
-        return roomRepository.findByGroupIdAndDeletedFalse(groupId)
-                             .stream()
-                             .map(RoomEntity::getId)
-                             .filter(id -> isMemberInRoom(memberId, id))
-                             .collect(Collectors.toList());
-    }
-
-    private boolean isMemberInRoom(Long memberId, Long roomId) {
-        return memberRoomRepository.existsByMemberIdAndRoomIdAndDeletedFalse(memberId, roomId);
-    }
-
-    private List<RoomEntity> getNonDeletedRoomsByIds(List<Long> roomIds) {
-        return roomRepository.findAllByIdAndDeletedFalse(roomIds);
     }
 
     public List<RoomResponse> getRoomsByAllGroups(WholeRoomBrowseRequest request) {
@@ -109,9 +89,20 @@ public class RoomService {
                                                             .filter(roomEntity -> roomEntity.isAfter(request.getFrom()) && roomEntity.isBefore(request.getTo()))
                                                             .collect(Collectors.toList());
 
-        return joinedRoomEntities.stream()
-                                 .map(RoomConverter::from)
-                                 .collect(Collectors.toList());
+        List<RoomResponse> responses = new ArrayList<>();
+        for (RoomEntity joinedRoomEntity : joinedRoomEntities) {
+            List<Long> memberIds = memberRoomRepository.findByRoomIdAndDeletedFalse(joinedRoomEntity.getId())
+                                                     .stream()
+                                                     .map(MemberRoomEntity::getMemberId)
+                                                     .collect(Collectors.toList());
+            List<String> profiles = memberRepository.findAllByMemberIdsAndStatus(memberIds, MemberStatus.REGULAR)
+                                                   .stream()
+                                                   .map(MemberEntity::getProfile)
+                                                   .collect(Collectors.toList());
+            responses.add(RoomConverter.from(joinedRoomEntity, memberIds, profiles));
+        }
+
+        return responses;
     }
 
     public RoomHistoryResponse generateRoomEntryHistory(RoomHistoryRequest request) {
@@ -131,11 +122,6 @@ public class RoomService {
                                                                 .orElseThrow(() -> new IllegalArgumentException(NOT_INVOLVED_ROOM + "memberId :" + memberId + " roomId :" + roomId));
 
         return RoomHistoryConverter.from(roomEntryHistoryRepository.save(RoomEntryHistoryConverter.to(memberRoomEntity, enterTime)));
-    }
-
-    public String makeRedisKey() {
-        return "history" + auditorHolder.get()
-                                        .toString();
     }
 
     @CacheEvict(cacheNames = "dailyDuration", key = "{#root.target.makeRedisKey()}")
