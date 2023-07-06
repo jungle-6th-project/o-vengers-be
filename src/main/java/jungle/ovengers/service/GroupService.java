@@ -39,6 +39,7 @@ public class GroupService {
     private final MemberRoomRepository memberRoomRepository;
     private final TodoRepository todoRepository;
     private final AuditorHolder auditorHolder;
+    private final CalendarStorage calendarStorage;
 
     public GroupResponse generateGroup(GroupAddRequest request) {
         Long memberId = auditorHolder.get();
@@ -138,8 +139,8 @@ public class GroupService {
     /**
      * 그룹 구성원 개인이 탈퇴할 경우 -> 트랜잭션 분리해서 개선하기
      */
-    @CacheEvict(cacheNames = "groupRooms", key = "#groupEntity.id")
     public void deleteSingleAssociation(GroupEntity groupEntity, MemberEntity memberEntity) {
+        calendarStorage.deleteGroupCacheEntry(groupEntity.getId());
         // 랭킹 연관 데이터 삭제
         rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberEntity.getId())
                       .ifPresent(RankEntity::delete);
@@ -147,7 +148,6 @@ public class GroupService {
         memberGroupRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberEntity.getId())
                              .ifPresent(MemberGroupEntity::delete);
         memberGroupRepository.flush();
-
         // 해당 그룹에 속한 사용자가 더 이상 없다면 그룹 삭제
         if (!memberGroupRepository.existsByGroupIdAndDeletedFalse(groupEntity.getId()) && groupEntity.getId() != 1L) {
             groupEntity.delete();
