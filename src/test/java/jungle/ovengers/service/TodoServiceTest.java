@@ -133,16 +133,8 @@ class TodoServiceTest {
         Long groupId = groupEntity.getId();
         Long todoId = todoEntity.getId();
 
-        TodoEntity todoEntity = TodoEntity.builder()
-                                          .id(todoId)
-                                          .memberId(memberId)
-                                          .groupId(groupId)
-                                          .content("content")
-                                          .done(true)
-                                          .createdTime(LocalDateTime.now())
-                                          .doneAt(LocalDateTime.now())
-                                          .deleted(false)
-                                          .build();
+        TodoEntity todoEntity = FakeTodoInitializer.of(todoId, memberId, groupId);
+
         when(memberRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(memberEntity));
         when(todoRepository.findByIdAndDeletedFalse(todoId)).thenReturn(Optional.of(todoEntity));
         //when

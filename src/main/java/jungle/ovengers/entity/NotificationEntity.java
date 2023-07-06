@@ -1,6 +1,8 @@
 package jungle.ovengers.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -30,4 +32,8 @@ public class NotificationEntity {
 
     @Column(nullable = false)
     private LocalDateTime notificationTime;
+
+    @Column(nullable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
 }

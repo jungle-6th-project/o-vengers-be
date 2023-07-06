@@ -25,6 +25,8 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -148,23 +150,23 @@ public class MemberService {
         MemberEntity memberEntity = memberRepository.findById(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
         WebClient webClient = WebClient.builder()
-                                       .baseUrl(kakaoUri)
-                                       .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .baseUrl(kakaoApiUri)
+                                       .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                                        .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + adminKey)
                                        .build();
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("target_id_type", "user_id");
-        requestBody.put("target_id", memberEntity.getCertificationId());
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("target_id_type", "user_id");
+        requestBody.add("target_id", String.valueOf(memberEntity.getCertificationId()));
         webClient.post()
-                 .uri(uriBuilder -> uriBuilder.path("/v1/user/logout")
+                 .uri(uriBuilder -> uriBuilder.path("/v1/user/unlink")
                                               .build())
-                 .body(BodyInserters.fromValue(requestBody))
+                 .body(BodyInserters.fromFormData(requestBody))
                  .retrieve()
                  .toBodilessEntity()
                  .block();
 
         memberEntity.delete();
-        memberWithdrawService.deleteAssociations(memberEntity);
+        memberWithdrawService.deleteAssociationsAsync(memberEntity);
     }
 }

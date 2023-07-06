@@ -71,7 +71,7 @@ public class BatchScheduler {
         JobParameters jobParameters = new JobParameters(confMap);
 
         try {
-            jobLauncher.run(batchConfig.withdrawFailedMemberJob(), jobParameters);
+            jobLauncher.run(batchConfig.memberWithdrawJob(), jobParameters);
         } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException | JobRestartException ex) {
             log.error(ex.getMessage());

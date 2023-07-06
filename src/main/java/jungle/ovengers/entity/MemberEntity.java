@@ -2,9 +2,12 @@ package jungle.ovengers.entity;
 
 import jungle.ovengers.enums.MemberStatus;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -36,6 +39,15 @@ public class MemberEntity {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private MemberStatus status = MemberStatus.REGULAR;
+
+    @Column(nullable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Column
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
 
     public void delete() {
         this.deleted = true;

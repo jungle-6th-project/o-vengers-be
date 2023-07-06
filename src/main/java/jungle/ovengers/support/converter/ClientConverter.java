@@ -24,8 +24,6 @@ public final class ClientConverter {
         return ClientEntity.builder()
                            .memberId(memberEntity.getId())
                            .fcmToken(request.getFcmToken())
-                           .createdAt(now)
-                           .updatedAt(now)
                            .build();
     }
 }

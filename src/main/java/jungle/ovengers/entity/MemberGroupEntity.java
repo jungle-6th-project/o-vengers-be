@@ -1,7 +1,9 @@
 package jungle.ovengers.entity;
 
 import lombok.*;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -27,18 +29,18 @@ public class MemberGroupEntity {
     private Long groupId;
 
     @Column(nullable = false)
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
     private boolean deleted;
 
     @Column
     private String color;
 
-    public boolean isEqualMemberId(Long memberId) {
-        return Objects.equals(this.memberId, memberId);
-    }
+    @Column(nullable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Column
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     public void delete() {
         this.deleted = true;

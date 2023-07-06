@@ -25,6 +25,14 @@ public class MemberWithdrawService {
     private final GroupService groupService;
 
     @Async
+    public void deleteAssociationsAsync(MemberEntity memberEntity) {
+        tokenStorage.deleteRefreshToken(memberEntity.getId());
+        groupService.deleteAllAssociation(memberEntity);
+
+        clientRepository.deleteByMemberId(memberEntity.getId());
+        notificationRepository.deleteByMemberId(memberEntity.getId());
+    }
+
     public void deleteAssociations(MemberEntity memberEntity) {
         tokenStorage.deleteRefreshToken(memberEntity.getId());
         groupService.deleteAllAssociation(memberEntity);
@@ -38,7 +46,7 @@ public class MemberWithdrawService {
         memberRepository.findAllByStatus(MemberStatus.SEPARATE)
                 .forEach(memberEntity -> {
                     memberEntity.delete();
-                    deleteAssociations(memberEntity);
+                    this.deleteAssociations(memberEntity);
                 });
     }
 }

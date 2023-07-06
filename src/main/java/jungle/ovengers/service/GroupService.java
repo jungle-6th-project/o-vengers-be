@@ -13,6 +13,7 @@ import jungle.ovengers.support.converter.MemberGroupConverter;
 import jungle.ovengers.support.converter.RankConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -137,7 +138,8 @@ public class GroupService {
     /**
      * 그룹 구성원 개인이 탈퇴할 경우 -> 트랜잭션 분리해서 개선하기
      */
-    private void deleteSingleAssociation(GroupEntity groupEntity, MemberEntity memberEntity) {
+    @CacheEvict(cacheNames = "groupRooms", key = "#groupEntity.id")
+    public void deleteSingleAssociation(GroupEntity groupEntity, MemberEntity memberEntity) {
         // 랭킹 연관 데이터 삭제
         rankRepository.findByGroupIdAndMemberIdAndDeletedFalse(groupEntity.getId(), memberEntity.getId())
                       .ifPresent(RankEntity::delete);
