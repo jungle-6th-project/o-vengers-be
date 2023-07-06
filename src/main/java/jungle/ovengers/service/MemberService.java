@@ -25,6 +25,8 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -153,13 +155,13 @@ public class MemberService {
                                        .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + adminKey)
                                        .build();
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("target_id_type", "user_id");
-        requestBody.put("target_id", memberEntity.getCertificationId());
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("target_id_type", "user_id");
+        requestBody.add("target_id", String.valueOf(memberEntity.getCertificationId()));
         webClient.post()
                  .uri(uriBuilder -> uriBuilder.path("/v1/user/unlink")
                                               .build())
-                 .body(BodyInserters.fromValue(requestBody))
+                 .body(BodyInserters.fromFormData(requestBody))
                  .retrieve()
                  .toBodilessEntity()
                  .block();
