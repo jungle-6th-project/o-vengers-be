@@ -149,7 +149,7 @@ public class MemberService {
                                                     .orElseThrow(() -> new MemberNotFoundException(memberId));
         WebClient webClient = WebClient.builder()
                                        .baseUrl(kakaoUri)
-                                       .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                                        .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + adminKey)
                                        .build();
 
