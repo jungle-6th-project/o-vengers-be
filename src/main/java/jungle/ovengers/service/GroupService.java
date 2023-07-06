@@ -149,7 +149,7 @@ public class GroupService {
         memberGroupRepository.flush();
 
         // 해당 그룹에 속한 사용자가 더 이상 없다면 그룹 삭제
-        if (!memberGroupRepository.existsByGroupIdAndDeletedFalse(groupEntity.getId())) {
+        if (!memberGroupRepository.existsByGroupIdAndDeletedFalse(groupEntity.getId()) && groupEntity.getId() != 1L) {
             groupEntity.delete();
         }
 
@@ -180,6 +180,7 @@ public class GroupService {
         for (MemberGroupEntity memberGroupEntity : memberGroupEntities) {
             GroupEntity groupEntity = groupRepository.findByIdAndDeletedFalse(memberGroupEntity.getGroupId())
                                                      .orElseThrow(() -> new GroupNotFoundException(memberGroupEntity.getGroupId()));
+
             this.deleteSingleAssociation(groupEntity, memberEntity);
         }
     }
