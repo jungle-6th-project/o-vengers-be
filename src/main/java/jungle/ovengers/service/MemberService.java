@@ -157,7 +157,7 @@ public class MemberService {
         requestBody.put("target_id_type", "user_id");
         requestBody.put("target_id", memberEntity.getCertificationId());
         webClient.post()
-                 .uri(uriBuilder -> uriBuilder.path("/v1/user/logout")
+                 .uri(uriBuilder -> uriBuilder.path("/v1/user/unlink")
                                               .build())
                  .body(BodyInserters.fromValue(requestBody))
                  .retrieve()
