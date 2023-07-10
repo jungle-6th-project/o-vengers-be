@@ -29,7 +29,7 @@ JPA에서 제공하는 연관 관계 매핑 어노테이션을 사용하지 않�
 <div align="left">
 
 - 실시간성이 주요한 화상 채팅 기능은 별도의 ec2 인스턴스로 분리하였습니다. 이에 따라 하나의 도메인으로 요청에 따라 서로 다른 서버로 라우팅 시키기 위해, ALB를 사용하였습니다.
-- 서버 인스턴스와 데이터베이스 인스턴스를 별도의 서브넷으로 분리하여 격리 시켜, 데이터베이스 리소스에 대한 접근 안전성을 보장하였습니.
+- 서버 인스턴스와 데이터베이스 인스턴스를 별도의 서브넷으로 분리하여 격리 시켜, 데이터베이스 리소스에 대한 접근 안전성을 보장하였습니다.
 - 오토 스케일링을 지원하는 RDS Proxy를 사용하여 DB 가용성을 높였습니다.
 - CloudWatch를 사용하여 서버 로그를 간편하게 관리하였습니다.
 
@@ -45,13 +45,14 @@ JPA에서 제공하는 연관 관계 매핑 어노테이션을 사용하지 않�
 </div>
 
 
-# 👊기술적 챌린지👊
+# 👊백엔드 기술적 챌린지👊
 
 ### 🧊Cache Cold Start Issue🧊
 
 ![image](https://github.com/depromeet12th/three-days-server/assets/78407939/cfb18ed4-23ee-489c-acf9-ae2dd0fa778d)
 
+### 👥비동기 로직 Thread Pool 최대 크기 초과 문제👥
 
-
+<img width="467" alt="image" src="https://github.com/jungle-6th-project/o-vengers-be/assets/78407939/0020904e-b830-457c-9b26-b09595ff88da">
 
 </div>
