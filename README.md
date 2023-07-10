@@ -17,7 +17,8 @@
 
 # 📝Entity Relationship Diagram(ERD)📝
 
-![image](https://github.com/jungle-6th-project/o-vengers-be/assets/78407939/ffeed27f-ec70-46cd-91ea-4e21f0f2c09b)
+<img width="1044" alt="image" src="https://github.com/jungle-6th-project/o-vengers-be/assets/78407939/d032c316-bf07-4dbe-926b-85975eba330a">
+
 <div align="left">
 JPA에서 제공하는 연관 관계 매핑 어노테이션을 사용하지 않고, 해당 테이블이 참조하고자 하는 테이블의 키를 직접 저장하도록 하였습니다.
 이를 통해 3주라는 짧은 시간안에 개발해냈어야 하는 만큼, JPA로 인한 잠재적인 오류를 방지할 수 있었으며 N+1 문제를 방지할 수 있었습니다.
